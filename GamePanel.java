@@ -1,150 +1,169 @@
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Random;
 
-/**
-   A component that displays all the game entities
-*/
+public class GamePanel extends JPanel implements Runnable {
+    private Ali ali;
+    private ArrayList<NPC> npcs;
+    private Random random = new Random();
+    private Thread gameThread;
+    private TimerPanel timerPanel;
+    private SoundManager soundManager;
 
+    private int timeLeft = 60;
+    private boolean gameOver = false;
+    private Image backgroundImage;
+    private Font arcadeFont;
 
-//implemented runnable to use gameThread
-public class GamePanel extends JPanel implements Runnable{
-   
-   Ali ali;
-   ArrayList<NPC> npcs;
-   private Random random = new Random();
-   
-   Thread gameThread; //Keeps the program running until user stops it 
+    public GamePanel(Font arcadeFont) {
+        this.arcadeFont = arcadeFont;
+        this.soundManager = new SoundManager();
+        this.timerPanel = new TimerPanel(timeLeft, arcadeFont);
+        soundManager.playBackgroundMusic();
 
-   private TimerPanel timerPanel;
-   private static int timeLeft = 60;
-   private boolean gameOver = false;
+        backgroundImage = new ImageIcon("Background/Background1.png").getImage();
 
-
-   public GamePanel (TimerPanel timerPanel) {
-      ali = new Ali(this, 350, 550);
-      npcs = new ArrayList<>();
-      this.timerPanel = timerPanel;
-      createGameEntities();
-   }
-
-
-   public void createGameEntities() {
-      for (int i = 0; i < 5; i++) { // 3 Regular Students
-         npcs.add(new Student(this, random.nextInt(700), random.nextInt(412)));
-      }
-      for (int i = 0; i < 4; i++) { // 2 Lecturers
-         npcs.add(new Lecturer(this, random.nextInt(700), random.nextInt(412)));
-      }
-      for (int i = 0; i < 2; i++) { // 2 Yappers
-         npcs.add(new Yapper(this, random.nextInt(700), random.nextInt(412)));
-     }
-
-   }
-
-
-   public void drawGameEntities() {
-       if (ali != null) {
-         ali.draw();
-         
-      for (NPC npc : npcs) {
-         npc.draw();
-      }
+        setLayout(new BorderLayout());
+        add(timerPanel, BorderLayout.NORTH);
     }
-   }
 
+    public void startGame() {
+            ali = new Ali(this, getWidth() / 2 - 16, getHeight() - 50, soundManager, backgroundImage);
 
-   public void updateGameEntities() {
+            npcs = new ArrayList<>();
+            createGameEntities();
+            timeLeft = 60;
+            timerPanel.setTimeLeft(timeLeft);
+            gameOver = false;
 
-      if (ali != null) {
-         ali.erase();
-         ali.move(); 
-      }
-
-      for (NPC npc : npcs) {
-         npc.erase();
-         npc.move();
-      }
-
-      checkCollisions();
-
-   }
-
-
-   public void startGameThread(){
-      if (gameThread == null){
-         gameThread = new Thread(this);
-         gameThread.start();
-         startTimer();
-      }
-      
-   }
-
-   public void startTimer() {
-      Thread timerThread = new Thread(() -> {
-          while (timeLeft > 0 && !gameOver) {
-              try {
-                  Thread.sleep(1000); // ⏳ Wait for 1 second
-                  timeLeft--;  
-                  timerPanel.setTimeLeft(timeLeft); // Update Timer UI
-                  checkGameOver();
-              } catch (InterruptedException e) {
-                  e.printStackTrace();
-              }
-          }
-      });
-      timerThread.start();
-  }
-
-
-   public void checkGameOver() {
-    if (timeLeft <= 0 && !gameOver) {
-        gameOver = true;
-        JOptionPane.showMessageDialog(this, "Game Over! Time is up.", "Game Over", JOptionPane.WARNING_MESSAGE);
+            requestFocusInWindow(); // Fix keyboard input issues
+            startGameThread();
+            startTimer();
     }
-}
+
+    public void createGameEntities() {
+        npcs.clear(); // Make sure no duplicate NPCs appear
+        for (int i = 0; i < 5; i++) {
+            npcs.add(new Student(this, random.nextInt(getWidth()), random.nextInt(getHeight()), backgroundImage));
+        }
+        for (int i = 0; i < 4; i++) {
+            npcs.add(new Lecturer(this, random.nextInt(getWidth()), random.nextInt(getHeight()), backgroundImage));
+        }
+        for (int i = 0; i < 2; i++) {
+            npcs.add(new Yapper(this, random.nextInt(getWidth()), random.nextInt(getHeight()), backgroundImage));
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+
+        // Draw exit door
+        g.setColor(Color.DARK_GRAY);
+        g.fillRect(getWidth() / 2 - 50, 5, 100, 40);
+        g.setColor(Color.WHITE);
+        g.drawString("EXIT", getWidth() / 2 - 15, 30);
+
+        if (ali != null) {
+            ali.draw(g);
+        }
+        for (NPC npc : npcs) {
+            npc.draw(g);
+        }
+    }
+
+    public void updateGameEntities() {
+        if (!gameOver && ali != null) {
+            ali.move();
+            for (NPC npc : npcs) {
+                npc.move();
+            }
+            checkCollisions();
+            repaint();
+        }
+    }
+
+    public void startTimer() {
+        new Thread(() -> {
+            while (timeLeft > 0 && !gameOver) {
+                try {
+                    Thread.sleep(1000);
+                    SwingUtilities.invokeLater(() -> timerPanel.setTimeLeft(timeLeft--));
+                    checkGameOver();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+public void checkCollisions() {
+        for (NPC npc : npcs) {
+            for (NPC other : npcs) {
+                if (npc != other && npc.getBounds().intersects(other.getBounds())) {
+                    npc.reverseDirection();
+                    other.reverseDirection();
+                }
+            }
+
+            if (ali.getBounds().intersects(npc.getBounds())) {
+                if (!npc.hasCollided) {
+                    int timePenalty = (npc instanceof Student) ? 3 :
+                                      (npc instanceof Lecturer) ? 5 :
+                                      (npc instanceof Yapper) ? 10 : 0;
+
+                    timerPanel.setTimeLeft(timeLeft -= timePenalty);
+                    System.out.println("Ali hit an NPC! -" + timePenalty + " seconds!");
+                    npc.hasCollided = true;
+                }
+                npc.reverseDirection();
+            } else {
+                npc.hasCollided = false;
+            }
+        }
+    }
 
 
-   public void checkCollisions() {
-      for (NPC npc : npcs) {
-          if (ali.getBounds().intersects(npc.getBounds())) {
-              
-              // Deduct time based on NPC type (only once per collision)
-              if (!npc.hasCollided) {
-                  if (npc instanceof Student) {
-                      timerPanel.setTimeLeft(timeLeft -= 3);
-                      System.out.println("Ali hit a Student! -3 seconds!");
-                  } else if (npc instanceof Lecturer) {
-                      timerPanel.setTimeLeft(timeLeft -= 5);
-                      System.out.println("Ali hit a Lecturer! -5 seconds!");
-                  } else if (npc instanceof Yapper) {
-                      timerPanel.setTimeLeft(timeLeft -= 10);
-                      System.out.println("Ali hit a Yapper! -10 seconds!");
-                  }
-                  npc.hasCollided = true; // Prevent multiple deductions
-              }
-  
-              // Bounce NPC away from Ali
-              npc.reverseDirection();
-          } else {
-              // Reset collision state when not touching
-              npc.hasCollided = false;
-          }
-      }
-  }
+    public void checkGameOver() {
+        if (timeLeft <= 0 && !gameOver) {
+            gameOver = true;
+            soundManager.stopBackgroundMusic();
+            soundManager.playGameOver();
+            JOptionPane.showMessageDialog(this, "Game Over! Time ran out.", "Game Over", JOptionPane.WARNING_MESSAGE);
+            System.exit(0);
+        }
+    }
 
-   @Override
-   public void run() {
-      while (true) {
-          updateGameEntities();
-          drawGameEntities();
-          try {
-              Thread.sleep(16); // ~60 FPS
-          } catch (InterruptedException e) {
-              e.printStackTrace();
-          }
-      }
-  }
+    public void handleKeyPress(int keyCode) {
+        if (ali != null) {
+            ali.keyPressed(keyCode);
+        }
+    }
 
+    public void handleKeyRelease(int keyCode) {
+        if (ali != null) {
+            ali.keyReleased(keyCode);
+        }
+    }
+
+    public void startGameThread() {
+        if (gameThread == null || !gameThread.isAlive()) {
+            gameThread = new Thread(this);
+            gameThread.start();
+        }
+    }
+
+    @Override
+    public void run() {
+        while (!gameOver) {
+            updateGameEntities();
+            try {
+                Thread.sleep(16);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

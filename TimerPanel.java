@@ -3,24 +3,38 @@ import java.awt.*;
 
 public class TimerPanel extends JPanel {
     private int timeLeft;
+    private Font arcadeFont;
 
-    public TimerPanel(int startTime) {
+    public TimerPanel(int startTime, Font arcadeFont) {
         this.timeLeft = startTime;
-        setPreferredSize(new Dimension(800, 50)); // Fixed size for top panel
-        setBackground(Color.ORANGE);
+        this.arcadeFont = arcadeFont != null ? arcadeFont : new Font("Arial", Font.BOLD, 24);
+        setPreferredSize(new Dimension(800, 50)); // Fixed size at the top
+        setBackground(new Color(0, 0, 0, 100)); // Semi-transparent black background
+        setDoubleBuffered(true); // Enable double buffering
     }
 
-    // Update the displayed time
     public void setTimeLeft(int timeLeft) {
         this.timeLeft = timeLeft;
-        repaint(); // Refresh panel
+        repaint(); // Only repaint when time changes
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("Arial", Font.BOLD, 24));
-        g.drawString("Time Left: " + timeLeft + "s", 20, 30);
+        Graphics2D g2d = (Graphics2D) g;
+
+        // Enable anti-aliasing for smooth text
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // Set font & color
+        g2d.setFont(arcadeFont);
+        g2d.setColor(Color.WHITE);
+
+        // Draw text centered
+        String text = "Time Left: " + timeLeft + "s";
+        FontMetrics fm = g2d.getFontMetrics();
+        int x = (getWidth() - fm.stringWidth(text)) / 2;
+        int y = (getHeight() + fm.getAscent()) / 2 - fm.getDescent();
+        g2d.drawString(text, x, y);
     }
 }

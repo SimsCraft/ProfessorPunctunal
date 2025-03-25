@@ -1,10 +1,8 @@
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.Image;
 
 public class Yapper extends NPC {
-    @SuppressWarnings("unused")
-    private final int chaseRange = 100;
-
-    public Yapper(GamePanel panel, int xPos, int yPos) {
-        super(panel, xPos, yPos, 4, Color.RED); // Fast speed
+    public Yapper(JPanel panel, int xPos, int yPos, Image backgroundImage) {
+        super(panel, xPos, yPos, 4, "Yapper/yap", backgroundImage); // Fast speed
     }
 }

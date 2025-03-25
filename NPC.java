@@ -1,12 +1,9 @@
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.util.Random;
 import javax.swing.JPanel;
 
 public class NPC {
-    private int width = 32, height = 32;
-    private Color npcColor;
-    private Color backgroundColour;
+    private int width = 32, height = 46;
     private int x, y;
     private int dx, dy;
     private int speed;
@@ -14,39 +11,35 @@ public class NPC {
     private Random random = new Random();
     public boolean hasCollided = false;
     private int moveDelay = 0;
+    private NPCAnimation npcAnimation;
+    private Image backgroundImage;
 
-    public NPC(JPanel p, int xPos, int yPos, int speed, Color color) {
+    public NPC(JPanel p, int xPos, int yPos, int speed, String type, Image bgImage) {
         this.panel = p;
         this.x = xPos;
         this.y = yPos;
         this.speed = speed;
-        this.npcColor = color;
+        this.npcAnimation = new NPCAnimation(type);
+        this.backgroundImage = bgImage;
         setRandomDirection();
     }
 
-    // Set a random direction for movement
     protected void setRandomDirection() {
-        // Pick a random direction from 8 possible ones
-        int[] directions = {-1, 0, 1}; // -1 = left/up, 1 = right/down, 0 = stay
+        int[] directions = {-1, 0, 1};
         dx = directions[random.nextInt(3)] * speed;
         dy = directions[random.nextInt(3)] * speed;
-
-        // Ensure NPC actually moves
         if (dx == 0 && dy == 0) {
             setRandomDirection();
         }
     }
 
-    // Move NPCs in their current direction
     public void move() {
-        if (moveDelay % 4 == 0) { // NPCs move every 4 frames
+        if (moveDelay % 4 == 0) {
             x += dx;
             y += dy;
-
             if (random.nextInt(50) == 1) {
                 setRandomDirection();
             }
-
             if (x < 0 || x > panel.getWidth() - width) {
                 dx = -dx;
                 setRandomDirection();
@@ -59,36 +52,23 @@ public class NPC {
         moveDelay++;
     }
 
-
     public void reverseDirection() {
         dx = -dx;
         dy = -dy;
     }
 
-
-    public void draw() {
-        Graphics g = panel.getGraphics();
-        if (g != null) {
-            Graphics2D g2 = (Graphics2D) g;
-            g2.setColor(npcColor);
-            g2.fill(new Rectangle2D.Double(x, y, width, height)); 
-            g.dispose();
-        }
+    public void draw(Graphics g) {
+        npcAnimation.draw(x, y, g, dx, dy);
     }
 
-    public void erase(){
-        Graphics g = panel.getGraphics ();
-        Graphics2D g2 = (Graphics2D) g;
-        
-        backgroundColour = panel.getBackground ();
-        g2.setColor (backgroundColour);
-        g2.fill (new Rectangle2D.Double (x-10, y-10, 30+20, 45+20));
-  
-        g.dispose();
-    }
+    // public void erase(Graphics g) {
+    //     if (backgroundImage != null) {
+    //         g.drawImage(backgroundImage, x - 5, y - 5, x + width + 5, y + height + 5, 
+    //                     x - 5, y - 5, x + width + 5, y + height + 5, null);
+    //     }
+    // }
 
-    // Get NPC position for collision detection
     public Rectangle getBounds() {
-        return new Rectangle(x, y, 32, 32);
+        return new Rectangle(x, y, width, height);
     }
 }
