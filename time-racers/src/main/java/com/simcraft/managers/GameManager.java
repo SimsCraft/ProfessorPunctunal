@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 import javax.swing.Timer;
 
-import com.simcraft.entities.Player;
+import com.simcraft.entities.Ali;
 import com.simcraft.entities.bullets.BulletSpawner;
 import com.simcraft.graphics.GameFrame;
 import com.simcraft.graphics.dialogue.PauseMenuDialogue;
@@ -100,7 +100,7 @@ public class GameManager implements Updateable {
     /**
      * The player character.
      */
-    private Player player;
+    private Ali player;
     /**
      * Reference to the where all game entities are displayed.
      */
@@ -138,11 +138,11 @@ public class GameManager implements Updateable {
     }
 
     /**
-     * Returns the current active {@link Player}.
+     * Returns the current active {@link Ali}.
      *
      * @return The player.
      */
-    public Player getPlayer() {
+    public Ali getPlayer() {
         ensureInitialized("getPlayer");
         return player;
     }
@@ -294,7 +294,7 @@ public class GameManager implements Updateable {
     }
 
     /**
-     * Initialises the {@link Player} character.
+     * Initialises the {@link Ali} character.
      */
     private void initialisePlayer() {
         if (currentState != GameState.INITIALIZING) {
@@ -311,7 +311,7 @@ public class GameManager implements Updateable {
                 "player-walk-up"
         ).collect(Collectors.toCollection(HashSet::new));
 
-        player = new Player.PlayerBuilder(gamePanel)
+        player = new Ali.PlayerBuilder(gamePanel)
                 .invisibility(false)
                 .collidability(true)
                 .animationKeys(playerAnimationKeys)

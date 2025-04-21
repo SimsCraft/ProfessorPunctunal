@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Player {
+public class Ali {
     private JPanel panel;
     private int x, y;
     private int width, height;
@@ -15,7 +15,7 @@ public class Player {
     private Image backgroundImage;
     private SoundManager soundManager;
 
-    public Player(JPanel p, int xPos, int yPos, SoundManager soundManager, Image bgImage) {
+    public Ali(JPanel p, int xPos, int yPos, SoundManager soundManager, Image bgImage) {
         panel = p;
         x = xPos;
         y = yPos;

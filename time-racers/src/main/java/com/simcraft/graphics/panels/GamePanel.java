@@ -12,7 +12,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import com.simcraft.entities.Player;
+import com.simcraft.entities.Ali;
 import com.simcraft.entities.Lecturer;
 import com.simcraft.entities.NPC;
 import com.simcraft.entities.Student;
@@ -21,7 +21,7 @@ import com.simcraft.managers.SoundManager;
 
 public class GamePanel extends JPanel implements Runnable {
 
-    private Player ali;
+    private Ali ali;
     private ArrayList<NPC> npcs;
     private Random random = new Random();
     private Thread gameThread;
@@ -46,7 +46,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void startGame() {
-        ali = new Player(this, getWidth() / 2 - 16, getHeight() - 50, soundManager, backgroundImage);
+        ali = new Ali(this, getWidth() / 2 - 16, getHeight() - 50, soundManager, backgroundImage);
 
         npcs = new ArrayList<>();
         createGameEntities();
