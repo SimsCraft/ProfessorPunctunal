@@ -14,8 +14,7 @@ import com.simcraft.graphics.animations.AnimationInstance;
 import com.simcraft.graphics.animations.AnimationTemplate;
 import com.simcraft.interfaces.Renderable;
 import com.simcraft.interfaces.Updateable;
-
-import managers.AnimationManager;
+import com.simcraft.managers.AnimationManager;
 
 /**
  * Represents a base entity in the game, providing common functionality for all

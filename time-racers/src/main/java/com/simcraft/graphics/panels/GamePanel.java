@@ -1,17 +1,27 @@
 package com.simcraft.graphics.panels;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Random;
-import com.simcraft.entities.Ali;
+
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+import com.simcraft.entities.Player;
+import com.simcraft.entities.Lecturer;
 import com.simcraft.entities.NPC;
+import com.simcraft.entities.Student;
+import com.simcraft.entities.Yapper;
 import com.simcraft.managers.SoundManager;
 
 public class GamePanel extends JPanel implements Runnable {
 
-    private Ali ali;
+    private Player ali;
     private ArrayList<NPC> npcs;
     private Random random = new Random();
     private Thread gameThread;
@@ -25,7 +35,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public GamePanel(Font arcadeFont) {
         this.arcadeFont = arcadeFont;
-        this.soundManager = new SoundManager();
+        this.soundManager = SoundManager.getInstance();
         this.timerPanel = new TimerPanel(timeLeft, arcadeFont);
         soundManager.playBackgroundMusic();
 
@@ -36,7 +46,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void startGame() {
-        ali = new Ali(this, getWidth() / 2 - 16, getHeight() - 50, soundManager, backgroundImage);
+        ali = new Player(this, getWidth() / 2 - 16, getHeight() - 50, soundManager, backgroundImage);
 
         npcs = new ArrayList<>();
         createGameEntities();
