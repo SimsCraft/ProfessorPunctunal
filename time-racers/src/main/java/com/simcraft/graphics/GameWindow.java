@@ -18,7 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import com.simcraft.graphics.panels.GamePanel;
+import com.simcraft.graphics.screens.subpanels.GamePanel;
 
 public class GameWindow extends JFrame implements ActionListener, KeyListener, MouseListener {
 

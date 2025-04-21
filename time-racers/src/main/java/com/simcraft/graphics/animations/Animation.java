@@ -2,7 +2,7 @@ package com.simcraft.graphics.animations;
 import java.awt.Image;
 import java.util.ArrayList;
 
-import com.simcraft.graphics.panels.GamePanel;
+import com.simcraft.graphics.screens.subpanels.GamePanel;
 
 @SuppressWarnings("unused")
 /**

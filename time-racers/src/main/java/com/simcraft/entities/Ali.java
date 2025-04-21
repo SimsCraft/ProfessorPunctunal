@@ -2,6 +2,7 @@ package com.simcraft.entities;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import javax.swing.JPanel;
@@ -57,12 +58,11 @@ public class Ali extends MobileEntity {
     }
 
     public void resetPosition() {
-        x = 350;
-        y = 550;
+        setPosition(new Point(350, 550));
     }
 
     public void draw(Graphics g) {
-        aliAnimation.draw(x, y, g);
+        aliAnimation.draw(getX(), getY(), g);
     }
 
     public void keyPressed(int keyCode) {

@@ -1,4 +1,4 @@
-package com.simcraft.graphics.panels;
+package com.simcraft.graphics.screens.subpanels;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;

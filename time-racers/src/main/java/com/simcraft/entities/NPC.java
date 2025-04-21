@@ -1,7 +1,13 @@
 package com.simcraft.entities;
-import java.awt.*;
+
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Rectangle;
 import java.util.Random;
+
 import javax.swing.JPanel;
+
+import com.simcraft.graphics.animations.NPCAnimation;
 
 public class NPC {
     private int width = 32, height = 46;

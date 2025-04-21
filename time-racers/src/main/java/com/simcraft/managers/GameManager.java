@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 import javax.swing.Timer;
 
 import com.simcraft.entities.Ali;
-import com.simcraft.entities.bullets.BulletSpawner;
 import com.simcraft.graphics.GameFrame;
 import com.simcraft.graphics.dialogue.PauseMenuDialogue;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
@@ -117,7 +116,6 @@ public class GameManager implements Updateable {
     private GameManager() {
         currentState = GameState.NOT_INITIALIZED;
         enemyManager = new EnemyManager();
-        bulletManager = new BulletManager();
     }
 
     // ----- GETTERS -----

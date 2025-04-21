@@ -6,10 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.rikuthin.App;
-
-import managers.AnimationManager;
-import managers.ImageManager;
+import com.simcraft.App;
+import com.simcraft.managers.AnimationManager;
+import com.simcraft.managers.ImageManager;
 
 /**
  * Utility class for loading animations from sprite sheets (strip files).

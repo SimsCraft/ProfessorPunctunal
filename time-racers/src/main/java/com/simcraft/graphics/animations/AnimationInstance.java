@@ -3,7 +3,7 @@ package com.simcraft.graphics.animations;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 
-import com.rikuthin.interfaces.Updateable;
+import com.simcraft.interfaces.Updateable;
 
 /**
  * Represents an individual animation instance for an entity. Each instance has

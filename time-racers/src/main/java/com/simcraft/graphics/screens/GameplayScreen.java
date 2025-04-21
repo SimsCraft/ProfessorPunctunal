@@ -115,7 +115,7 @@ public final class GameplayScreen extends Screen {
              * Updates the player's movement based on the current key states.
              */
             private void updateMovement() {
-                Player player = gameManager.getPlayer();
+                Ali player = gameManager.getPlayer();
                 int speed = keyStates.getOrDefault(KeyEvent.VK_SHIFT, false) ? BASE_SPEED / 2 : BASE_SPEED;
                 int velocityX = 0;
                 int velocityY = 0;
