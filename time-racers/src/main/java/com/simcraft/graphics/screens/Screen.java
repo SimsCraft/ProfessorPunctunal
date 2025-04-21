@@ -11,7 +11,7 @@ import com.simcraft.interfaces.Renderable;
 import com.simcraft.interfaces.Updateable;
 
 /**
- * Abstract base class for all game screens (e.g., main menu, gameplay).
+ * Abstract base class for all game screens (e.g., welcome, main menu, gameplay).
  * Provides a structure for updating and rendering screens.
  */
 public abstract class Screen extends JPanel implements Updateable, Renderable {
