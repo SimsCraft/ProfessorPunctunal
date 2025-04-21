@@ -1,4 +1,4 @@
-package com.rikuthin.entities;
+package com.simcraft.entities;
 
 import java.util.Objects;
 

@@ -1,19 +1,49 @@
 package com.simcraft.entities;
-import java.awt.*;
+
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import javax.swing.JPanel;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Ali {
-    private JPanel panel;
-    private int x, y;
-    private int width, height;
+import com.simcraft.graphics.animations.AliAnimation;
+import com.simcraft.managers.SoundManager;
+
+/**
+ * Represents the main playable character, Mr. Ali. Extends the MobileEntity
+ * class.
+ */
+public class Ali extends MobileEntity {
+
     private final int SPEED = 4;
     private Set<Integer> pressedKeys = new HashSet<>();
     private AliAnimation aliAnimation;
     private Image backgroundImage;
     private SoundManager soundManager;
+
+    public Ali(AliBuilder builder) {
+        super(builder);
+    }
+
+    // ----- BUILDER PATTERN -----
+    /**
+     * The MobileEntityBuilder class provides a fluent API for constructing an
+     * MobileEntity object.
+     */
+    public static class AliBuilder extends MobileEntityBuilder<AliBuilder> {
+
+        // ------ CONSTRUCTORS -----
+        public AliBuilder(final JPanel panel) {
+            super(panel);
+        }
+        // ----- BUSINESS LOGIC METHODS -----
+
+        public Ali build() {
+            return new Ali(this);
+        }
+    }
 
     public Ali(JPanel p, int xPos, int yPos, SoundManager soundManager, Image bgImage) {
         panel = p;
@@ -24,14 +54,6 @@ public class Ali {
         aliAnimation = new AliAnimation();
         this.soundManager = soundManager;
         this.backgroundImage = bgImage;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public int getX() {
-        return x;
     }
 
     public void resetPosition() {
@@ -55,7 +77,7 @@ public class Ali {
 
     public void move() {
         int dx = 0, dy = 0;
-    
+
         if (pressedKeys.contains(KeyEvent.VK_LEFT)) {
             dx = -1;
         }
@@ -68,21 +90,21 @@ public class Ali {
         if (pressedKeys.contains(KeyEvent.VK_DOWN)) {
             dy = 1;
         }
-    
+
         // Normalize the movement vector to ensure diagonal movement is not faster
         double length = Math.sqrt(dx * dx + dy * dy);
         if (length != 0) {  // Avoid division by zero
             dx = (int) Math.round((dx / length) * SPEED);
             dy = (int) Math.round((dy / length) * SPEED);
         }
-    
+
         int newX = x + dx;
         int newY = y + dy;
-    
+
         // Keep Mr. Ali within screen boundaries
         newX = Math.max(0, Math.min(panel.getWidth() - width, newX));
         newY = Math.max(0, Math.min(panel.getHeight() - height, newY));
-    
+
         x = newX;
         y = newY;
     }
@@ -99,9 +121,5 @@ public class Ali {
         } else {
             aliAnimation.stopWalking();
         }
-    }
-
-    public Rectangle getBounds() {
-        return new Rectangle(x, y, width, height);
     }
 }

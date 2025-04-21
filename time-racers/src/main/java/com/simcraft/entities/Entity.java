@@ -41,11 +41,6 @@ public abstract class Entity implements Updateable, Renderable {
     protected Point position;
 
     /**
-     * Flag indicating whether the entity is invisible or not.
-     */
-    protected boolean isInvisible;
-
-    /**
      * A set of all the animation keys (names) associated with the entity.
      */
     protected HashSet<String> animationKeys;
@@ -97,7 +92,6 @@ public abstract class Entity implements Updateable, Renderable {
 
         this.panel = builder.panel;
         this.position = builder.position;
-        this.isInvisible = builder.isInvisible;
         this.animationKeys = builder.animationKeys;
         this.hitbox = builder.hitbox;
         this.isCollidable = builder.isCollidable;
@@ -144,15 +138,6 @@ public abstract class Entity implements Updateable, Renderable {
      */
     public int getY() {
         return position.y;
-    }
-
-    /**
-     * Returns whether the entity is invisible (doesn't render its sprite).
-     *
-     * @return {@code true} if the entity is invisible, {@code false} otherwise.
-     */
-    public boolean isInvisible() {
-        return isInvisible;
     }
 
     /**
@@ -261,16 +246,6 @@ public abstract class Entity implements Updateable, Renderable {
      */
     public void setPosition(Point position) {
         this.position = new Point(position);
-    }
-
-    /**
-     * Sets whether the entity is invisible.
-     *
-     * @param isInvisible true to make the entity invisible, false to make it
-     * visible.
-     */
-    public void setInvisibility(boolean isInvisible) {
-        this.isInvisible = isInvisible;
     }
 
     /**
@@ -507,7 +482,6 @@ public abstract class Entity implements Updateable, Renderable {
         Entity other = (Entity) obj;
         return Objects.equals(panel, other.getPanel())
                 && Objects.equals(position, other.getPosition())
-                && isInvisible == other.isInvisible()
                 && Objects.equals(animationKeys, other.getAnimationKeys())
                 && Objects.equals(currentAnimationKey, other.getCurrentAnimationKey())
                 && Objects.equals(hitbox, other.getHitbox())
@@ -526,7 +500,6 @@ public abstract class Entity implements Updateable, Renderable {
         return Objects.hash(
                 panel,
                 position,
-                isInvisible,
                 animationKeys,
                 currentAnimationKey,
                 hitbox,
@@ -556,7 +529,7 @@ public abstract class Entity implements Updateable, Renderable {
     public void render(final Graphics2D g2d) {
         BufferedImage currentSprite = currentAnimation.getCurrentFrameImage();
 
-        if (!isInvisible && currentSprite != null) {
+        if (currentSprite != null) {
             g2d.drawImage(currentSprite, position.x, position.y, getSpriteWidth(), getSpriteHeight(), null);
         }
     }
@@ -580,7 +553,6 @@ public abstract class Entity implements Updateable, Renderable {
 
         private JPanel panel = null;
         private Point position = new Point(0, 0);
-        private boolean isInvisible = false;
         private HashSet<String> animationKeys = new HashSet<>();
         private String currentAnimationKey = null;
         private Rectangle hitbox = new Rectangle(0, 0, 0, 0);
@@ -608,17 +580,6 @@ public abstract class Entity implements Updateable, Renderable {
          */
         public T position(final Point position) {
             this.position = position;
-            return self();
-        }
-
-        /**
-         * Sets the invisibility flag for the entity.
-         *
-         * @param isInvisible The invisibility flag.
-         * @return The builder instance.
-         */
-        public T invisibility(final boolean isInvisible) {
-            this.isInvisible = isInvisible;
             return self();
         }
 
