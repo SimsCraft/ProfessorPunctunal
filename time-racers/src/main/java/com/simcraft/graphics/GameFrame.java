@@ -94,7 +94,7 @@ public final class GameFrame extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         // ----- GAME INITIALIZATION ----- 
-        AnimationLoader.loadDefaultAnimations();
+        AnimationLoader.loadAnimationsFromJson();
         setScreen(new WelcomeScreen(this));
 
         // ----- RENDERING SETUP -----
