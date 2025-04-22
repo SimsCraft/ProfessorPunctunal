@@ -63,7 +63,7 @@ public class SoundManager {
     private void loadDefaultClips() {
         loadAndStoreClip("background", "background.wav");
         loadAndStoreClip("footstep", "footstep.wav");
-        loadAndStoreClip("game-over", "game-over.wav");
+        loadAndStoreClip("game_over", "game_over.wav");
     }
 
     // ----- SINGLETON GETTER -----

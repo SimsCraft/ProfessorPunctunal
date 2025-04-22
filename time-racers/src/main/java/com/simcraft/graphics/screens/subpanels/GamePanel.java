@@ -7,6 +7,7 @@ import java.util.Set;
 import com.simcraft.entities.Ali;
 import com.simcraft.entities.enemies.Enemy;
 import com.simcraft.managers.GameManager;
+import com.simcraft.managers.ImageManager;
 
 /**
  * A component that displays all the game entities
@@ -19,6 +20,8 @@ public class GamePanel extends Subpanel {
 
         // Background colour used as a backup in case the image deosn't load.
         setBackground(new Color(200, 170, 170));
+        backgroundImage = ImageManager.loadBufferedImage("background/background_1.png");
+
     }
 
     // ----- OVERRIDDEN METHODS -----

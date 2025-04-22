@@ -73,7 +73,7 @@ public class Lecturer extends Enemy {
         ).collect(Collectors.toCollection(HashSet::new));
 
         setAnimationKeys(studentAnimationKeys);
-        setAnimation("female_l/female_lecturer_walk_down.png");
+        setAnimation("female-lecturer/female_lecturer_walk_down.png");
         setMaxHitPoints(20);
         setCurrentHitPoints(20);
     }

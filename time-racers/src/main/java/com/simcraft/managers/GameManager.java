@@ -134,7 +134,7 @@ public class GameManager implements Updateable {
      * @return The player.
      */
     public Ali getAli() {
-        ensureInitialized("getPlayer");
+        ensureInitialized("getAli");
         return ali;
     }
 
@@ -202,7 +202,7 @@ public class GameManager implements Updateable {
         // Transition to initializing state during setup
         currentState = GameState.INITIALIZING;
 
-        initialisePlayer();
+        initialiseAli();
         enemyManager.init();
         // setGamePaused(false);
 
@@ -277,29 +277,29 @@ public class GameManager implements Updateable {
     }
 
     /**
-     * Initialises the {@link Player} character.
+     * Initialises the player character, Mr. {@link Ali}.
      */
-    private void initialisePlayer() {
+    private void initialiseAli() {
         if (currentState != GameState.INITIALIZING) {
             throw new IllegalStateException(
-                    "Cannot initialise player without being in the INITIALIZING state."
+                    "Cannot initialise player/Ali without being in the INITIALIZING state."
             );
         }
 
         HashSet<String> playerAnimationKeys = Stream.of(
-                "player-death",
-                "player-idle",
-                "player-walk-up-left",
-                "player-walk-up-right",
-                "player-walk-up"
+                "ali_walk_down",
+                "ali_walk_left",
+                "ali_walk_right",
+                "ali_walk_up"
         ).collect(Collectors.toCollection(HashSet::new));
 
         ali = new Ali.AliBuilder(gamePanel)
                 .collidability(true)
                 .animationKeys(playerAnimationKeys)
-                .currentAnimationKey("player-idle")
+                .currentAnimationKey("ali_walk_right")
                 .maxHitPoints(20)
                 .currentHitPoints(20)
+                .speed(4)
                 .build();
 
         // Trying to do this dynamically wasn't working, so hard-coding for now

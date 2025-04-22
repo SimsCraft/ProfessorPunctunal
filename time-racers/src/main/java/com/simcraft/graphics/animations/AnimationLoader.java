@@ -1,7 +1,5 @@
 package com.simcraft.graphics.animations;
 
-import static com.simcraft.App.FRAME_RATE_MS;
-
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -9,14 +7,14 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.simcraft.managers.AnimationManager;
-import com.simcraft.managers.ImageManager;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import static com.simcraft.App.FRAME_RATE_MS;
+import com.simcraft.managers.AnimationManager;
+import com.simcraft.managers.ImageManager;
 
 /**
  * Utility class for loading animations from sprite sheets (strip files) and
@@ -148,8 +146,9 @@ public class AnimationLoader {
                 // Create an AnimationTemplate
                 AnimationTemplate animationTemplate = new AnimationTemplate(frames, config.isLooping);
 
-                // Generate a unique key for the animation from the file name (without the extension)
-                String animationKey = config.fileName.substring(0, config.fileName.lastIndexOf('.'));
+                // Generate a unique key for the animation from the file name (without the extension or parent directory)
+                String fileNameOnly = java.nio.file.Paths.get(config.fileName).getFileName().toString();
+                String animationKey = fileNameOnly.substring(0, fileNameOnly.lastIndexOf('.'));
 
                 // Add the animation to the AnimationManager
                 AnimationManager.getInstance().addAnimation(animationKey, animationTemplate);

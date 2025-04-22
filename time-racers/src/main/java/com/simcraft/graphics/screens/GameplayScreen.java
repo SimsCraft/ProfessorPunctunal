@@ -56,7 +56,7 @@ public final class GameplayScreen extends AbstractScreen {
 
         SoundManager soundManager = SoundManager.getInstance();
         soundManager.stopAll();
-        soundManager.playClip("goblinsDance", true);
+        soundManager.playClip("background", true);
     }
 
     // ----- GETTERS -----
@@ -111,35 +111,44 @@ public final class GameplayScreen extends AbstractScreen {
     private KeyAdapter createKeyListener() {
         return new KeyAdapter() {
             /**
-             * Updates the player/Ali's movement based on the current key states.
+             * Updates the player/Ali's movement based on the current key
+             * states.
              */
             private void updateAliMovement() {
                 Ali ali = gameManager.getAli();
                 int speed = keyStates.getOrDefault(KeyEvent.VK_SHIFT, false) ? BASE_SPEED / 2 : BASE_SPEED;
                 int velocityX = 0;
                 int velocityY = 0;
-                String animationKey = "player-idle";
+                // TODO Add proper idle sprite
+                String animationKey = "ali_walk_down";
 
                 if (keyStates.getOrDefault(KeyEvent.VK_W, false) || keyStates.getOrDefault(KeyEvent.VK_UP, false)) {
                     velocityY = speed;
-                    animationKey = "player-walk-up";
+                    animationKey = "ali_walk_up";
                 }
                 if (keyStates.getOrDefault(KeyEvent.VK_S, false) || keyStates.getOrDefault(KeyEvent.VK_DOWN, false)) {
                     velocityY = -speed;
-                    animationKey = "player-walk-up";
+                    animationKey = "ali_walk_down";
                 }
                 if (keyStates.getOrDefault(KeyEvent.VK_A, false) || keyStates.getOrDefault(KeyEvent.VK_LEFT, false)) {
                     velocityX = -speed;
-                    animationKey = "player-walk-up-left";
+                    animationKey = "ali_walk_up_left";
                 }
                 if (keyStates.getOrDefault(KeyEvent.VK_D, false) || keyStates.getOrDefault(KeyEvent.VK_RIGHT, false)) {
                     velocityX = speed;
-                    animationKey = "player-walk-up-right";
+                    animationKey = "ali_walk_up_right";
+                }
+
+                // Normalize the movement vector to ensure diagonal movement is not faster
+                double length = Math.sqrt(Math.pow(velocityX, 2) + Math.pow(velocityY, 2));
+                if (length != 0) {  // Avoid division by zero
+                    velocityX = (int) Math.round((velocityX / length) * speed);
+                    velocityY = (int) Math.round((velocityX / length) * speed);
                 }
 
                 ali.setVelocityX(velocityX);
                 ali.setVelocityY(velocityY);
-                ali.setAnimation((velocityX == 0 && velocityY == 0) ? "player-idle" : animationKey);
+                ali.setAnimation((velocityX == 0 && velocityY == 0) ? "ali_walk_down" : animationKey);
             }
 
             @Override

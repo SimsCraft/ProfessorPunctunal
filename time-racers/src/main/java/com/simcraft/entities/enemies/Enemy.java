@@ -2,9 +2,11 @@ package com.simcraft.entities.enemies;
 
 import java.awt.Point;
 import java.util.Objects;
+import java.util.Random;
 
 import javax.swing.JPanel;
 
+import com.simcraft.entities.Ali;
 import com.simcraft.entities.MobileEntity;
 import com.simcraft.graphics.GameFrame;
 
@@ -18,6 +20,11 @@ import com.simcraft.graphics.GameFrame;
 public class Enemy extends MobileEntity {
 
     /**
+     * The cooldown duration before the enemy can move again after a previous
+     * movement opportunity.
+     */
+    protected int moveDelay;
+    /**
      * The duration (in milliseconds) an enemy can continuously attack before
      * needing to cool down.
      */
@@ -29,10 +36,6 @@ public class Enemy extends MobileEntity {
     /**
      * The cooldown duration (in milliseconds) before the enemy can attack again
      * after an attack wave ends.
-     * <p>
-     * This is separate from the {@link BulletSpawner}'s spawn delay, as it
-     * controls the waiting time between attack waves rather than the firing
-     * rate within a wave.
      */
     protected long attackCooldownMs;
     /**
@@ -43,6 +46,10 @@ public class Enemy extends MobileEntity {
      * The timestamp (in milliseconds) of the last update call.
      */
     protected long lastUpdateTime;
+    /**
+     * Internally used random numbe generator.
+     */
+    protected Random random;
 
     // ----- CONSTRUCTORS -----
     /**
@@ -52,9 +59,20 @@ public class Enemy extends MobileEntity {
      */
     public Enemy(EnemyBuilder builder) {
         super(builder);
+        random = new Random();
     }
 
     // ---- GETTERS -----
+    /**
+     * Returns the cooldown duration before the enemy can move again after a
+     * previous movement opportunity.
+     * 
+     * @return the movement delay.
+     */
+    public int getMoveDelay() {
+        return moveDelay;
+    }
+
     /**
      * Returns whether the enemy is attacking/firing bullets.
      *
@@ -99,6 +117,16 @@ public class Enemy extends MobileEntity {
 
     // ---- SETTERS -----
     /**
+     * Sets the cooldown duration before the enemy can move again after a
+     * previous movement opportunity.
+     * 
+     * @param moveDelay The movement delay.
+     */
+    public void setMoveDelay(final int moveDelay) {
+        this.moveDelay = moveDelay;
+    }
+
+    /**
      * Sets whether the enemy is attacking.
      *
      * @param isAttacking {@code true} if the enemy should start attacking,
@@ -127,7 +155,7 @@ public class Enemy extends MobileEntity {
         if (target == null) {
             return;
         }
-
+        // TODO set target logic
         // Point startCoords = getCentreCoordinates();
         // Dimension bulletSpriteDimensions = bulletSpawner.getBulletSpriteDimensions();
         // startCoords.x -= bulletSpriteDimensions.width / 2;
@@ -181,6 +209,27 @@ public class Enemy extends MobileEntity {
         updateAttackCooldownTimer();
     }
 
+    /**
+     * Reverses the enemy's movement direction.
+     */
+    public void reverseMovementDirection() {
+        setVelocityX(-getVelocityX());
+        setVelocityY(-getVelocityY());
+    }
+
+    /**
+     * Randomly sets the enemy's movement direction.
+     */
+    public void setRandomDirection() {
+        int[] directions = {-1, 0, 1};
+        setVelocityX(directions[random.nextInt(3)] * getSpeed());
+        setVelocityY(directions[random.nextInt(3)] * getSpeed());
+
+        if (getVelocityX() == 0 && getVelocityY() == 0) {
+            setRandomDirection();
+        }
+    }
+
     // ----- OVERRIDDEN METHODS -----
     /**
      * Compares this entity to another object for equality.
@@ -198,6 +247,7 @@ public class Enemy extends MobileEntity {
         }
         Enemy other = (Enemy) obj;
         return super.equals(other)
+                && Integer.compare(moveDelay, getMoveDelay()) == 0
                 && isAttacking() == other.isAttacking()
                 && attackCooldownMs == other.getAttackCooldownMs()
                 && elapsedAttackCooldownMs == other.getElapsedAttackCooldownMs()
@@ -213,6 +263,7 @@ public class Enemy extends MobileEntity {
     public int hashCode() {
         return Objects.hash(
                 super.hashCode(),
+                moveDelay,
                 isAttacking(),
                 attackCooldownMs,
                 elapsedAttackCooldownMs,
@@ -229,8 +280,21 @@ public class Enemy extends MobileEntity {
      */
     @Override
     public void move() {
-        super.move();
-        correctPosition();
+        if (moveDelay % 4 == 0) {
+            super.move(); // Applies screen-coordinates adjusted movement
+
+            // Chance to change direction randomly
+            if (random.nextInt(50) == 1) {
+                setRandomDirection();
+            }
+
+            // Boundary check & direction reversal
+            if (!isFullyWithinPanel()) {
+                correctPosition();
+                reverseMovementDirection();
+            }
+        }
+        moveDelay++;
     }
 
     /**
