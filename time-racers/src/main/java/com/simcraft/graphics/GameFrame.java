@@ -8,6 +8,7 @@ import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
 import static com.simcraft.App.FRAME_RATE_MS;
+
 import com.simcraft.graphics.animations.AnimationLoader;
 import com.simcraft.graphics.screens.Screen;
 import com.simcraft.graphics.screens.WelcomeScreen;

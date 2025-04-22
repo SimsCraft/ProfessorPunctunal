@@ -1,0 +1,114 @@
+[
+	{
+		"fileName": "ali/ali_walking_down.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "ali/ali_walking_left.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "ali/ali_walking_right.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "ali/ali_walking_up.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-lecturer/female_lecturer_walking_down.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-lecturer/female_lecturer_walking_left.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-lecturer/female_lecturer_walking_right.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-lecturer/female_lecturer_walking_up.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-student/female_student_walking_down.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-student/female_student_walking_left.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-student/female_student_walking_right.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-student/female_student_walking_up.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "yapper/yapper_walking_down.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "yapper/yapper_walking_left.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "yapper/yapper_walking_right.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "yapper/yapper_walking_up.png",
+		"numGridRows": 1,
+		"numGridColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	}
+]
