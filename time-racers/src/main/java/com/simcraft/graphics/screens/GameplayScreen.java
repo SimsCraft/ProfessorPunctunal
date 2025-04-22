@@ -9,7 +9,7 @@ import java.util.Map;
 
 import com.simcraft.entities.Ali;
 import com.simcraft.graphics.GameFrame;
-import com.simcraft.graphics.screens.subpanels.GamePanel;
+import com.simcraft.graphics.screens.subpanels.GamePanel_t;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
 
 import com.simcraft.managers.GameManager;
@@ -19,14 +19,14 @@ import com.simcraft.managers.SoundManager;
  * The main gameplay screen where the game logic and rendering occur. Handles
  * player input and updates the game state accordingly.
  */
-public final class GameplayScreen extends Screen {
+public final class GameplayScreen extends AbstractScreen {
 
     // ----- STATIC VARIABLES -----
     private static final int BASE_SPEED = 5;
 
     // INSTANCE VARIABLES -----
     private final transient GameManager gameManager;
-    private final GamePanel gamePanel;
+    private final GamePanel_t gamePanel;
     private final InfoPanel infoPanel;
     private final Map<Integer, Boolean> keyStates;
 
@@ -43,7 +43,7 @@ public final class GameplayScreen extends Screen {
 
         int frameWidth = gameFrame.getWidth();
         int frameHeight = gameFrame.getHeight();
-        gamePanel = new GamePanel(frameHeight, frameHeight, "/images/backgrounds/game-panel.png");
+        gamePanel = new GamePanel_t(frameHeight, frameHeight, "/images/backgrounds/game-panel.png");
         infoPanel = new InfoPanel(frameWidth - frameHeight, frameHeight, "/images/backgrounds/info-panel.png");
 
         add(gamePanel, BorderLayout.CENTER);
@@ -62,11 +62,11 @@ public final class GameplayScreen extends Screen {
 
     // ----- GETTERS -----
     /**
-     * Retrieves the {@link GamePanel}.
+     * Retrieves the {@link GamePanel_t}.
      *
      * @return The main game panel.
      */
-    public GamePanel getGamePanel() {
+    public GamePanel_t getGamePanel() {
         return gamePanel;
     }
 
@@ -115,7 +115,7 @@ public final class GameplayScreen extends Screen {
              * Updates the player's movement based on the current key states.
              */
             private void updateMovement() {
-                Ali player = gameManager.getPlayer();
+                Ali player = gameManager.getAli();
                 int speed = keyStates.getOrDefault(KeyEvent.VK_SHIFT, false) ? BASE_SPEED / 2 : BASE_SPEED;
                 int velocityX = 0;
                 int velocityY = 0;
@@ -149,7 +149,7 @@ public final class GameplayScreen extends Screen {
                 updateMovement();
 
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    gameManager.getPlayer().getBulletSpawner().setIsSpawning(true);
+                    gameManager.getAli().getBulletSpawner().setIsSpawning(true);
                 }
             }
 
@@ -159,7 +159,7 @@ public final class GameplayScreen extends Screen {
                 updateMovement();
 
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    gameManager.getPlayer().getBulletSpawner().setIsSpawning(false);
+                    gameManager.getAli().getBulletSpawner().setIsSpawning(false);
                 }
             }
         };

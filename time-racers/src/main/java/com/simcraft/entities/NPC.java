@@ -9,7 +9,8 @@ import javax.swing.JPanel;
 
 import com.simcraft.graphics.animations.NPCAnimation;
 
-public class NPC {
+public class NPC extends MobileEntity {
+    
     private int width = 32, height = 46;
     private int x, y;
     private int dx, dy;

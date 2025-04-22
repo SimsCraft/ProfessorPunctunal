@@ -18,13 +18,13 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import com.simcraft.graphics.screens.subpanels.GamePanel;
+import com.simcraft.graphics.screens.subpanels.GamePanel_t;
 
 public class GameWindow extends JFrame implements ActionListener, KeyListener, MouseListener {
 
     private JButton startB, exitB;
     private JPanel mainPanel;
-    private GamePanel gamePanel;
+    private GamePanel_t gamePanel;
     private Font arcadeFont;
 
     public GameWindow() {
@@ -39,7 +39,7 @@ public class GameWindow extends JFrame implements ActionListener, KeyListener, M
         exitB.addActionListener(this);
 
         mainPanel = new JPanel(new BorderLayout());
-        gamePanel = new GamePanel(arcadeFont);
+        gamePanel = new GamePanel_t(arcadeFont);
 
         JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
         buttonPanel.add(startB);

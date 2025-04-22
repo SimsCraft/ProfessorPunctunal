@@ -10,7 +10,7 @@ import javax.swing.WindowConstants;
 import static com.simcraft.App.FRAME_RATE_MS;
 
 import com.simcraft.graphics.animations.AnimationLoader;
-import com.simcraft.graphics.screens.Screen;
+import com.simcraft.graphics.screens.AbstractScreen;
 import com.simcraft.graphics.screens.WelcomeScreen;
 
 /**
@@ -36,7 +36,7 @@ import com.simcraft.graphics.screens.WelcomeScreen;
  * This class is the central hub of the game's visual and logical flow, and
  * should be instantiated once at the application's entry point.
  *
- * @see Screen
+ * @see AbstractScreen
  * @see com.simcraft.graphics.screens.WelcomeScreen
  * @see AnimationLoader
  */
@@ -77,7 +77,7 @@ public final class GameFrame extends JFrame {
      * The currently active screen (e.g. menu, game, pause) being displayed and
      * updated. Swapped dynamically using the {@code setScreen()} method.
      */
-    private Screen currentScreen;
+    private AbstractScreen currentScreen;
 
     // ----- CONSTRUCTORS -----
     /**
@@ -131,7 +131,7 @@ public final class GameFrame extends JFrame {
      *
      * @param newScreen The new screen to display.
      */
-    public void setScreen(final Screen newScreen) {
+    public void setScreen(final AbstractScreen newScreen) {
         if (currentScreen != null) {
             remove(currentScreen);
             currentScreen.cleanup();

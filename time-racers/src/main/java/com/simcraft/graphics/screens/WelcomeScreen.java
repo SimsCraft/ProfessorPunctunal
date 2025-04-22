@@ -14,7 +14,7 @@ import com.simcraft.graphics.GameFrame;
  * the game. It displays a title and a prompt to start, and transitions to the
  * gameplay screen when the ENTER key is pressed.
  */
-public class WelcomeScreen extends Screen {
+public class WelcomeScreen extends AbstractScreen {
 
     public WelcomeScreen(GameFrame gameFrame) {
         super(gameFrame);

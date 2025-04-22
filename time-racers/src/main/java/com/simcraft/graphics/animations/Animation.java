@@ -2,7 +2,7 @@ package com.simcraft.graphics.animations;
 import java.awt.Image;
 import java.util.ArrayList;
 
-import com.simcraft.graphics.screens.subpanels.GamePanel;
+import com.simcraft.graphics.screens.subpanels.GamePanel_t;
 
 @SuppressWarnings("unused")
 /**
@@ -11,7 +11,7 @@ import com.simcraft.graphics.screens.subpanels.GamePanel;
 */
 public class Animation {
 
-    private GamePanel panel;					// JPanel on which animation is being displayed
+    private GamePanel_t panel;					// JPanel on which animation is being displayed
     private ArrayList<AnimFrame> frames;			// collection of frames for animation
     private int currFrameIndex;					// current frame being displayed
     private long animTime;					// time that the animation has run for already

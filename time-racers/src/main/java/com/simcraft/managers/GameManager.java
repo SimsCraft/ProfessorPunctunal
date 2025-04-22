@@ -1,7 +1,6 @@
 package com.simcraft.managers;
 
 import java.awt.Point;
-import java.awt.event.ActionEvent;
 import java.lang.StackWalker.StackFrame;
 import java.util.HashSet;
 import java.util.stream.Collectors;
@@ -11,7 +10,6 @@ import javax.swing.Timer;
 
 import com.simcraft.entities.Ali;
 import com.simcraft.graphics.GameFrame;
-import com.simcraft.graphics.dialogue.PauseMenuDialogue;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
 import com.simcraft.interfaces.Updateable;
@@ -41,7 +39,7 @@ public class GameManager implements Updateable {
             @Override
             public void handleState(GameManager gameManager) {
                 // Implement pause behavior
-                gameManager.showPauseMenu();
+                // gameManager.showPauseMenu();
             }
         },
         RUNNING {
@@ -75,20 +73,15 @@ public class GameManager implements Updateable {
 
     // ----- INSTANCE VARIABLES -----
     /**
-     * Manages all enemy-related logic, including spawning, tracking, and updating enemies.
-     * This instance is responsible for handling enemy creation cooldowns, updating enemy states,
-     * and ensuring that the maximum enemy limit is enforced.
+     * Manages all enemy-related logic, including spawning, tracking, and
+     * updating enemies. This instance is responsible for handling enemy
+     * creation cooldowns, updating enemy states, and ensuring that the maximum
+     * enemy limit is enforced.
      */
     private final EnemyManager enemyManager;
     /**
-     * Manages all bullet-related logic, including creation, tracking, and updating bullets.
-     * This instance is responsible for handling bullet collisions, removing expired bullets,
-     * and updating their movement over time.
-     */
-    private final BulletManager bulletManager;
-    /**
-     * Represents the current state of the game. This determines what actions  
-     * can be performed at any given time and helps enforce state-based logic.  
+     * Represents the current state of the game. This determines what actions
+     * can be performed at any given time and helps enforce state-based logic.
      * Initialized to {@code GameState.NOT_INITIALIZED} by default.
      */
     private GameState currentState = GameState.NOT_INITIALIZED;
@@ -99,7 +92,7 @@ public class GameManager implements Updateable {
     /**
      * The player character.
      */
-    private Ali player;
+    private Ali ali;
     /**
      * Reference to the where all game entities are displayed.
      */
@@ -136,23 +129,18 @@ public class GameManager implements Updateable {
     }
 
     /**
-     * Returns the current active {@link Ali}.
+     * Returns the current active {@link Ali} instance (the player).
      *
      * @return The player.
      */
-    public Ali getPlayer() {
+    public Ali getAli() {
         ensureInitialized("getPlayer");
-        return player;
+        return ali;
     }
 
     public EnemyManager getEnemyManager() {
         ensureRunning("getEnemyManager");
         return enemyManager;
-    }
-
-    public BulletManager getBulletManager() {
-        ensureRunning("getBulletManager");
-        return bulletManager;
     }
 
     // ----- BUSINESS LOGIC METHODS -----
@@ -216,8 +204,7 @@ public class GameManager implements Updateable {
 
         initialisePlayer();
         enemyManager.init();
-        bulletManager.init();
-        setGamePaused(false);
+        // setGamePaused(false);
 
         // Initialization complete. Begin running.
         currentState = GameState.RUNNING;
@@ -231,21 +218,20 @@ public class GameManager implements Updateable {
             stopGameplayTimer();
             gamePanel = null;
             infoPanel = null;
-            player = null;
+            ali = null;
             enemyManager.clear();
-            bulletManager.clear();
         }
     }
 
-    /**
-     * Pauses the game when the pause button is clicked. Stops the timer and
-     * displays the pause menu dialogue.
-     *
-     * @param e The action event triggered by clicking the pause button.
-     */
-    public void onPause(ActionEvent e) {
-        setGamePaused(true);
-    }
+    // /**
+    //  * Pauses the game when the pause button is clicked. Stops the timer and
+    //  * displays the pause menu dialogue.
+    //  *
+    //  * @param e The action event triggered by clicking the pause button.
+    //  */
+    // public void onPause(ActionEvent e) {
+    //     setGamePaused(true);
+    // }
 
     // ----- OVERRIDDEN METHODS -----
     /**
@@ -255,11 +241,10 @@ public class GameManager implements Updateable {
     public void update() {
         ensureInitialized("update");
 
-        if (player != null) {
-            player.update();
+        if (ali != null) {
+            ali.update();
         }
         enemyManager.update();
-        bulletManager.update();
     }
 
     // ----- HELPER METHODS -----
@@ -292,7 +277,7 @@ public class GameManager implements Updateable {
     }
 
     /**
-     * Initialises the {@link Ali} character.
+     * Initialises the {@link Player} character.
      */
     private void initialisePlayer() {
         if (currentState != GameState.INITIALIZING) {
@@ -309,8 +294,7 @@ public class GameManager implements Updateable {
                 "player-walk-up"
         ).collect(Collectors.toCollection(HashSet::new));
 
-        player = new Ali.PlayerBuilder(gamePanel)
-                .invisibility(false)
+        ali = new Ali.AliBuilder(gamePanel)
                 .collidability(true)
                 .animationKeys(playerAnimationKeys)
                 .currentAnimationKey("player-idle")
@@ -319,56 +303,45 @@ public class GameManager implements Updateable {
                 .build();
 
         // Trying to do this dynamically wasn't working, so hard-coding for now
-        int x = (GameFrame.FRAME_HEIGHT / 2) - (player.getSpriteWidth() / 2);
-        int y = GameFrame.FRAME_HEIGHT - (2 * player.getSpriteHeight());
+        int x = (GameFrame.FRAME_HEIGHT / 2) - (ali.getSpriteWidth() / 2);
+        int y = GameFrame.FRAME_HEIGHT - (2 * ali.getSpriteHeight());
 
-        player.setPosition(new Point(x, y));
-
-        HashSet<String> playerBulletAnimationKeys = Stream.of("player-bullet").collect(Collectors.toCollection(HashSet::new));
-
-        BulletSpawner spawner = new BulletSpawner.BulletSpawnerBuilder(gamePanel, player)
-                .bulletDamage(1)
-                .bulletVelocityY(20)
-                .bulletAnimationKeys(playerBulletAnimationKeys)
-                .currentBulletAnimationKey("player-bullet")
-                .build();
-
-        player.setBulletSpawner(spawner);
+        ali.setPosition(new Point(x, y));
     }
 
     /**
-     * Displays the pause menu dialogue.
-     */
-    private void showPauseMenu() {
-        PauseMenuDialogue pauseMenuDialogue = new PauseMenuDialogue(
-                (GameFrame) gamePanel.getTopLevelAncestor(),
-                this::onResume
-        );
-        pauseMenuDialogue.setVisible(true);
-    }
+    //  * Displays the pause menu dialogue.
+    //  */
+    // private void showPauseMenu() {
+    //     PauseMenuDialogue pauseMenuDialogue = new PauseMenuDialogue(
+    //             (GameFrame) gamePanel.getTopLevelAncestor(),
+    //             this::onResume
+    //     );
+    //     pauseMenuDialogue.setVisible(true);
+    // }
 
-    /**
-     * Resumes the game.
-     */
-    private void onResume() {
-        setGamePaused(false);
-    }
+    // /**
+    //  * Resumes the game.
+    //  */
+    // private void onResume() {
+    //     setGamePaused(false);
+    // }
 
-    /**
-     * Pauses or resumes the game based on the given parameter.
-     *
-     * @param paused Whether the game should be paused.
-     */
-    private void setGamePaused(boolean paused) {
-        if (paused) {
-            currentState = GameState.PAUSED;
-            stopGameplayTimer();
-            showPauseMenu();
-        } else {
-            currentState = GameState.RUNNING;
-            startGameplayTimer();
-        }
-    }
+    // /**
+    //  * Pauses or resumes the game based on the given parameter.
+    //  *
+    //  * @param paused Whether the game should be paused.
+    //  */
+    // private void setGamePaused(boolean paused) {
+    //     if (paused) {
+    //         currentState = GameState.PAUSED;
+    //         stopGameplayTimer();
+    //         showPauseMenu();
+    //     } else {
+    //         currentState = GameState.RUNNING;
+    //         startGameplayTimer();
+    //     }
+    // }
 
     /**
      * Starts the current gameplay timer.

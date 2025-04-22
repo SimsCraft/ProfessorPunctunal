@@ -14,7 +14,7 @@ import com.simcraft.interfaces.Updateable;
  * Abstract base class for all game screens (e.g., welcome, main menu, gameplay).
  * Provides a structure for updating and rendering screens.
  */
-public abstract class Screen extends JPanel implements Updateable, Renderable {
+public abstract class AbstractScreen extends JPanel implements Updateable, Renderable {
 
     // ----- INSTANCE VARIABLES -----
     /**
@@ -30,7 +30,7 @@ public abstract class Screen extends JPanel implements Updateable, Renderable {
      * @param gameFrame The parent {@link GameFrame} to which this screen
      * belongs.
      */
-    protected Screen(GameFrame gameFrame) {
+    protected AbstractScreen(GameFrame gameFrame) {
         this.gameFrame = gameFrame;
 
         // Set the panel size to match the game window dimensions.
