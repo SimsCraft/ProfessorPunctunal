@@ -9,9 +9,8 @@ import java.util.Map;
 
 import com.simcraft.entities.Ali;
 import com.simcraft.graphics.GameFrame;
-import com.simcraft.graphics.screens.subpanels.GamePanel_t;
+import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
-
 import com.simcraft.managers.GameManager;
 import com.simcraft.managers.SoundManager;
 
@@ -26,7 +25,7 @@ public final class GameplayScreen extends AbstractScreen {
 
     // INSTANCE VARIABLES -----
     private final transient GameManager gameManager;
-    private final GamePanel_t gamePanel;
+    private final GamePanel gamePanel;
     private final InfoPanel infoPanel;
     private final Map<Integer, Boolean> keyStates;
 
@@ -43,7 +42,7 @@ public final class GameplayScreen extends AbstractScreen {
 
         int frameWidth = gameFrame.getWidth();
         int frameHeight = gameFrame.getHeight();
-        gamePanel = new GamePanel_t(frameHeight, frameHeight, "/images/backgrounds/game-panel.png");
+        gamePanel = new GamePanel(frameHeight, frameHeight, "/images/backgrounds/game-panel.png");
         infoPanel = new InfoPanel(frameWidth - frameHeight, frameHeight, "/images/backgrounds/info-panel.png");
 
         add(gamePanel, BorderLayout.CENTER);
@@ -62,11 +61,11 @@ public final class GameplayScreen extends AbstractScreen {
 
     // ----- GETTERS -----
     /**
-     * Retrieves the {@link GamePanel_t}.
+     * Retrieves the {@link GamePanel}.
      *
      * @return The main game panel.
      */
-    public GamePanel_t getGamePanel() {
+    public GamePanel getGamePanel() {
         return gamePanel;
     }
 
@@ -112,10 +111,10 @@ public final class GameplayScreen extends AbstractScreen {
     private KeyAdapter createKeyListener() {
         return new KeyAdapter() {
             /**
-             * Updates the player's movement based on the current key states.
+             * Updates the player/Ali's movement based on the current key states.
              */
-            private void updateMovement() {
-                Ali player = gameManager.getAli();
+            private void updateAliMovement() {
+                Ali ali = gameManager.getAli();
                 int speed = keyStates.getOrDefault(KeyEvent.VK_SHIFT, false) ? BASE_SPEED / 2 : BASE_SPEED;
                 int velocityX = 0;
                 int velocityY = 0;
@@ -138,29 +137,21 @@ public final class GameplayScreen extends AbstractScreen {
                     animationKey = "player-walk-up-right";
                 }
 
-                player.setVelocityX(velocityX);
-                player.setVelocityY(velocityY);
-                player.setAnimation((velocityX == 0 && velocityY == 0) ? "player-idle" : animationKey);
+                ali.setVelocityX(velocityX);
+                ali.setVelocityY(velocityY);
+                ali.setAnimation((velocityX == 0 && velocityY == 0) ? "player-idle" : animationKey);
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
                 keyStates.put(e.getKeyCode(), true);
-                updateMovement();
-
-                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    gameManager.getAli().getBulletSpawner().setIsSpawning(true);
-                }
+                updateAliMovement();
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
                 keyStates.put(e.getKeyCode(), false);
-                updateMovement();
-
-                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    gameManager.getAli().getBulletSpawner().setIsSpawning(false);
-                }
+                updateAliMovement();
             }
         };
     }

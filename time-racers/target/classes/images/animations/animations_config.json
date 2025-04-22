@@ -1,111 +1,111 @@
 [
 	{
-		"fileName": "ali/ali_walking_down.png",
+		"fileName": "ali/ali_walk_down.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "ali/ali_walking_left.png",
+		"fileName": "ali/ali_walk_left.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "ali/ali_walking_right.png",
+		"fileName": "ali/ali_walk_right.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "ali/ali_walking_up.png",
+		"fileName": "ali/ali_walk_up.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "female-lecturer/female_lecturer_walking_down.png",
+		"fileName": "female-lecturer/female_lecturer_walk_down.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "female-lecturer/female_lecturer_walking_left.png",
+		"fileName": "female-lecturer/female_lecturer_walk_left.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "female-lecturer/female_lecturer_walking_right.png",
+		"fileName": "female-lecturer/female_lecturer_walk_right.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "female-lecturer/female_lecturer_walking_up.png",
+		"fileName": "female-lecturer/female_lecturer_walk_up.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "female-student/female_student_walking_down.png",
+		"fileName": "female-student/female_student_walk_down.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "female-student/female_student_walking_left.png",
+		"fileName": "female-student/female_student_walk_left.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "female-student/female_student_walking_right.png",
+		"fileName": "female-student/female_student_walk_right.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "female-student/female_student_walking_up.png",
+		"fileName": "female-student/female_student_walk_up.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "yapper/yapper_walking_down.png",
+		"fileName": "yapper/yapper_walk_down.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "yapper/yapper_walking_left.png",
+		"fileName": "yapper/yapper_walk_left.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "yapper/yapper_walking_right.png",
+		"fileName": "yapper/yapper_walk_right.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,
 		"isLooping": true
 	},
 	{
-		"fileName": "yapper/yapper_walking_up.png",
+		"fileName": "yapper/yapper_walk_up.png",
 		"numGridRows": 1,
 		"numGridColumns": 4,
 		"frameTimeMultiplier": 4.0,

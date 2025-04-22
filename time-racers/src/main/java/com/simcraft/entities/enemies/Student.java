@@ -69,14 +69,14 @@ public class Student extends Enemy {
      */
     private void setUpStudentAnimations() {
         HashSet<String> studentAnimationKeys = Stream.of(
-                "female-student/female_student_walking_down.png",
-                "female-student/female_student_walking_left.png",
-                "female-student/female_student_walking_right.png",
-                "female-student/female_student_walking_up.png"
+                "female-student/female_student_walk_down.png",
+                "female-student/female_student_walk_left.png",
+                "female-student/female_student_walk_right.png",
+                "female-student/female_student_walk_up.png"
         ).collect(Collectors.toCollection(HashSet::new));
 
         setAnimationKeys(studentAnimationKeys);
-        setAnimation("female-student/female_student_walking_down.png");
+        setAnimation("female-student/female_student_walk_down.png");
         setMaxHitPoints(20);
         setCurrentHitPoints(20);
     }

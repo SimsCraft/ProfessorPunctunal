@@ -70,14 +70,14 @@ public class Yapper extends Enemy {
      */
     private void setUpYapperAnimations() {
         HashSet<String> studentAnimationKeys = Stream.of(
-                "yapper/yapper_walking_down.png",
-                "yapper/yapper_walking_left.png",
-                "yapper/yapper_walking_right.png",
-                "yapper/yapper_walking_up.png"
+                "yapper/yapper_walk_down.png",
+                "yapper/yapper_walk_left.png",
+                "yapper/yapper_walk_right.png",
+                "yapper/yapper_walk_up.png"
         ).collect(Collectors.toCollection(HashSet::new));
 
         setAnimationKeys(studentAnimationKeys);
-        setAnimation("yapper/yapper_walking_down.png");
+        setAnimation("yapper/yapper_walk_down.png");
         setMaxHitPoints(20);
         setCurrentHitPoints(20);
     }

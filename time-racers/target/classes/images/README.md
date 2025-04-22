@@ -21,7 +21,7 @@ Contains animation strip files. These are packed images that hold multiple frame
 
 Example contents:
 
-* `ali_walking_down.png` — Downward-facing walking animation strip for the player character (left, neutral, right, neutral legs).
+* `ali_walk_down.png` — Downward-facing walking animation strip for the player character (left, neutral, right, neutral legs).
 
 #### How to Add or Modify Images
 

@@ -7,15 +7,11 @@ import java.awt.Dimension;
 import static javax.swing.Box.createHorizontalStrut;
 import static javax.swing.Box.createVerticalStrut;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import com.simcraft.graphics.UIConstants;
-import com.simcraft.utility.ButtonUtil;
-
-import com.simcraft.managers.GameManager;
 
 /**
  * The InfoPanel displays game information (e.g., player health, elapsed time,
@@ -26,7 +22,7 @@ import com.simcraft.managers.GameManager;
  */
 public final class InfoPanel extends Subpanel {
 
-    private final JButton pauseButton;
+    // private final JButton pauseButton;
     private final JLabel waveCounterLabel;
     private final JLabel gameplayTimerLabel;
     private final JLabel highscoreLabel;
@@ -60,7 +56,7 @@ public final class InfoPanel extends Subpanel {
         gameplayTimerLabel = new JLabel("HH:MM.SS");
         gameplayTimerLabel.setFont(UIConstants.BODY_FONT);
 
-        pauseButton = ButtonUtil.createButtonWithIcon("/images/icons/pause-button.png", 64, 64, false, GameManager.getInstance()::onPause);
+        // pauseButton = ButtonUtil.createButtonWithIcon("/images/icons/pause-button.png", 64, 64, false, GameManager.getInstance()::onPause);
 
         Dimension scoreLabelSize = new Dimension(284, 80);
         highscoreLabel = new JLabel("Highscore: <lorem ipsum>");
@@ -109,7 +105,7 @@ public final class InfoPanel extends Subpanel {
         topRowLabels.add(gameplayTimerLabel);
         topRow.add(topRowLabels);
         topRow.add(createHorizontalStrut(40));
-        topRow.add(pauseButton);
+        // topRow.add(pauseButton);
 
         // ----- Add to InfoPanel -----
         add(createVerticalStrut(20));

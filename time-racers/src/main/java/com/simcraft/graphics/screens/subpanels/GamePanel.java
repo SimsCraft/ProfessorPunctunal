@@ -5,7 +5,7 @@ import java.awt.Graphics2D;
 import java.util.Set;
 
 import com.simcraft.entities.Ali;
-import com.simcraft.entities.NPC;
+import com.simcraft.entities.enemies.Enemy;
 import com.simcraft.managers.GameManager;
 
 /**
@@ -39,10 +39,10 @@ public class GamePanel extends Subpanel {
             ali.safeRender(g2d);
         }
 
-        Set<NPC> npcs = gameManager.getNpcManager().getEnemies();
-        if (npcs != null) {
-            for (NPC n : npcs) {
-                n.safeRender(g2d);
+        Set<Enemy> enemies = gameManager.getEnemyManager().getEnemies();
+        if (enemies != null) {
+            for (Enemy e : enemies) {
+                e.safeRender(g2d);
             }
         }
     }
