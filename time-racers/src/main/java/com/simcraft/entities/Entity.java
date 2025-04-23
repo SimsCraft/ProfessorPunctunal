@@ -271,8 +271,9 @@ public abstract class Entity implements Updateable, Renderable {
             }
             if (AnimationManager.getInstance().getAnimation(key) == null) {
                 throw new IllegalArgumentException(String.format(
-                        "%s: Keys must exist within AnimationManager's key set.",
-                        this.getClass().getName()
+                        "%s: Key '%s' does not exist within AnimationManager's key set.",
+                        this.getClass().getName(),
+                        key
                 ));
             }
         }

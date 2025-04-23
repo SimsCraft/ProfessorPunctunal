@@ -57,15 +57,6 @@ public class SoundManager {
         loadDefaultClips();
     }
 
-    /**
-     * Loads the default audio clips when the sound manager is initialized.
-     */
-    private void loadDefaultClips() {
-        loadAndStoreClip("background", "background.wav");
-        loadAndStoreClip("footstep", "footstep.wav");
-        loadAndStoreClip("game_over", "game_over.wav");
-    }
-
     // ----- SINGLETON GETTER -----
     /**
      * Returns the singleton instance of the {@link SoundManager}.
@@ -260,6 +251,15 @@ public class SoundManager {
     }
 
     // ----- HELPER METHODS -----
+    /**
+     * Loads the default audio clips when the sound manager is initialized.
+     */
+    private void loadDefaultClips() {
+        loadAndStoreClip("background", "background.wav");
+        loadAndStoreClip("footstep", "footstep.wav");
+        loadAndStoreClip("game_over", "game_over.wav");
+    }
+
     /**
      * Adjusts the volume for all loaded clips.
      */

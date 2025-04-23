@@ -8,6 +8,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import com.simcraft.graphics.GameFrame;
+import com.simcraft.managers.GameManager;
 
 /**
  * The WelcomeScreen is the initial screen shown to the player when launching
@@ -25,6 +26,7 @@ public class WelcomeScreen extends AbstractScreen {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     gameFrame.setScreen(new GameplayScreen(gameFrame));
+                    GameManager.getInstance().getEnemyManager().addEnemiesTest();
                     // startGame(); // ✅ This will properly close WelcomeScreen and start GameWindow
                 }
             }

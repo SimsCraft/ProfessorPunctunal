@@ -132,11 +132,11 @@ public final class GameplayScreen extends AbstractScreen {
                 }
                 if (keyStates.getOrDefault(KeyEvent.VK_A, false) || keyStates.getOrDefault(KeyEvent.VK_LEFT, false)) {
                     velocityX = -speed;
-                    animationKey = "ali_walk_up_left";
+                    animationKey = "ali_walk_left";
                 }
                 if (keyStates.getOrDefault(KeyEvent.VK_D, false) || keyStates.getOrDefault(KeyEvent.VK_RIGHT, false)) {
                     velocityX = speed;
-                    animationKey = "ali_walk_up_right";
+                    animationKey = "ali_walk_right";
                 }
 
                 // Normalize the movement vector to ensure diagonal movement is not faster

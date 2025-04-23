@@ -34,6 +34,8 @@ public class Yapper extends Enemy {
 
     // ----- OVERRIDDEN METHODS -----
     /**
+     * Replace with actual movement logic
+     * 
      * Extends {@link Enemy#move()} by applying a cosine function to oscillate
      * the y-coordinate with a given amplitude.
      * <p>
@@ -45,6 +47,9 @@ public class Yapper extends Enemy {
         super.move();
 
         // TODO Replace with actual movement logic
+
+
+        
         // // Get the normalized cosine value in the range [-1, 1]
         // double normalizedCos = Math.cos(position.y);
 
@@ -70,14 +75,14 @@ public class Yapper extends Enemy {
      */
     private void setUpYapperAnimations() {
         HashSet<String> studentAnimationKeys = Stream.of(
-                "yapper/yapper_walk_down.png",
-                "yapper/yapper_walk_left.png",
-                "yapper/yapper_walk_right.png",
-                "yapper/yapper_walk_up.png"
+                "yapper_walk_down",
+                "yapper_walk_left",
+                "yapper_walk_right",
+                "yapper_walk_up"
         ).collect(Collectors.toCollection(HashSet::new));
 
         setAnimationKeys(studentAnimationKeys);
-        setAnimation("yapper/yapper_walk_down.png");
+        setAnimation("yapper_walk_down");
         setMaxHitPoints(20);
         setCurrentHitPoints(20);
     }

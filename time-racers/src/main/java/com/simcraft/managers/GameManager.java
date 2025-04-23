@@ -361,6 +361,21 @@ public class GameManager implements Updateable {
             gameplayTimer.stop();
         }
     }
+
+    // TODO reimplement
+    // public void checkGameOver() {
+    //     if (timeLeft <= 0 && !gameOver) {
+    //         gameOver = true;
+    //         SoundManager.getInstance().stopAll();
+    //         SoundManager.getInstance().playClip("game_over", true);
+    //         JOptionPane.showMessageDialog(this, "Game Over! Time ran out.", "Game Over", JOptionPane.WARNING_MESSAGE);
+    //         System.exit(0);
+    //     }
+    // }
+
+    public void subtractTimePenalty(final long timePenalty) {
+        // TODO implement
+    }
 }
 
 // public int getScore() {

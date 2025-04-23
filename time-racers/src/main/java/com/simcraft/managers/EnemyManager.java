@@ -2,22 +2,32 @@ package com.simcraft.managers;
 
 import java.awt.Point;
 import java.lang.StackWalker.StackFrame;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
 import com.simcraft.entities.Ali;
 import com.simcraft.entities.enemies.Enemy;
-
 import com.simcraft.entities.enemies.Lecturer;
 import com.simcraft.entities.enemies.Student;
 import com.simcraft.entities.enemies.Yapper;
 import com.simcraft.graphics.GameFrame;
+import static com.simcraft.graphics.GameFrame.FRAME_HEIGHT;
+import static com.simcraft.graphics.GameFrame.FRAME_WIDTH;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.interfaces.Updateable;
 
 public class EnemyManager implements Updateable {
 
+    // ----- STATIC VARIABLES -----
+    private static final Map<Class<? extends Enemy>, Integer> TIME_PENALTIES = Map.of(
+            Student.class, 3,
+            Lecturer.class, 5,
+            Yapper.class, 10
+    );
     /**
      * The maximum number of enemies that can exist simultaneously.
      */
@@ -105,6 +115,39 @@ public class EnemyManager implements Updateable {
     }
 
     // ----- BUSINESS LOGIC METHODS -----
+    public void addEnemiesTest() {
+        for (int i = 0; i < 5; i++) {
+            enemies.add(new Student.StudentBuilder(
+                    GameManager.getInstance().getGamePanel()
+            ).position(
+                    new Point(
+                            random.nextInt(FRAME_WIDTH),
+                            random.nextInt(FRAME_HEIGHT)
+                    )
+            ).build());
+        }
+        for (int i = 0; i < 4; i++) {
+            enemies.add(new Lecturer.LecturerBuilder(
+                    GameManager.getInstance().getGamePanel()
+            ).position(
+                    new Point(
+                            random.nextInt(FRAME_WIDTH),
+                            random.nextInt(FRAME_HEIGHT)
+                    )
+            ).build());
+        }
+        for (int i = 0; i < 2; i++) {
+            enemies.add(new Yapper.YapperBuilder(
+                    GameManager.getInstance().getGamePanel()
+            ).position(
+                    new Point(
+                            random.nextInt(FRAME_WIDTH),
+                            random.nextInt(FRAME_HEIGHT)
+                    )
+            ).build());
+        }
+    }
+
     /**
      * Initializes the EnemyManager for a new game. This method sets up all the
      * necessary objects to manage enemies and clears old enemy data.
@@ -207,6 +250,7 @@ public class EnemyManager implements Updateable {
 
         createRandomEnemy(GameManager.getInstance().getAli());
         updateEnemies();
+        checkCollisions();
     }
 
     // ----- HELPER METHODS -----
@@ -264,5 +308,41 @@ public class EnemyManager implements Updateable {
         int x = random.nextInt(GameFrame.FRAME_HEIGHT);
         int y = random.nextInt(GameFrame.FRAME_HEIGHT * 1 / 5, GameFrame.FRAME_HEIGHT * 3 / 5);
         return new Point(x, y);
+    }
+
+    private void checkCollisions() {
+        // Ali vs Enemy
+        Ali ali = GameManager.getInstance().getAli();
+        for (Enemy enemy : enemies) {
+            if (ali.collides(enemy)) {
+                if (!enemy.hasCollided()) {
+                    int penalty = getTimePenalty(enemy);
+                    timeLeft -= penalty;
+                    timerPanel.setTimeLeft(timeLeft);
+                    enemy.setHasCollided(true);
+                }
+                enemy.reverseMovementDirection();
+            } else {
+                enemy.setHasCollided(false);
+            }
+        }
+
+        // Enemy vs Enemy
+        List<Enemy> enemyList = new ArrayList<>(enemies);
+        for (int i = 0; i < enemyList.size(); i++) {
+            Enemy e1 = enemyList.get(i);
+            for (int j = i + 1; j < enemyList.size(); j++) {
+                Enemy e2 = enemyList.get(j);
+                if (e1.collides(e2)) {
+                    e1.reverseMovementDirection();
+                    e2.reverseMovementDirection();
+                }
+            }
+        }
+
+    }
+
+    private int getTimePenalty(Enemy enemy) {
+        return TIME_PENALTIES.getOrDefault(enemy.getClass(), 0);
     }
 }

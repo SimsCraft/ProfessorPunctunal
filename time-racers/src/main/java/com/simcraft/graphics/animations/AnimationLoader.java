@@ -140,7 +140,7 @@ public class AnimationLoader {
                         ANIMATION_FOLDER + config.fileName,
                         config.numRows,
                         config.numColumns,
-                        (long) config.frameTimeMultiplier * FRAME_RATE_MS
+                        (long) (config.frameTimeMultiplier * BASE_FRAME_TIME_MS)
                 );
 
                 // Create an AnimationTemplate

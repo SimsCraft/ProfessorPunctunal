@@ -24,6 +24,7 @@ public class Enemy extends MobileEntity {
      * movement opportunity.
      */
     protected int moveDelay;
+    protected boolean hasCollided;
     /**
      * The duration (in milliseconds) an enemy can continuously attack before
      * needing to cool down.
@@ -60,6 +61,7 @@ public class Enemy extends MobileEntity {
     public Enemy(EnemyBuilder builder) {
         super(builder);
         random = new Random();
+        hasCollided = false;
     }
 
     // ---- GETTERS -----
@@ -73,6 +75,9 @@ public class Enemy extends MobileEntity {
         return moveDelay;
     }
 
+    public boolean hasCollided() {
+        return hasCollided;
+    }
     /**
      * Returns whether the enemy is attacking/firing bullets.
      *
@@ -124,6 +129,10 @@ public class Enemy extends MobileEntity {
      */
     public void setMoveDelay(final int moveDelay) {
         this.moveDelay = moveDelay;
+    }
+
+    public void setHasCollided(final boolean hasCollided) {
+        this.hasCollided = hasCollided;
     }
 
     /**
@@ -248,10 +257,11 @@ public class Enemy extends MobileEntity {
         Enemy other = (Enemy) obj;
         return super.equals(other)
                 && Integer.compare(moveDelay, getMoveDelay()) == 0
+                && hasCollided == other.hasCollided()
                 && isAttacking() == other.isAttacking()
-                && attackCooldownMs == other.getAttackCooldownMs()
-                && elapsedAttackCooldownMs == other.getElapsedAttackCooldownMs()
-                && lastUpdateTime == other.lastUpdateTime;
+                && Long.compare(attackCooldownMs, other.getAttackCooldownMs()) == 0
+                && Long.compare(elapsedAttackCooldownMs, other.getElapsedAttackCooldownMs()) == 0
+                && Long.compare(lastUpdateTime, other.getLastUpdateTime()) == 0;
     }
 
     /**
@@ -264,6 +274,7 @@ public class Enemy extends MobileEntity {
         return Objects.hash(
                 super.hashCode(),
                 moveDelay,
+                hasCollided,
                 isAttacking(),
                 attackCooldownMs,
                 elapsedAttackCooldownMs,

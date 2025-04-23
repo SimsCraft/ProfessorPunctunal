@@ -1,6 +1,7 @@
 package com.simcraft.graphics.screens.subpanels;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.Set;
 
@@ -24,6 +25,7 @@ public class GamePanel extends Subpanel {
 
     }
 
+    // ----- BUSINESS LOGIC -----
     // ----- OVERRIDDEN METHODS -----
     /**
      * Renders the screen's graphical components.
@@ -49,4 +51,17 @@ public class GamePanel extends Subpanel {
             }
         }
     }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        // Draw exit door
+        g.setColor(Color.DARK_GRAY);
+        g.fillRect(getWidth() / 2 - 50, 5, 100, 40);
+        g.setColor(Color.WHITE);
+        g.drawString("EXIT", getWidth() / 2 - 15, 30);
+    }
+
+    // ----- HELPER METHODS -----
 }
