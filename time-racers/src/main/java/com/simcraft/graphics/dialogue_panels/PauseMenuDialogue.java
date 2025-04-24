@@ -41,8 +41,9 @@ public class PauseMenuDialogue extends Dialog {
 
         this.gameFrame = gameFrame;
 
-        setSize(250, 300); // Adjusted size for better readability
+        setSize(250, 350); // Adjusted size for better readability
         setLocationRelativeTo(gameFrame);
+        setResizable(false);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         menuLabel = new JLabel("PAUSE");

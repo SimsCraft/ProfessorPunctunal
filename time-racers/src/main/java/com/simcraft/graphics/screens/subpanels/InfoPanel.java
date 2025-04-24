@@ -1,9 +1,10 @@
 package com.simcraft.graphics.screens.subpanels;
 
 import java.awt.Color;
-import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
@@ -32,31 +33,52 @@ public final class InfoPanel extends Subpanel {
     public InfoPanel(final int width, final int height, final String backgroundImageFilepath) {
         super(width, height, backgroundImageFilepath);
 
-        // Background colour used as a backup in case the image doesn't load.
         setBackground(new Color(87, 73, 100));
-        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        setAlignmentX(Component.CENTER_ALIGNMENT);
-        setAlignmentY(CENTER_ALIGNMENT);
+        setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
 
         // ----- Initialise elements -----
         pauseButton = ButtonUtil.createButtonWithIcon(
                 "/images/icons/pause-button.png",
                 64,
                 64,
-                false,
+                true,
                 GameManager.getInstance()::onPause
         );
 
         levelLabel = new JLabel("LEVEL <no.>");
-        levelLabel.setFont(UIConstants.BODY_FONT);
+        levelLabel.setFont(UIConstants.ARCADE_FONT);
+        levelLabel.setForeground(Color.WHITE);
 
-        timerLabel = new JLabel("MM.SS");
-        timerLabel.setFont(UIConstants.BODY_FONT);
+        timerLabel = new JLabel("Remaining Time: MM.SS");
+        timerLabel.setFont(UIConstants.ARCADE_FONT);
+        timerLabel.setForeground(Color.WHITE);
 
-        // ----- Add to InfoPanel -----
-        add(pauseButton);
-        add(levelLabel);
-        add(timerLabel);
+        // Common constraint setup
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weighty = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+
+        // ----- Left-aligned pause button -----
+        gbc.gridx = 0;
+        gbc.weightx = 0.33;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.insets = new Insets(0, 20, 0, 0);
+        add(pauseButton, gbc);
+
+        // ----- Centered level label -----
+        gbc.gridx = 1;
+        gbc.weightx = 0.34;
+        gbc.anchor = GridBagConstraints.CENTER;
+        add(levelLabel, gbc);
+
+        // ----- Right-aligned timer label -----
+        gbc.gridx = 2;
+        gbc.weightx = 0.33;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        gbc.insets = new Insets(0, 0, 0, 20);
+        add(timerLabel, gbc);
     }
 
     // ----- BUSINESS LOGIC METHODS -----
@@ -70,6 +92,23 @@ public final class InfoPanel extends Subpanel {
         timerLabel.setText(String.format("Remaining Time: %d:%02d", minutes, seconds));
     }
 
+    // ----- OVERRIDDEN METHODS -----
+    // @Override
+    // protected void paintComponent(Graphics g) {
+    //     super.paintComponent(g);
+    //     Graphics2D g2d = (Graphics2D) g;
+    //     // Enable anti-aliasing for smooth text
+    //     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    //     // Set font & color
+    //     g2d.setFont(arcadeFont);
+    //     g2d.setColor(Color.WHITE);
+    //     // Draw text centered
+    //     String text = "Time Left: " + timeLeft + "s";
+    //     FontMetrics fm = g2d.getFontMetrics();
+    //     int x = (getWidth() - fm.stringWidth(text)) / 2;
+    //     int y = (getHeight() + fm.getAscent()) / 2 - fm.getDescent();
+    //     g2d.drawString(text, x, y);
+    // }
     //     score = 0;
     //     elapsedSeconds = 0;
     //     // Create the font used for the button and labels.

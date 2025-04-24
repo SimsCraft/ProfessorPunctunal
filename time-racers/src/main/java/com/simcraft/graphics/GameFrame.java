@@ -8,7 +8,6 @@ import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
 import static com.simcraft.App.FRAME_RATE_MS;
-
 import com.simcraft.graphics.animations.AnimationLoader;
 import com.simcraft.graphics.screens.AbstractScreen;
 import com.simcraft.graphics.screens.WelcomeScreen;
@@ -46,11 +45,11 @@ public final class GameFrame extends JFrame {
     /**
      * The fixed width of the application window in pixels.
      */
-    public static final int FRAME_WIDTH = 800;
+    public static final int FRAME_WIDTH = 1024;
     /**
      * The fixed height of the application window in pixels.
      */
-    public static final int FRAME_HEIGHT = 650;
+    public static final int FRAME_HEIGHT = 720;
 
     // ----- INSTANCE VARIABLES -----
     /**

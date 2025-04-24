@@ -42,15 +42,21 @@ public final class GameplayScreen extends AbstractScreen {
         super(gameFrame);
         setLayout(new BorderLayout());
 
-        int frameWidth = gameFrame.getWidth();
-        int frameHeight = gameFrame.getHeight();
-
         BufferedImage backgroundImage = ImageManager.loadBufferedImage("/images/backgrounds/background_0.png");
-        gamePanel = new GamePanel(frameHeight, frameHeight, backgroundImage);
-        infoPanel = new InfoPanel(frameWidth - frameHeight, frameHeight, "/images/backgrounds/info-panel.png");
+        int infoPanelHeight = 100;
+        infoPanel = new InfoPanel(
+                GameFrame.FRAME_WIDTH,
+                infoPanelHeight,
+                "/images/backgrounds/info-panel.png"
+        );
+        gamePanel = new GamePanel(
+                GameFrame.FRAME_WIDTH,
+                GameFrame.FRAME_HEIGHT - infoPanelHeight,
+                backgroundImage
+        );
 
+        add(infoPanel, BorderLayout.NORTH);
         add(gamePanel, BorderLayout.CENTER);
-        add(infoPanel, BorderLayout.LINE_END);
 
         gameManager = GameManager.getInstance();
         gameManager.init(gamePanel, infoPanel);
@@ -149,7 +155,6 @@ public final class GameplayScreen extends AbstractScreen {
                 //     velocityX = (int) Math.round((velocityX / length) * speed);
                 //     velocityY = (int) Math.round((velocityX / length) * speed);
                 // }
-
                 ali.setVelocityX(velocityX);
                 ali.setVelocityY(velocityY);
             }
