@@ -34,11 +34,12 @@ public class Yapper extends Enemy {
                 "yapper_walk_right",
                 "yapper_walk_up"
         ).collect(Collectors.toCollection(HashSet::new));
-
         setAnimationKeys(studentAnimationKeys);
 
         // Temporary initial animation; will be updated dynamically during movement
         setAnimation("yapper_walk_down");
+
+        setTimePenalty(10);
     }
 
     // ----- OVERRIDDEN METHODS -----

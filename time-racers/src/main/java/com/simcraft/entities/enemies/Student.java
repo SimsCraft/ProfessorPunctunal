@@ -34,11 +34,12 @@ public class Student extends Enemy {
                 "female_student_walk_right",
                 "female_student_walk_up"
         ).collect(Collectors.toCollection(HashSet::new));
-
         setAnimationKeys(studentAnimationKeys);
 
         // Temporary initial animation; will be updated dynamically during movement
         setAnimation("female_student_walk_down");
+
+        setTimePenalty(5);
     }
 
     // ----- OVERRIDDEN METHODS -----

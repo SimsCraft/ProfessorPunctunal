@@ -5,7 +5,6 @@ import java.lang.StackWalker.StackFrame;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -17,14 +16,12 @@ import com.simcraft.entities.enemies.Yapper;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.interfaces.Updateable;
 
+/**
+ * Manages the creation, lifespan, and behaviour of all enemies.
+ */
 public class EnemyManager implements Updateable {
 
     // ----- STATIC VARIABLES -----
-    private static final Map<Class<? extends Enemy>, Integer> TIME_PENALTIES = Map.of(
-            Student.class, 3,
-            Lecturer.class, 5,
-            Yapper.class, 10
-    );
     /**
      * The maximum number of enemies that can exist simultaneously.
      */
@@ -324,10 +321,5 @@ public class EnemyManager implements Updateable {
                 }
             }
         }
-
-    }
-
-    private int getTimePenalty(Enemy enemy) {
-        return TIME_PENALTIES.getOrDefault(enemy.getClass(), 0);
     }
 }

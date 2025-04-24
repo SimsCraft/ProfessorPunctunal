@@ -34,11 +34,12 @@ public class Lecturer extends Enemy {
                 "female_lecturer_walk_right",
                 "female_lecturer_walk_up"
         ).collect(Collectors.toCollection(HashSet::new));
-
         setAnimationKeys(lecturerAnimationKeys);
-
+        
         // Temporary initial animation; will be updated dynamically during movement
         setAnimation("female_lecturer_walk_down");
+
+        setTimePenalty(3);
     }
 
     // ----- OVERRIDDEN METHODS -----
