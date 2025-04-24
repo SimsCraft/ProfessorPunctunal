@@ -57,14 +57,9 @@ public class EnemyManager implements Updateable {
      * The timestamp (in milliseconds) of the last update call.
      */
     private long lastUpdateTime;
-    /**
-     * Reference to the {@link GameManager} singleton.
-     */
-    private final GameManager gameManager;
 
     // ----- CONSTRUCTORS -----
     public EnemyManager() {
-        gameManager = GameManager.getInstance();
         init();
     }
 
@@ -118,7 +113,7 @@ public class EnemyManager implements Updateable {
 
     // ----- BUSINESS LOGIC METHODS -----
     public void addEnemiesTest() {
-        GamePanel gamePanel = gameManager.getGamePanel();
+        GamePanel gamePanel = GameManager.getInstance().getGamePanel();
 
         for (int i = 0; i < 5; i++) {
             enemies.add(new Student.StudentBuilder(gamePanel)
@@ -295,7 +290,7 @@ public class EnemyManager implements Updateable {
     }
 
     private Point getRandomSpawnPoint() {
-        GamePanel gamePanel = gameManager.getGamePanel();
+        GamePanel gamePanel = GameManager.getInstance().getGamePanel();
         return new Point(
                 random.nextInt(gamePanel.getWidth()),
                 random.nextInt(gamePanel.getHeight())
@@ -309,7 +304,7 @@ public class EnemyManager implements Updateable {
             if (ali.collides(enemy)) {
                 if (!enemy.hasCollided()) {
                     enemy.setHasCollided(true);
-                    gameManager.subtractTimePenalty(enemy.getTimePenalty());
+                    GameManager.getInstance().subtractTimePenalty(enemy.getTimePenalty());
                 }
                 enemy.reverseMovementDirection();
             } else {
