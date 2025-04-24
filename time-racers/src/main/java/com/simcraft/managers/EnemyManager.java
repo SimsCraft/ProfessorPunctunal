@@ -14,9 +14,6 @@ import com.simcraft.entities.enemies.Enemy;
 import com.simcraft.entities.enemies.Lecturer;
 import com.simcraft.entities.enemies.Student;
 import com.simcraft.entities.enemies.Yapper;
-import com.simcraft.graphics.GameFrame;
-import static com.simcraft.graphics.GameFrame.FRAME_HEIGHT;
-import static com.simcraft.graphics.GameFrame.FRAME_WIDTH;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.interfaces.Updateable;
 
@@ -60,9 +57,14 @@ public class EnemyManager implements Updateable {
      * The timestamp (in milliseconds) of the last update call.
      */
     private long lastUpdateTime;
+    /**
+     * Reference to the {@link GameManager} singleton.
+     */
+    private final GameManager gameManager;
 
     // ----- CONSTRUCTORS -----
     public EnemyManager() {
+        gameManager = GameManager.getInstance();
         init();
     }
 
@@ -116,35 +118,22 @@ public class EnemyManager implements Updateable {
 
     // ----- BUSINESS LOGIC METHODS -----
     public void addEnemiesTest() {
+        GamePanel gamePanel = gameManager.getGamePanel();
+
         for (int i = 0; i < 5; i++) {
-            enemies.add(new Student.StudentBuilder(
-                    GameManager.getInstance().getGamePanel()
-            ).position(
-                    new Point(
-                            random.nextInt(FRAME_WIDTH),
-                            random.nextInt(FRAME_HEIGHT)
-                    )
-            ).build());
+            enemies.add(new Student.StudentBuilder(gamePanel)
+                    .position(getRandomSpawnPoint())
+                    .build());
         }
         for (int i = 0; i < 4; i++) {
-            enemies.add(new Lecturer.LecturerBuilder(
-                    GameManager.getInstance().getGamePanel()
-            ).position(
-                    new Point(
-                            random.nextInt(FRAME_WIDTH),
-                            random.nextInt(FRAME_HEIGHT)
-                    )
-            ).build());
+            enemies.add(new Lecturer.LecturerBuilder(gamePanel)
+                    .position(getRandomSpawnPoint())
+                    .build());
         }
         for (int i = 0; i < 2; i++) {
-            enemies.add(new Yapper.YapperBuilder(
-                    GameManager.getInstance().getGamePanel()
-            ).position(
-                    new Point(
-                            random.nextInt(FRAME_WIDTH),
-                            random.nextInt(FRAME_HEIGHT)
-                    )
-            ).build());
+            enemies.add(new Yapper.YapperBuilder(gamePanel)
+                    .position(getRandomSpawnPoint())
+                    .build());
         }
     }
 
@@ -289,7 +278,8 @@ public class EnemyManager implements Updateable {
     }
 
     /**
-     * Updates the list of managed enemies and removes any defeated enemies.
+     * Updates the list of managed enemies and removes any who are fully
+     * off-screen.
      */
     private void updateEnemies() {
         ensureRunning("updateEnemies");
@@ -300,14 +290,16 @@ public class EnemyManager implements Updateable {
 
         enemies.removeIf(enemy -> {
             enemy.update();
-            return enemy.getCurrentHitPoints() <= 0;
+            return enemy.isFullyOutsidePanel();
         });
     }
 
     private Point getRandomSpawnPoint() {
-        int x = random.nextInt(GameFrame.FRAME_HEIGHT);
-        int y = random.nextInt(GameFrame.FRAME_HEIGHT * 1 / 5, GameFrame.FRAME_HEIGHT * 3 / 5);
-        return new Point(x, y);
+        GamePanel gamePanel = gameManager.getGamePanel();
+        return new Point(
+                random.nextInt(gamePanel.getWidth()),
+                random.nextInt(gamePanel.getHeight())
+        );
     }
 
     private void checkCollisions() {
@@ -316,10 +308,8 @@ public class EnemyManager implements Updateable {
         for (Enemy enemy : enemies) {
             if (ali.collides(enemy)) {
                 if (!enemy.hasCollided()) {
-                    int penalty = getTimePenalty(enemy);
-                    timeLeft -= penalty;
-                    timerPanel.setTimeLeft(timeLeft);
                     enemy.setHasCollided(true);
+                    gameManager.subtractTimePenalty(enemy.getTimePenalty());
                 }
                 enemy.reverseMovementDirection();
             } else {

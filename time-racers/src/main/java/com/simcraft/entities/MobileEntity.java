@@ -6,7 +6,7 @@ import javax.swing.JPanel;
 
 /**
  * Represents a mobile entity in the game that can move around the game world.
- * Extends the Entity class to add movement-related behavior.
+ * Extends the {@link Entity} class to add movement-related behavior.
  */
 public abstract class MobileEntity extends Entity {
 

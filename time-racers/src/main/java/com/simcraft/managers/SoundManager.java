@@ -56,7 +56,7 @@ public class SoundManager {
         volume = 1.0f; // Default volume
         loadDefaultClips();
     }
-\
+
     // ----- SINGLETON GETTER -----
     /**
      * Returns the singleton instance of the {@link SoundManager}.

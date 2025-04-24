@@ -25,10 +25,20 @@ public class Lecturer extends Enemy {
      *
      * @param builder The {@link EnemyBuilder} used to construct the Lecturer.
      */
-    public Lecturer(EnemyBuilder builder) {
+    public Lecturer(LecturerBuilder builder) {
         super(builder);
 
-        setUpLecturerAnimations();
+        HashSet<String> lecturerAnimationKeys = Stream.of(
+                "female_lecturer_walk_down",
+                "female_lecturer_walk_left",
+                "female_lecturer_walk_right",
+                "female_lecturer_walk_up"
+        ).collect(Collectors.toCollection(HashSet::new));
+
+        setAnimationKeys(lecturerAnimationKeys);
+
+        // Temporary initial animation; will be updated dynamically during movement
+        setAnimation("female_lecturer_walk_down");
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -59,27 +69,8 @@ public class Lecturer extends Enemy {
         // );
     }
 
-    // ----- HELPER METHODS -----
-    /**
-     * Set up the animations for the Blue Mage, including animation keys and
-     * initial animation.
-     */
-    private void setUpLecturerAnimations() {
-        HashSet<String> studentAnimationKeys = Stream.of(
-                "female_lecturer_walk_down",
-                "female_lecturer_walk_left",
-                "female_lecturer_walk_right",
-                "female_lecturer_walk_up"
-        ).collect(Collectors.toCollection(HashSet::new));
-
-        setAnimationKeys(studentAnimationKeys);
-        setAnimation("female_lecturer_walk_down");
-        setMaxHitPoints(20);
-        setCurrentHitPoints(20);
-    }
-
-    // ----- STATIC BUILDER FOR ENEMY -----
-    public static class LecturerBuilder extends EnemyBuilder {
+    // ----- STATIC BUILDER FOR LECTURER -----
+    public static class LecturerBuilder extends EnemyBuilder<LecturerBuilder> {
 
         // ----- CONSTRUCTOR -----
         public LecturerBuilder(JPanel panel) {
@@ -87,7 +78,6 @@ public class Lecturer extends Enemy {
         }
 
         // ----- OVERRIDDEN METHODS -----
-        @Override
         public Lecturer build() {
             return new Lecturer(this);
         }

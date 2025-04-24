@@ -1,15 +1,14 @@
 package com.simcraft.managers;
 
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.lang.StackWalker.StackFrame;
-import java.util.HashSet;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.swing.Timer;
 
 import com.simcraft.entities.Ali;
 import com.simcraft.graphics.GameFrame;
+import com.simcraft.graphics.dialogue_panels.PauseMenuDialogue;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
 import com.simcraft.interfaces.Updateable;
@@ -21,43 +20,12 @@ public class GameManager implements Updateable {
      * Enum representing the possible game states.
      */
     private enum GameState {
-        NOT_INITIALIZED {
-            @Override
-            public void handleState(GameManager gameManager) {
-                // Cannot run game, must initialize first.
-                throw new IllegalStateException("Game is not initialized.");
-            }
-        },
-        INITIALIZING {
-            @Override
-            public void handleState(GameManager gameManager) {
-                // Game is in the process of initializing, don't allow any operations.
-                throw new IllegalStateException("Game is currently initializing.");
-            }
-        },
-        PAUSED {
-            @Override
-            public void handleState(GameManager gameManager) {
-                // Implement pause behavior
-                // gameManager.showPauseMenu();
-            }
-        },
-        RUNNING {
-            @Override
-            public void handleState(GameManager gameManager) {
-                // Handle game running logic (timer, game updates)
-                gameManager.update();
-            }
-        },
-        STOPPED {
-            @Override
-            public void handleState(GameManager gameManager) {
-                gameManager.clear();
-            }
-        };
-
-        // Planned more for, currently unused.
-        public abstract void handleState(GameManager gameManager);
+        NOT_INITIALIZED,
+        INITIALIZING,
+        PAUSED,
+        RUNNING,
+        STOPPED,
+        GAME_OVER
     }
 
     // ----- STATIC VARIABLES -----
@@ -101,12 +69,19 @@ public class GameManager implements Updateable {
      * Reference to the panel where game information is displayed.
      */
     private InfoPanel infoPanel;
+    /**
+     * The number of seconds remaining to complete the level. This is
+     * decremented once every second based on real-time checks.
+     */
+    private int remainingSeconds;
+    /**
+     * Timestamp (in milliseconds) of the last time one second was counted down.
+     * Used to track when to decrement the remaining time.
+     */
+    private long lastSecondTimestamp = System.currentTimeMillis();
+
 //     private Random random = new Random();
-//     private TimerPanel timerPanel;
-
-//     private int timeLeft = 60;
 //     private boolean gameOver = false;
-
     // ----- CONSTRUCTORS -----
     /**
      * Private constructor to prevent direct instantiation. Singleton pattern.
@@ -178,6 +153,37 @@ public class GameManager implements Updateable {
     }
 
     /**
+     * Checks if there is still time remaining in the current game session.
+     *
+     * @return {@code true} if the remaining time is greater than zero;
+     * {@code false} otherwise.
+     */
+    public boolean hasTimeRemaining() {
+        return remainingSeconds > 0;
+    }
+
+    /**
+     * Returns whether the game is in a game over state.
+     *
+     * @return {@code true} if the game is over; {@code false} otherwise.
+     */
+    public boolean isGameOver() {
+        return currentState == GameState.GAME_OVER;
+    }
+
+    // ----- SETTERS -----
+    public void setGameOver() {
+        currentState = GameState.GAME_OVER;
+        // if (timeLeft <= 0 && !isGameOver()gameOver) {
+        //     gameOver = true;
+        //     soundManager.stopBackgroundMusic();
+        //     soundManager.playGameOver();
+        //     JOptionPane.showMessageDialog(this, "Game Over! Time ran out.", "Game Over", JOptionPane.WARNING_MESSAGE);
+        //     System.exit(0);
+    }
+
+    // ----- BUSINESS LOGIC METHODS -----
+    /**
      * Initializes the GameManager for a new game. This method must be called
      * before the game can run. It sets up all the necessary objects to start
      * the game.
@@ -207,9 +213,10 @@ public class GameManager implements Updateable {
         // Transition to initializing state during setup
         currentState = GameState.INITIALIZING;
 
+        remainingSeconds = 300; // Temp value, potentially customized per level
         initialiseAli();
         enemyManager.init();
-        // setGamePaused(false);
+        setGamePaused(false);
 
         // Initialization complete. Begin running.
         currentState = GameState.RUNNING;
@@ -228,63 +235,51 @@ public class GameManager implements Updateable {
         }
     }
 
-    // /**
-    //  * Pauses the game when the pause button is clicked. Stops the timer and
-    //  * displays the pause menu dialogue.
-    //  *
-    //  * @param e The action event triggered by clicking the pause button.
-    //  */
-    // public void onPause(ActionEvent e) {
-    //     setGamePaused(true);
+    /**
+     * Pauses the game when the pause button is clicked. Stops the timer and
+     * displays the pause menu dialogue.
+     *
+     * @param e The action event triggered by clicking the pause button.
+     */
+    public void onPause(ActionEvent e) {
+        setGamePaused(true);
+    }
+    // public void startTimer() {
+    //     new Thread(() -> {
+    //         while (timeLeft > 0 && !gameOver) {
+    //             try {
+    //                 Thread.sleep(1000);
+    //                 SwingUtilities.invokeLater(() -> timerPanel.setTimeLeft(timeLeft--));
+    //                 checkGameOver();
+    //             } catch (InterruptedException e) {
+    //                 e.printStackTrace();
+    //             }
+    //         }
+    //     }).start();
     // }
-    //     public void checkGameOver() {
-    //         if (timeLeft <= 0 && !gameOver) {
-    //             gameOver = true;
-    //             soundManager.stopBackgroundMusic();
-    //             soundManager.playGameOver();
-    //             JOptionPane.showMessageDialog(this, "Game Over! Time ran out.", "Game Over", JOptionPane.WARNING_MESSAGE);
-    //             System.exit(0);
+    // public void startGame() {
+    //     ali = new Ali(this, getWidth() / 2 - 16, getHeight() - 50, soundManager, backgroundImage);
+    //     enemies = new ArrayList<>();
+    //     createGameEntities();
+    //     timeLeft = 60;
+    //     timerPanel.setTimeLeft(timeLeft);
+    //     gameOver = false;
+    //     requestFocusInWindow(); // Fix keyboard input issues
+    //     startGameThread();
+    //     startTimer();
+    // }
+    // // TODO Switch to single-threading
+    // @Override
+    // public void run() {
+    //     while (!gameOver) {
+    //         updateGameEntities();
+    //         try {
+    //             Thread.sleep(16);
+    //         } catch (InterruptedException e) {
+    //             e.printStackTrace();
     //         }
     //     }
-    //     public void startTimer() {
-//         new Thread(() -> {
-//             while (timeLeft > 0 && !gameOver) {
-//                 try {
-//                     Thread.sleep(1000);
-//                     SwingUtilities.invokeLater(() -> timerPanel.setTimeLeft(timeLeft--));
-//                     checkGameOver();
-//                 } catch (InterruptedException e) {
-//                     e.printStackTrace();
-//                 }
-//             }
-//         }).start();
-//     }
-
-//     public void startGame() {
-//         ali = new Ali(this, getWidth() / 2 - 16, getHeight() - 50, soundManager, backgroundImage);
-
-//         enemies = new ArrayList<>();
-//         createGameEntities();
-//         timeLeft = 60;
-//         timerPanel.setTimeLeft(timeLeft);
-//         gameOver = false;
-
-//         requestFocusInWindow(); // Fix keyboard input issues
-//         startGameThread();
-//         startTimer();
-//     }
-//     // TODO Switch to single-threading
-//     @Override
-//     public void run() {
-//         while (!gameOver) {
-//             updateGameEntities();
-//             try {
-//                 Thread.sleep(16);
-//             } catch (InterruptedException e) {
-//                 e.printStackTrace();
-//             }
-//         }
-//     }
+    // }
     // ----- OVERRIDDEN METHODS -----
     /**
      * Updates all managed objects and the current game state.
@@ -292,6 +287,12 @@ public class GameManager implements Updateable {
     @Override
     public void update() {
         ensureInitialized("update");
+
+        updateRemainingSeconds();
+        if (!hasTimeRemaining()) {
+            setGameOver();
+            return;
+        }
 
         if (ali != null) {
             ali.update();
@@ -338,19 +339,7 @@ public class GameManager implements Updateable {
             );
         }
 
-        HashSet<String> playerAnimationKeys = Stream.of(
-                "ali_walk_down",
-                "ali_walk_left",
-                "ali_walk_right",
-                "ali_walk_up"
-        ).collect(Collectors.toCollection(HashSet::new));
-
         ali = new Ali.AliBuilder(gamePanel)
-                .collidability(true)
-                .animationKeys(playerAnimationKeys)
-                .currentAnimationKey("ali_walk_right")
-                .maxHitPoints(20)
-                .currentHitPoints(20)
                 .speed(4)
                 .build();
 
@@ -361,37 +350,51 @@ public class GameManager implements Updateable {
         ali.setPosition(new Point(x, y));
     }
 
+    private void updateRemainingSeconds() {
+        // Decrease timer once per second
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastSecondTimestamp >= 1000) {
+            remainingSeconds = Math.max(0, remainingSeconds - 1);
+            lastSecondTimestamp = currentTime;
+            
+            infoPanel.updateTimerDisplay(remainingSeconds);
+        }
+    }
+
     /**
      * // * Displays the pause menu dialogue. //
      */
-    // private void showPauseMenu() {
-    //     PauseMenuDialogue pauseMenuDialogue = new PauseMenuDialogue(
-    //             (GameFrame) gamePanel.getTopLevelAncestor(),
-    //             this::onResume
-    //     );
-    //     pauseMenuDialogue.setVisible(true);
-    // }
-    // /**
-    //  * Resumes the game.
-    //  */
-    // private void onResume() {
-    //     setGamePaused(false);
-    // }
-    // /**
-    //  * Pauses or resumes the game based on the given parameter.
-    //  *
-    //  * @param paused Whether the game should be paused.
-    //  */
-    // private void setGamePaused(boolean paused) {
-    //     if (paused) {
-    //         currentState = GameState.PAUSED;
-    //         stopGameplayTimer();
-    //         showPauseMenu();
-    //     } else {
-    //         currentState = GameState.RUNNING;
-    //         startGameplayTimer();
-    //     }
-    // }
+    private void showPauseMenu() {
+        PauseMenuDialogue pauseMenuDialogue = new PauseMenuDialogue(
+                (GameFrame) gamePanel.getTopLevelAncestor(),
+                this::onResume
+        );
+        pauseMenuDialogue.setVisible(true);
+    }
+
+    /**
+     * Resumes the game.
+     */
+    private void onResume() {
+        setGamePaused(false);
+    }
+
+    /**
+     * Pauses or resumes the game based on the given parameter.
+     *
+     * @param paused Whether the game should be paused.
+     */
+    private void setGamePaused(boolean paused) {
+        if (paused) {
+            currentState = GameState.PAUSED;
+            stopGameplayTimer();
+            showPauseMenu();
+        } else {
+            currentState = GameState.RUNNING;
+            startGameplayTimer();
+        }
+    }
+
     /**
      * Starts the current gameplay timer.
      */
@@ -424,7 +427,6 @@ public class GameManager implements Updateable {
     public void subtractTimePenalty(final long timePenalty) {
         // TODO implement
     }
-}
 
 // public int getScore() {
 //     return score;
@@ -449,13 +451,4 @@ public class GameManager implements Updateable {
 // public void updateTimerDisplay() {
 //     statusPanel.updateTimerDisplay(elapsedSeconds);
 // }
-// /**
-//  * Action invoked by the game timer every second. Increments the elapsed
-//  * time and updates the timer display.
-//  *
-//  * @param e The action event triggered by the timer.
-//  */
-// private void onTimerTick(ActionEvent e) {
-//     elapsedSeconds++;
-//     updateTimerDisplay();
-    // }
+}

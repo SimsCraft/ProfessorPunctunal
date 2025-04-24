@@ -1,6 +1,9 @@
 package com.simcraft.entities;
 
 import java.awt.Point;
+import java.util.HashSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.JPanel;
 
@@ -12,6 +15,18 @@ public class Ali extends MobileEntity {
 
     public Ali(AliBuilder builder) {
         super(builder);
+
+        HashSet<String> aliAnimationKeys = Stream.of(
+                "ali_walk_down",
+                "ali_walk_left",
+                "ali_walk_right",
+                "ali_walk_up"
+        ).collect(Collectors.toCollection(HashSet::new));
+
+        setAnimationKeys(aliAnimationKeys);
+
+        // Temporary initial animation; will be updated dynamically during movement
+        setAnimation("ali_walk_down");
     }
 
     // ----- BUSINESS LOGIC -----

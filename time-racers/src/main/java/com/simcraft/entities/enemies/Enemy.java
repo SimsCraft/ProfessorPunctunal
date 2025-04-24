@@ -8,23 +8,15 @@ import javax.swing.JPanel;
 
 import com.simcraft.entities.Ali;
 import com.simcraft.entities.MobileEntity;
-import com.simcraft.graphics.GameFrame;
 
 /**
- * Represents an enemy in the game that is mobile and can move within the game
- * world.
+ * Represents an enemy in the game.
  * <p>
  * This class extends {@link MobileEntity} and includes functionality for
  * attacking the player/{@link Ali}.
  */
-public class Enemy extends MobileEntity {
+public abstract class Enemy extends MobileEntity {
 
-    /**
-     * The cooldown duration before the enemy can move again after a previous
-     * movement opportunity.
-     */
-    protected int moveDelay;
-    protected boolean hasCollided;
     /**
      * The duration (in milliseconds) an enemy can continuously attack before
      * needing to cool down.
@@ -51,6 +43,17 @@ public class Enemy extends MobileEntity {
      * Internally used random numbe generator.
      */
     protected Random random;
+    /**
+     * The cooldown duration before the enemy can move again after a previous
+     * movement opportunity.
+     */
+    protected int moveDelay;
+    protected boolean hasCollided;
+    /**
+     * How many seconds to remove from the timer if Ali collides with this
+     * enemy.
+     */
+    protected int timePenalty;
 
     // ----- CONSTRUCTORS -----
     /**
@@ -58,7 +61,7 @@ public class Enemy extends MobileEntity {
      *
      * @param builder The {@link EnemyBuilder} used to construct the enemy.
      */
-    public Enemy(EnemyBuilder builder) {
+    protected Enemy(EnemyBuilder<?> builder) {
         super(builder);
         random = new Random();
         hasCollided = false;
@@ -68,7 +71,7 @@ public class Enemy extends MobileEntity {
     /**
      * Returns the cooldown duration before the enemy can move again after a
      * previous movement opportunity.
-     * 
+     *
      * @return the movement delay.
      */
     public int getMoveDelay() {
@@ -78,6 +81,7 @@ public class Enemy extends MobileEntity {
     public boolean hasCollided() {
         return hasCollided;
     }
+
     /**
      * Returns whether the enemy is attacking/firing bullets.
      *
@@ -120,11 +124,21 @@ public class Enemy extends MobileEntity {
         return lastUpdateTime;
     }
 
+    /**
+     * Returns how many seconds will be removed from the timer if Ali collides
+     * with this enemy.
+     *
+     * @return the time penalty.
+     */
+    public int getTimePenalty() {
+        return timePenalty;
+    }
+
     // ---- SETTERS -----
     /**
      * Sets the cooldown duration before the enemy can move again after a
      * previous movement opportunity.
-     * 
+     *
      * @param moveDelay The movement delay.
      */
     public void setMoveDelay(final int moveDelay) {
@@ -175,6 +189,16 @@ public class Enemy extends MobileEntity {
         // double currentBulletVelocityY = bulletSpawner.getBulletVelocityY();
         // bulletSpawner.setBulletVelocityX(currentBulletVelocityX * Math.cos(radians));
         // bulletSpawner.setBulletVelocityY(currentBulletVelocityY * Math.sin(radians));
+    }
+
+    /**
+     * Sets how many seconds will be removed from the timer if Ali collides with
+     * this enemy.
+     *
+     * @param timePenalty The time penalty.
+     */
+    public void setTimePenalty(final int timePenalty) {
+        this.timePenalty = timePenalty;
     }
 
     // ----- BUSINESS LOGIC METHODS -----
@@ -261,7 +285,8 @@ public class Enemy extends MobileEntity {
                 && isAttacking() == other.isAttacking()
                 && Long.compare(attackCooldownMs, other.getAttackCooldownMs()) == 0
                 && Long.compare(elapsedAttackCooldownMs, other.getElapsedAttackCooldownMs()) == 0
-                && Long.compare(lastUpdateTime, other.getLastUpdateTime()) == 0;
+                && Long.compare(lastUpdateTime, other.getLastUpdateTime()) == 0
+                && Integer.compare(timePenalty, getTimePenalty()) == 0;
     }
 
     /**
@@ -278,7 +303,8 @@ public class Enemy extends MobileEntity {
                 isAttacking(),
                 attackCooldownMs,
                 elapsedAttackCooldownMs,
-                lastUpdateTime
+                lastUpdateTime,
+                timePenalty
         );
     }
 
@@ -321,13 +347,13 @@ public class Enemy extends MobileEntity {
     /**
      * Ensures the entity remains within screen boundaries.
      * <p>
-     * Extends {@link MobileEntity#correctPosition()} by adding horizontal
-     * bounce behavior when the enemy reaches the screen's edges.
+     * Extends {@link MobileEntity#correctPosition()} by adding vertical bounce
+     * behavior when the enemy reaches the screen's edges.
      */
     @Override
     protected void correctPosition() {
         super.correctPosition(); // Use inherited boundary correction
-        horizontalScreenBounce(); // Add bouncing behavior
+        verticalScreenBounce(); // Add bouncing behavior
     }
 
     // ---- HELPER METHODS -----
@@ -335,10 +361,13 @@ public class Enemy extends MobileEntity {
      * Reverses the enemy's horizontal velocity when hitting the left or right
      * screen boundary, simulating a wall bounce.
      */
-    private void horizontalScreenBounce() {
-        if (position.x <= 0 || position.x >= panel.getWidth() - getSpriteWidth()) {
-            velocityX = -velocityX; // Reverse direction
-            position.x = Math.max(Math.min(position.x, 0), GameFrame.FRAME_HEIGHT - getSpriteWidth()); // Keep within bounds
+    private void verticalScreenBounce() {
+        int panelHeight = panel.getHeight();
+        int spriteHeight = getSpriteHeight();
+
+        if (position.y <= 0 || position.y >= panelHeight - spriteHeight) {
+            velocityY = -velocityY; // Reverse direction
+            position.y = Math.max(Math.min(position.y, 0), panelHeight - spriteHeight); // Keep within bounds
         }
     }
 
@@ -366,16 +395,24 @@ public class Enemy extends MobileEntity {
     }
 
     // ----- STATIC BUILDER FOR ENEMY -----
-    public static class EnemyBuilder extends MobileEntityBuilder<EnemyBuilder> {
+    public static class EnemyBuilder<T extends MobileEntityBuilder<T>> extends MobileEntityBuilder<T> {
+
+        // ----- INSTANCE VARIABLES -----
+        private int timePenalty = 0;
 
         // ----- CONSTRUCTOR -----
         public EnemyBuilder(JPanel panel) {
             super(panel);
         }
 
-        // ----- BUSINESS LOGIC METHODS -----
-        public Enemy build() {
-            return new Enemy(this);
+        // ----- SETTERS -----
+        /**
+         * Sets how many seconds to remove from the timer if Ali collides with
+         * this enemy.
+         */
+        public T timePenalty(final int timePenalty) {
+            this.timePenalty = timePenalty;
+            return self();
         }
     }
 }

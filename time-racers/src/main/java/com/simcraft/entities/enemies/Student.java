@@ -25,10 +25,20 @@ public class Student extends Enemy {
      *
      * @param builder The {@link EnemyBuilder} used to construct the Student.
      */
-    public Student(EnemyBuilder builder) {
+    public Student(StudentBuilder builder) {
         super(builder);
 
-        setUpStudentAnimations();
+        HashSet<String> studentAnimationKeys = Stream.of(
+                "female_student_walk_down",
+                "female_student_walk_left",
+                "female_student_walk_right",
+                "female_student_walk_up"
+        ).collect(Collectors.toCollection(HashSet::new));
+
+        setAnimationKeys(studentAnimationKeys);
+
+        // Temporary initial animation; will be updated dynamically during movement
+        setAnimation("female_student_walk_down");
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -62,27 +72,8 @@ public class Student extends Enemy {
         // );
     }
 
-    // ----- HELPER METHODS -----
-    /**
-     * Set up the animations for the Blue Mage, including animation keys and
-     * initial animation.
-     */
-    private void setUpStudentAnimations() {
-        HashSet<String> studentAnimationKeys = Stream.of(
-                "female_student_walk_down",
-                "female_student_walk_left",
-                "female_student_walk_right",
-                "female_student_walk_up"
-        ).collect(Collectors.toCollection(HashSet::new));
-
-        setAnimationKeys(studentAnimationKeys);
-        setAnimation("female_student_walk_down");
-        setMaxHitPoints(20);
-        setCurrentHitPoints(20);
-    }
-
     // ----- STATIC BUILDER FOR ENEMY -----
-    public static class StudentBuilder extends EnemyBuilder {
+    public static class StudentBuilder extends EnemyBuilder<StudentBuilder> {
 
         // ----- CONSTRUCTOR -----
         public StudentBuilder(JPanel panel) {
@@ -90,7 +81,6 @@ public class Student extends Enemy {
         }
 
         // ----- OVERRIDDEN METHODS -----
-        @Override
         public Student build() {
             return new Student(this);
         }

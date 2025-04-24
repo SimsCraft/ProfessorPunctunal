@@ -2,125 +2,72 @@ package com.simcraft.graphics.screens.subpanels;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 
-import static javax.swing.Box.createHorizontalStrut;
-import static javax.swing.Box.createVerticalStrut;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 import com.simcraft.graphics.UIConstants;
+import com.simcraft.managers.GameManager;
+import com.simcraft.utility.ButtonUtil;
 
 /**
  * The InfoPanel displays game information (e.g., player health, elapsed time,
  * and score) pause button for the game.
  * <p>
- * This panel is displayed at the right of the gameplay screen.
+ * This panel is displayed at the top of the gameplay screen.
  * </p>
  */
 public final class InfoPanel extends Subpanel {
 
-    // private final JButton pauseButton;
-    private final JLabel waveCounterLabel;
-    private final JLabel gameplayTimerLabel;
-    private final JLabel highscoreLabel;
-    private final JLabel scoreLabel;
-    private final JPanel hpCounterPanel;
-    private final JPanel bombCounterPanel;
-    private final JTextArea infoTextArea;
+    // ----- INSTANCE VARIABLES -----
+    private final JButton pauseButton;
+    private final JLabel levelLabel;
+    private final JLabel timerLabel;
 
+    // ----- CONSTRUCTORS -----
     /**
      * Constructs the InfoPanel.
      */
     public InfoPanel(final int width, final int height, final String backgroundImageFilepath) {
         super(width, height, backgroundImageFilepath);
 
-        // Background colour used as a backup in case the image deosn't load.
+        // Background colour used as a backup in case the image doesn't load.
         setBackground(new Color(87, 73, 100));
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         setAlignmentX(Component.CENTER_ALIGNMENT);
         setAlignmentY(CENTER_ALIGNMENT);
 
         // ----- Initialise elements -----
-        JPanel topRow = new JPanel();
-        topRow.setLayout(new BoxLayout(topRow, BoxLayout.X_AXIS));
+        pauseButton = ButtonUtil.createButtonWithIcon(
+                "/images/icons/pause-button.png",
+                64,
+                64,
+                false,
+                GameManager.getInstance()::onPause
+        );
 
-        JPanel topRowLabels = new JPanel();
-        topRowLabels.setLayout(new BoxLayout(topRowLabels, BoxLayout.Y_AXIS));
+        levelLabel = new JLabel("LEVEL <no.>");
+        levelLabel.setFont(UIConstants.BODY_FONT);
 
-        waveCounterLabel = new JLabel("Wave <lorem ipsum>");
-        waveCounterLabel.setFont(UIConstants.BODY_FONT);
-
-        gameplayTimerLabel = new JLabel("HH:MM.SS");
-        gameplayTimerLabel.setFont(UIConstants.BODY_FONT);
-
-        // pauseButton = ButtonUtil.createButtonWithIcon("/images/icons/pause-button.png", 64, 64, false, GameManager.getInstance()::onPause);
-
-        Dimension scoreLabelSize = new Dimension(284, 80);
-        highscoreLabel = new JLabel("Highscore: <lorem ipsum>");
-        highscoreLabel.setFont(UIConstants.BODY_FONT);
-        highscoreLabel.setPreferredSize(scoreLabelSize);
-        highscoreLabel.setMinimumSize(scoreLabelSize);
-        highscoreLabel.setMaximumSize(scoreLabelSize);
-        highscoreLabel.setBackground(Color.WHITE);
-
-        scoreLabel = new JLabel("Score: <lorem ipsum>");
-        scoreLabel.setFont(UIConstants.BODY_FONT);
-        scoreLabel.setPreferredSize(scoreLabelSize);
-        scoreLabel.setMinimumSize(scoreLabelSize);
-        scoreLabel.setMaximumSize(scoreLabelSize);
-        scoreLabel.setBackground(Color.WHITE);
-
-        Dimension counterPanelSize = new Dimension(284, 80);
-        hpCounterPanel = new JPanel(true);
-        hpCounterPanel.setPreferredSize(counterPanelSize);
-        hpCounterPanel.setMinimumSize(counterPanelSize);
-        hpCounterPanel.setMaximumSize(counterPanelSize);
-        hpCounterPanel.setBackground(Color.WHITE);
-
-        bombCounterPanel = new JPanel(true);
-        bombCounterPanel.setPreferredSize(counterPanelSize);
-        bombCounterPanel.setMinimumSize(counterPanelSize);
-        bombCounterPanel.setMaximumSize(counterPanelSize);
-        bombCounterPanel.setBackground(Color.WHITE);
-
-        StringBuilder sb = new StringBuilder("Controls:");
-        sb.append(String.format("%n    - WSAD or arrow keys to move"));
-        sb.append(String.format("%n    - SPACE to use a bomb (destroys all enemy bullets on screen."));
-        sb.append(String.format("%n%nGoal:"));
-        sb.append(String.format("%n    - Shoot enemies to gain points."));
-        sb.append(String.format("%n    - Don't get hit by enemy bullets."));
-        infoTextArea = new JTextArea(sb.toString());
-        infoTextArea.setPreferredSize(new Dimension(getWidth() - 20, 300));
-        infoTextArea.setBackground(Color.WHITE);
-        infoTextArea.setForeground(Color.BLACK);
-        infoTextArea.setEditable(false);
-        infoTextArea.setFont(UIConstants.BODY_FONT);
-
-        // ----- Add to topRow -----
-        topRowLabels.add(waveCounterLabel);
-        topRowLabels.add(createVerticalStrut(40));
-        topRowLabels.add(gameplayTimerLabel);
-        topRow.add(topRowLabels);
-        topRow.add(createHorizontalStrut(40));
-        // topRow.add(pauseButton);
+        timerLabel = new JLabel("MM.SS");
+        timerLabel.setFont(UIConstants.BODY_FONT);
 
         // ----- Add to InfoPanel -----
-        add(createVerticalStrut(20));
-        add(topRow);
-        add(createVerticalStrut(200));
-        add(highscoreLabel);
-        add(createVerticalStrut(20));
-        add(scoreLabel);
-        add(createVerticalStrut(20));
-        validate();
-        add(hpCounterPanel);
-        add(createVerticalStrut(20));
-        add(bombCounterPanel);
-        add(createVerticalStrut(100));
-        add(infoTextArea);
+        add(pauseButton);
+        add(levelLabel);
+        add(timerLabel);
+    }
+
+    // ----- BUSINESS LOGIC METHODS -----
+    public void updateLevelCounter(final int levelCounter) {
+        timerLabel.setText(String.format("LEVEL %d", levelCounter));
+    }
+
+    public void updateTimerDisplay(final int remainingSeconds) {
+        int minutes = remainingSeconds / 60;
+        int seconds = remainingSeconds % 60;
+        timerLabel.setText(String.format("Remaining Time: %d:%02d", minutes, seconds));
     }
 
     //     score = 0;

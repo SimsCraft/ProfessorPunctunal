@@ -11,7 +11,6 @@ import javax.swing.JPanel;
 //         super(panel, xPos, yPos, 4, "Yapper/yap", backgroundImage); // Fast speed
 //     }
 // }
-
 /**
  * Represents a Yapper enemy in the game.
  * <p>
@@ -26,16 +25,26 @@ public class Yapper extends Enemy {
      *
      * @param builder The {@link EnemyBuilder} used to construct the Yapper.
      */
-    public Yapper(EnemyBuilder builder) {
+    public Yapper(YapperBuilder builder) {
         super(builder);
 
-        setUpYapperAnimations();
+        HashSet<String> studentAnimationKeys = Stream.of(
+                "yapper_walk_down",
+                "yapper_walk_left",
+                "yapper_walk_right",
+                "yapper_walk_up"
+        ).collect(Collectors.toCollection(HashSet::new));
+
+        setAnimationKeys(studentAnimationKeys);
+
+        // Temporary initial animation; will be updated dynamically during movement
+        setAnimation("yapper_walk_down");
     }
 
     // ----- OVERRIDDEN METHODS -----
     /**
      * Replace with actual movement logic
-     * 
+     *
      * Extends {@link Enemy#move()} by applying a cosine function to oscillate
      * the y-coordinate with a given amplitude.
      * <p>
@@ -47,17 +56,11 @@ public class Yapper extends Enemy {
         super.move();
 
         // TODO Replace with actual movement logic
-
-
-        
         // // Get the normalized cosine value in the range [-1, 1]
         // double normalizedCos = Math.cos(position.y);
-
         // double amplitude = 50;
-
         // // Oscillate within the range, using the amplitude to determine the oscillation
         // double oscillatedY = amplitude * GameFrame.FRAME_HEIGHT * normalizedCos;
-
         // // Clamp the result to stay within the limits [1/5 * GameFrame.FRAME_HEIGHT, 3/5 * GameFrame.FRAME_HEIGHT]
         // position.y = (int) Math.max(
         //         Math.min(
@@ -68,27 +71,8 @@ public class Yapper extends Enemy {
         // );
     }
 
-    // ----- HELPER METHODS -----
-    /**
-     * Set up the animations for the Blue Mage, including animation keys and
-     * initial animation.
-     */
-    private void setUpYapperAnimations() {
-        HashSet<String> studentAnimationKeys = Stream.of(
-                "yapper_walk_down",
-                "yapper_walk_left",
-                "yapper_walk_right",
-                "yapper_walk_up"
-        ).collect(Collectors.toCollection(HashSet::new));
-
-        setAnimationKeys(studentAnimationKeys);
-        setAnimation("yapper_walk_down");
-        setMaxHitPoints(20);
-        setCurrentHitPoints(20);
-    }
-
     // ----- STATIC BUILDER FOR ENEMY -----
-    public static class YapperBuilder extends EnemyBuilder {
+    public static class YapperBuilder extends EnemyBuilder<YapperBuilder> {
 
         // ----- CONSTRUCTOR -----
         public YapperBuilder(JPanel panel) {
@@ -96,7 +80,6 @@ public class Yapper extends Enemy {
         }
 
         // ----- OVERRIDDEN METHODS -----
-        @Override
         public Yapper build() {
             return new Yapper(this);
         }

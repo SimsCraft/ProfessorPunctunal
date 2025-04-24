@@ -61,21 +61,6 @@ public abstract class Entity implements Updateable, Renderable {
      */
     protected Rectangle hitbox;
 
-    /**
-     * Flag indicating whether the entity can collide with other entities.
-     */
-    protected boolean isCollidable;
-
-    /**
-     * The maximum hit points of the entity.
-     */
-    protected int maxHitPoints;
-
-    /**
-     * The current hit points of the entity.
-     */
-    protected int currentHitPoints;
-
     // ----- CONSTRUCTORS -----
     /**
      * Private constructor used by the builder pattern to instantiate an Entity.
@@ -94,9 +79,6 @@ public abstract class Entity implements Updateable, Renderable {
         this.position = builder.position;
         this.animationKeys = builder.animationKeys;
         this.hitbox = builder.hitbox;
-        this.isCollidable = builder.isCollidable;
-        setMaxHitPoints(builder.maxHitPoints);
-        setCurrentHitPoints(builder.currentHitPoints);
 
         // Set initial animation and hitbox
         setAnimation(builder.currentAnimationKey);
@@ -210,34 +192,6 @@ public abstract class Entity implements Updateable, Renderable {
         return hitbox;
     }
 
-    /**
-     * Returns whether the entity is collidable with others.
-     *
-     * @return {@code true} if the entity is collidable, {@code false}
-     * otherwise.
-     */
-    public boolean isCollidable() {
-        return isCollidable;
-    }
-
-    /**
-     * Returns the maximum hit points of the entity.
-     *
-     * @return The maximum hit points.
-     */
-    public int getMaxHitPoints() {
-        return maxHitPoints;
-    }
-
-    /**
-     * Returns the current hit points of the entity.
-     *
-     * @return The current hit points.
-     */
-    public int getCurrentHitPoints() {
-        return currentHitPoints;
-    }
-
     // ----- SETTERS -----
     /**
      * Sets the position of the entity.
@@ -349,41 +303,6 @@ public abstract class Entity implements Updateable, Renderable {
         hitbox = new Rectangle(rectangle);
     }
 
-    /**
-     * Sets the maximum hit points of the entity. Requires a non-negative value.
-     */
-    protected final void setMaxHitPoints(final int maxHitPoints) throws IllegalArgumentException {
-        if (maxHitPoints < 0) {
-            throw new IllegalArgumentException(String.format(
-                    "%s: Maximum hit points cannot be less than zero (0).",
-                    this.getClass().getName()
-            ));
-        }
-        this.maxHitPoints = maxHitPoints;
-    }
-
-    /**
-     * Sets the current hit points of the entity. Requires a non-negative value
-     * less than or equal to the maximum value.
-     */
-    protected final void setCurrentHitPoints(final int currentHitPoints) throws IllegalArgumentException {
-        if (currentHitPoints < 0) {
-            throw new IllegalArgumentException(String.format(
-                    "%s: Current hit points cannot be less than zero (0).",
-                    this.getClass().getName()
-            ));
-        }
-
-        if (currentHitPoints > maxHitPoints) {
-            throw new IllegalArgumentException(String.format(
-                    "%s: Current hit points cannot be greater than maximum hit points <%d>.",
-                    this.getClass().getName(),
-                    maxHitPoints
-            ));
-        }
-        this.currentHitPoints = currentHitPoints;
-    }
-
     // ----- BUSINESS LOGIC METHODS -----
     /**
      * Determines if the entity is fully within the bounds of the panel.
@@ -417,7 +336,7 @@ public abstract class Entity implements Updateable, Renderable {
      * {@code false} otherwise.
      */
     public boolean collides(final Rectangle rectangle) {
-        return isCollidable && hitbox != null && rectangle != null && hitbox.intersects(rectangle);
+        return hitbox != null && rectangle != null && hitbox.intersects(rectangle);
     }
 
     /**
@@ -485,10 +404,7 @@ public abstract class Entity implements Updateable, Renderable {
                 && Objects.equals(position, other.getPosition())
                 && Objects.equals(animationKeys, other.getAnimationKeys())
                 && Objects.equals(currentAnimationKey, other.getCurrentAnimationKey())
-                && Objects.equals(hitbox, other.getHitbox())
-                && isCollidable == other.isCollidable()
-                && maxHitPoints == other.getMaxHitPoints()
-                && currentHitPoints == other.getCurrentHitPoints();
+                && Objects.equals(hitbox, other.getHitbox());
     }
 
     /**
@@ -503,10 +419,7 @@ public abstract class Entity implements Updateable, Renderable {
                 position,
                 animationKeys,
                 currentAnimationKey,
-                hitbox,
-                isCollidable,
-                maxHitPoints,
-                currentHitPoints
+                hitbox
         );
     }
 
@@ -557,9 +470,6 @@ public abstract class Entity implements Updateable, Renderable {
         private HashSet<String> animationKeys = new HashSet<>();
         private String currentAnimationKey = null;
         private Rectangle hitbox = new Rectangle(0, 0, 0, 0);
-        private boolean isCollidable = false;
-        private int maxHitPoints = 0;
-        private int currentHitPoints = 0;
 
         /**
          * Creates a EntityBuilder for constructing an Entity.
@@ -605,39 +515,6 @@ public abstract class Entity implements Updateable, Renderable {
          */
         public T currentAnimationKey(final String currentAnimationKey) {
             this.currentAnimationKey = currentAnimationKey;
-            return self();
-        }
-
-        /**
-         * Sets the collidability flag for the entity.
-         *
-         * @param isCollidable The collidability flag.
-         * @return The builder instance.
-         */
-        public T collidability(final boolean isCollidable) {
-            this.isCollidable = isCollidable;
-            return self();
-        }
-
-        /**
-         * Sets the maximum hit points for the entity.
-         *
-         * @param maxHitPoints The maximum hit points.
-         * @return The builder instance.
-         */
-        public T maxHitPoints(final int maxHitPoints) {
-            this.maxHitPoints = maxHitPoints;
-            return self();
-        }
-
-        /**
-         * Sets the current hit points for the entity.
-         *
-         * @param currentHitPoints The current hit points.
-         * @return The builder instance.
-         */
-        public T currentHitPoints(final int currentHitPoints) {
-            this.currentHitPoints = currentHitPoints;
             return self();
         }
 
