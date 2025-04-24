@@ -101,6 +101,11 @@ public class GameManager implements Updateable {
      * Reference to the panel where game information is displayed.
      */
     private InfoPanel infoPanel;
+//     private Random random = new Random();
+//     private TimerPanel timerPanel;
+
+//     private int timeLeft = 60;
+//     private boolean gameOver = false;
 
     // ----- CONSTRUCTORS -----
     /**
@@ -232,7 +237,54 @@ public class GameManager implements Updateable {
     // public void onPause(ActionEvent e) {
     //     setGamePaused(true);
     // }
+    //     public void checkGameOver() {
+    //         if (timeLeft <= 0 && !gameOver) {
+    //             gameOver = true;
+    //             soundManager.stopBackgroundMusic();
+    //             soundManager.playGameOver();
+    //             JOptionPane.showMessageDialog(this, "Game Over! Time ran out.", "Game Over", JOptionPane.WARNING_MESSAGE);
+    //             System.exit(0);
+    //         }
+    //     }
+    //     public void startTimer() {
+//         new Thread(() -> {
+//             while (timeLeft > 0 && !gameOver) {
+//                 try {
+//                     Thread.sleep(1000);
+//                     SwingUtilities.invokeLater(() -> timerPanel.setTimeLeft(timeLeft--));
+//                     checkGameOver();
+//                 } catch (InterruptedException e) {
+//                     e.printStackTrace();
+//                 }
+//             }
+//         }).start();
+//     }
 
+//     public void startGame() {
+//         ali = new Ali(this, getWidth() / 2 - 16, getHeight() - 50, soundManager, backgroundImage);
+
+//         enemies = new ArrayList<>();
+//         createGameEntities();
+//         timeLeft = 60;
+//         timerPanel.setTimeLeft(timeLeft);
+//         gameOver = false;
+
+//         requestFocusInWindow(); // Fix keyboard input issues
+//         startGameThread();
+//         startTimer();
+//     }
+//     // TODO Switch to single-threading
+//     @Override
+//     public void run() {
+//         while (!gameOver) {
+//             updateGameEntities();
+//             try {
+//                 Thread.sleep(16);
+//             } catch (InterruptedException e) {
+//                 e.printStackTrace();
+//             }
+//         }
+//     }
     // ----- OVERRIDDEN METHODS -----
     /**
      * Updates all managed objects and the current game state.
@@ -310,8 +362,8 @@ public class GameManager implements Updateable {
     }
 
     /**
-    //  * Displays the pause menu dialogue.
-    //  */
+     * // * Displays the pause menu dialogue. //
+     */
     // private void showPauseMenu() {
     //     PauseMenuDialogue pauseMenuDialogue = new PauseMenuDialogue(
     //             (GameFrame) gamePanel.getTopLevelAncestor(),
@@ -319,14 +371,12 @@ public class GameManager implements Updateable {
     //     );
     //     pauseMenuDialogue.setVisible(true);
     // }
-
     // /**
     //  * Resumes the game.
     //  */
     // private void onResume() {
     //     setGamePaused(false);
     // }
-
     // /**
     //  * Pauses or resumes the game based on the given parameter.
     //  *
@@ -342,7 +392,6 @@ public class GameManager implements Updateable {
     //         startGameplayTimer();
     //     }
     // }
-
     /**
      * Starts the current gameplay timer.
      */
@@ -372,7 +421,6 @@ public class GameManager implements Updateable {
     //         System.exit(0);
     //     }
     // }
-
     public void subtractTimePenalty(final long timePenalty) {
         // TODO implement
     }
