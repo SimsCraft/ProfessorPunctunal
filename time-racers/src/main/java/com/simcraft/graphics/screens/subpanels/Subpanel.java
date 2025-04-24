@@ -29,6 +29,14 @@ public abstract class Subpanel extends JPanel implements Renderable {
         setBackgroundImage(backgroundImageFilepath);
     }
 
+    protected Subpanel(final int width, final int height, final BufferedImage backgroundImage) {
+        Dimension panelSize = new Dimension(width, height);
+        setPreferredSize(panelSize);
+        setMinimumSize(panelSize);
+        setMaximumSize(panelSize);
+        this.backgroundImage = backgroundImage;
+    }
+
     // ----- SETTERS -----
     /**
      * Sets the background image (and its filepath) for this subpanel.
@@ -69,14 +77,8 @@ public abstract class Subpanel extends JPanel implements Renderable {
      */
     @Override
     public void render(Graphics2D g2d) {
-        if (backgroundImage == null) {
-            System.err.println(String.format(
-                    "%s: Could not load background image <'%s'>.",
-                    this.getClass().getName(),
-                    backgroundImageFilepath
-            ));
-            return;
+        if (backgroundImage != null) {
+            g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
         }
-        g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
     }
 }

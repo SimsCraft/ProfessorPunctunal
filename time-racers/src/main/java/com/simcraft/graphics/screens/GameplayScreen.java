@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Graphics2D;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import com.simcraft.graphics.GameFrame;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
 import com.simcraft.managers.GameManager;
+import com.simcraft.managers.ImageManager;
 import com.simcraft.managers.SoundManager;
 
 /**
@@ -42,7 +44,9 @@ public final class GameplayScreen extends AbstractScreen {
 
         int frameWidth = gameFrame.getWidth();
         int frameHeight = gameFrame.getHeight();
-        gamePanel = new GamePanel(frameHeight, frameHeight, "/images/backgrounds/game-panel.png");
+
+        BufferedImage backgroundImage = ImageManager.loadBufferedImage("/images/backgrounds/background_0.png");
+        gamePanel = new GamePanel(frameHeight, frameHeight, backgroundImage);
         infoPanel = new InfoPanel(frameWidth - frameHeight, frameHeight, "/images/backgrounds/info-panel.png");
 
         add(gamePanel, BorderLayout.CENTER);
@@ -116,9 +120,9 @@ public final class GameplayScreen extends AbstractScreen {
              */
             private void updateAliMovement() {
                 Ali ali = gameManager.getAli();
-                int speed = keyStates.getOrDefault(KeyEvent.VK_SHIFT, false) ? BASE_SPEED / 2 : BASE_SPEED;
-                int velocityX = 0;
-                int velocityY = 0;
+                double speed = ali.getSpeed();
+                double velocityX = 0;
+                double velocityY = 0;
                 // TODO Add proper idle sprite
                 String animationKey = "ali_walk_down";
 
@@ -140,15 +144,14 @@ public final class GameplayScreen extends AbstractScreen {
                 }
 
                 // Normalize the movement vector to ensure diagonal movement is not faster
-                double length = Math.sqrt(Math.pow(velocityX, 2) + Math.pow(velocityY, 2));
-                if (length != 0) {  // Avoid division by zero
-                    velocityX = (int) Math.round((velocityX / length) * speed);
-                    velocityY = (int) Math.round((velocityX / length) * speed);
-                }
+                // double length = Math.sqrt(Math.pow(velocityX, 2) + Math.pow(velocityY, 2));
+                // if (length != 0) {  // Avoid division by zero
+                //     velocityX = (int) Math.round((velocityX / length) * speed);
+                //     velocityY = (int) Math.round((velocityX / length) * speed);
+                // }
 
                 ali.setVelocityX(velocityX);
                 ali.setVelocityY(velocityY);
-                ali.setAnimation((velocityX == 0 && velocityY == 0) ? "ali_walk_down" : animationKey);
             }
 
             @Override

@@ -3,6 +3,7 @@ package com.simcraft.graphics.screens.subpanels;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.Set;
 
 import com.simcraft.entities.Ali;
@@ -22,7 +23,13 @@ public class GamePanel extends Subpanel {
         // Background colour used as a backup in case the image deosn't load.
         setBackground(new Color(200, 170, 170));
         backgroundImage = ImageManager.loadBufferedImage("background/background_1.png");
+    }
 
+    public GamePanel(final int width, final int height, final BufferedImage backgroundImage) {
+        super(width, height, backgroundImage);
+
+        // Background colour used as a backup in case the image deosn't load.
+        setBackground(new Color(200, 170, 170));
     }
 
     // ----- BUSINESS LOGIC -----
