@@ -1,0 +1,114 @@
+[
+	{
+		"fileName": "ali/ali_walk_down.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "ali/ali_walk_left.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "ali/ali_walk_right.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "ali/ali_walk_up.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-lecturer/female_lecturer_walk_down.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-lecturer/female_lecturer_walk_left.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-lecturer/female_lecturer_walk_right.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-lecturer/female_lecturer_walk_up.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-student/female_student_walk_down.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-student/female_student_walk_left.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-student/female_student_walk_right.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "female-student/female_student_walk_up.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "yapper/yapper_walk_down.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "yapper/yapper_walk_left.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "yapper/yapper_walk_right.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	},
+	{
+		"fileName": "yapper/yapper_walk_up.png",
+		"numRows": 1,
+		"numColumns": 4,
+		"frameTimeMultiplier": 4.0,
+		"isLooping": true
+	}
+]
