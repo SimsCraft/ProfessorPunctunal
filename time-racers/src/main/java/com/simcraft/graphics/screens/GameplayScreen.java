@@ -150,13 +150,14 @@ public final class GameplayScreen extends AbstractScreen {
                 }
 
                 // Normalize the movement vector to ensure diagonal movement is not faster
-                // double length = Math.sqrt(Math.pow(velocityX, 2) + Math.pow(velocityY, 2));
-                // if (length != 0) {  // Avoid division by zero
-                //     velocityX = (int) Math.round((velocityX / length) * speed);
-                //     velocityY = (int) Math.round((velocityX / length) * speed);
-                // }
+                double length = Math.sqrt(Math.pow(velocityX, 2) + Math.pow(velocityY, 2));
+                if (length != 0) {  // Avoid division by zero
+                    velocityX = (int) Math.round((velocityX / length) * speed);
+                    velocityY = (int) Math.round((velocityY / length) * speed);
+                }
                 ali.setVelocityX(velocityX);
                 ali.setVelocityY(velocityY);
+                ali.setAnimation(animationKey);
             }
 
             @Override

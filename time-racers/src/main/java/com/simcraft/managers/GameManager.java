@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.lang.StackWalker.StackFrame;
 
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import com.simcraft.entities.Ali;
@@ -216,10 +217,10 @@ public class GameManager implements Updateable {
         remainingSeconds = 300; // Temp value, potentially customized per level
         initialiseAli();
         enemyManager.init();
-        setGamePaused(false);
 
         // Initialization complete. Begin running.
         currentState = GameState.RUNNING;
+        SwingUtilities.invokeLater(this::startGameplayTimer);
     }
 
     /**
@@ -244,19 +245,7 @@ public class GameManager implements Updateable {
     public void onPause(ActionEvent e) {
         setGamePaused(true);
     }
-    // public void startTimer() {
-    //     new Thread(() -> {
-    //         while (timeLeft > 0 && !gameOver) {
-    //             try {
-    //                 Thread.sleep(1000);
-    //                 SwingUtilities.invokeLater(() -> timerPanel.setTimeLeft(timeLeft--));
-    //                 checkGameOver();
-    //             } catch (InterruptedException e) {
-    //                 e.printStackTrace();
-    //             }
-    //         }
-    //     }).start();
-    // }
+
     // public void startGame() {
     //     ali = new Ali(this, getWidth() / 2 - 16, getHeight() - 50, soundManager, backgroundImage);
     //     enemies = new ArrayList<>();
@@ -356,7 +345,7 @@ public class GameManager implements Updateable {
         if (currentTime - lastSecondTimestamp >= 1000) {
             remainingSeconds = Math.max(0, remainingSeconds - 1);
             lastSecondTimestamp = currentTime;
-            
+
             infoPanel.updateTimerDisplay(remainingSeconds);
         }
     }
@@ -400,9 +389,17 @@ public class GameManager implements Updateable {
      */
     private void startGameplayTimer() {
         if (gameplayTimer == null) {
-            gameplayTimer = new Timer(1000 / 60, e -> update());
+            System.out.println("Creating new gameplayTimer");
+            gameplayTimer = new Timer(1000 / 60, e -> {
+                try {
+                    update();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            });
         }
         gameplayTimer.start();
+        System.out.println("gameplayTimer started");
     }
 
     /**
@@ -425,7 +422,8 @@ public class GameManager implements Updateable {
     //     }
     // }
     public void subtractTimePenalty(final long timePenalty) {
-        // TODO implement
+        remainingSeconds = Math.max(0, remainingSeconds - (int) timePenalty);
+        infoPanel.updateTimerDisplay(remainingSeconds);
     }
 
 // public int getScore() {
