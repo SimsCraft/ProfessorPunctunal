@@ -39,6 +39,7 @@ public class Lecturer extends Enemy {
         // Temporary initial animation; will be updated dynamically during movement
         setAnimation("female_lecturer_walk_down");
 
+        setSpeed(4); // Medium
         setTimePenalty(3);
     }
 

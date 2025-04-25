@@ -39,6 +39,7 @@ public class Student extends Enemy {
         // Temporary initial animation; will be updated dynamically during movement
         setAnimation("female_student_walk_down");
 
+        setSpeed(3); // Slow
         setTimePenalty(5);
     }
 

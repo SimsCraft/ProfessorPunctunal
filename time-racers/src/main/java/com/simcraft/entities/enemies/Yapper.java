@@ -39,6 +39,7 @@ public class Yapper extends Enemy {
         // Temporary initial animation; will be updated dynamically during movement
         setAnimation("yapper_walk_down");
 
+        setSpeed(5); // Fast, though slightly slower than Ali to allow him to get away.
         setTimePenalty(10);
     }
 

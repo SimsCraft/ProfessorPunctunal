@@ -54,6 +54,24 @@ public abstract class Enemy extends MobileEntity {
      * enemy.
      */
     protected int timePenalty;
+    /**
+     * Whether the enemy is currently idling (not moving).
+     */
+    protected boolean isIdling;
+    /**
+     * The percentage chance that the enemy starts idling if left uninterrupted.
+     * Should Ali enter within range, this should be ignored in favour of an attack.
+     */
+    protected double chanceToIdle;
+    /**
+     * How many milliseconds the enemy should remain idle for if left uninterrupted.
+     * Should Ali enter within range, this should be ignored in favour of an attack. 
+     */
+    protected long idleDuration;
+    /**
+     * How close Ali must be to the enemy to trigger an attack.
+     */
+    protected int detectionRadius;
 
     // ----- CONSTRUCTORS -----
     /**
@@ -134,6 +152,10 @@ public abstract class Enemy extends MobileEntity {
         return timePenalty;
     }
 
+    public boolean isIdling() {
+        return isIdling;
+    }
+
     // ---- SETTERS -----
     /**
      * Sets the cooldown duration before the enemy can move again after a
@@ -199,6 +221,16 @@ public abstract class Enemy extends MobileEntity {
      */
     public void setTimePenalty(final int timePenalty) {
         this.timePenalty = timePenalty;
+    }
+
+    /**
+     * Sets whether the entity should currently idle (i.e., stop moving).
+     *
+     * @param isIdling {@code true} is they should be idle, {@code false}
+     * otherwise.
+     */
+    public void setIsIdling(final boolean isIdling) {
+        this.isIdling = isIdling;
     }
 
     // ----- BUSINESS LOGIC METHODS -----
@@ -343,8 +375,8 @@ public abstract class Enemy extends MobileEntity {
     @Override
     public void update() {
         super.update();
-        lastUpdateTime = System.currentTimeMillis();
-        attack();
+        // lastUpdateTime = System.currentTimeMillis();
+        // attack();
     }
 
     /**
@@ -402,6 +434,7 @@ public abstract class Enemy extends MobileEntity {
 
         // ----- INSTANCE VARIABLES -----
         private int timePenalty = 0;
+        private boolean isIdling = false;
 
         // ----- CONSTRUCTOR -----
         public EnemyBuilder(JPanel panel) {
@@ -412,9 +445,24 @@ public abstract class Enemy extends MobileEntity {
         /**
          * Sets how many seconds to remove from the timer if Ali collides with
          * this enemy.
+         *
+         * @param timePenalty the time penalty.
+         * @return the builder instance.
          */
         public T timePenalty(final int timePenalty) {
             this.timePenalty = timePenalty;
+            return self();
+        }
+
+        /**
+         * Sets whether the entity should currently idle (i.e., stop moving).
+         *
+         * @param isIdling {@code true} is they should be idle, {@code false}
+         * otherwise.
+         * @return the builder instance.
+         */
+        public T setIsIdling(final boolean isIdling) {
+            this.isIdling = isIdling;
             return self();
         }
     }

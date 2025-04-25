@@ -27,6 +27,8 @@ public class Ali extends MobileEntity {
 
         // Temporary initial animation; will be updated dynamically during movement
         setAnimation("ali_walk_down");
+
+        setSpeed(6); // Fast (he's in a hurry)
     }
 
     // ----- BUSINESS LOGIC -----

@@ -328,9 +328,7 @@ public class GameManager implements Updateable {
             );
         }
 
-        ali = new Ali.AliBuilder(gamePanel)
-                .speed(4)
-                .build();
+        ali = new Ali.AliBuilder(gamePanel).build();
 
         // Trying to do this dynamically wasn't working, so hard-coding for now
         int x = (GameFrame.FRAME_HEIGHT / 2) - (ali.getSpriteWidth() / 2);

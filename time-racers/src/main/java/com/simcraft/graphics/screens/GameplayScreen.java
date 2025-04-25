@@ -22,9 +22,6 @@ import com.simcraft.managers.SoundManager;
  */
 public final class GameplayScreen extends AbstractScreen {
 
-    // ----- STATIC VARIABLES -----
-    private static final int BASE_SPEED = 5;
-
     // INSTANCE VARIABLES -----
     private final transient GameManager gameManager;
     private final GamePanel gamePanel;
