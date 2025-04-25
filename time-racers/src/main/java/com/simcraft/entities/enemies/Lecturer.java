@@ -19,6 +19,10 @@ import javax.swing.JPanel;
  */
 public class Lecturer extends Enemy {
 
+    // ----- INSTANCE VARIABLES -----
+    // Used to track last direction and prevent constant animation resets
+    private String currentDirectionKey = "";
+
     // ----- CONSTRUCTORS -----
     /**
      * Constructor used to create a Lecturer instance.
@@ -35,9 +39,10 @@ public class Lecturer extends Enemy {
                 "female_lecturer_walk_up"
         ).collect(Collectors.toCollection(HashSet::new));
         setAnimationKeys(lecturerAnimationKeys);
-        
+
         // Temporary initial animation; will be updated dynamically during movement
         setAnimation("female_lecturer_walk_down");
+        currentDirectionKey = "female_lecturer_walk_down";
 
         setSpeed(4); // Medium
         setTimePenalty(3);
@@ -55,20 +60,43 @@ public class Lecturer extends Enemy {
     public void move() {
         super.move();
 
-        // TODO Replace with actual movement logic
-        // // Get the normalized cosine value in the range [-1, 1]
-        // double normalizedCos = Math.cos(position.y);
-        // double amplitude = 50;
-        // // Oscillate within the range, using the amplitude to determine the oscillation
-        // double oscillatedY = amplitude * GameFrame.FRAME_HEIGHT * normalizedCos;
-        // // Clamp the result to stay within the limits [1/5 * GameFrame.FRAME_HEIGHT, 3/5 * GameFrame.FRAME_HEIGHT]
-        // position.y = (int) Math.max(
-        //         Math.min(
-        //                 oscillatedY + (1.0 / 5.0) * GameFrame.FRAME_HEIGHT,
-        //                 (1.0 / 5.0) * GameFrame.FRAME_HEIGHT
-        //         ),
-        //         (3.0 / 5.0) * GameFrame.FRAME_HEIGHT
-        // );
+        double vx = getVelocityX();
+        double vy = getVelocityY();
+        double threshold = 0.1; // Increased threshold for meaningful movement
+        double verticalBiasFactor = 1.5; // How much larger vertical needs to be to prioritize
+
+        // If not moving meaningfully, skip direction update
+        if (Math.abs(vx) < threshold && Math.abs(vy) < threshold) {
+            return;
+        }
+
+        String newDirectionKey;
+
+        // Determine primary direction with a bias
+        if (Math.abs(vy) > Math.abs(vx) * verticalBiasFactor) {
+            // Prioritize vertical movement
+            if (vy < -threshold) {
+                newDirectionKey = "female_lecturer_walk_up";
+            } else {
+                newDirectionKey = "female_lecturer_walk_down";
+            }
+        } else if (Math.abs(vx) > threshold) { // Only consider horizontal if moving horizontally
+            // Horizontal movement
+            if (vx < -threshold) {
+                newDirectionKey = "female_lecturer_walk_left";
+            } else {
+                newDirectionKey = "female_lecturer_walk_right";
+            }
+        } else {
+            // If not clearly horizontal or vertical, maintain the last direction
+            return;
+        }
+
+        // Set animation only if it's changed
+        if (!newDirectionKey.equals(currentDirectionKey)) {
+            setAnimation(newDirectionKey);
+            currentDirectionKey = newDirectionKey;
+        }
     }
 
     // ----- STATIC BUILDER FOR LECTURER -----
