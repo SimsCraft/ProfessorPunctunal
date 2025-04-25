@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 
 import com.simcraft.graphics.GameFrame;
 import com.simcraft.graphics.UIConstants;
+import com.simcraft.managers.GameManager;
 import static com.simcraft.utility.ButtonUtil.createButtonWithText;
 
 public class PauseMenuDialogue extends Dialog {
@@ -57,7 +58,7 @@ public class PauseMenuDialogue extends Dialog {
         settingsButton = createButtonWithText("SETTINGS", UIConstants.BUTTON_FONT, 200, 40, false, this::onSettings);
         settingsButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        restartButton = createButtonWithText("RESTART", UIConstants.BUTTON_FONT, 200, 40, false, this::onRestart);
+        restartButton = createButtonWithText("RESTART", UIConstants.BUTTON_FONT, 200, 40, true, this::onRestart);
         restartButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         quitGameButton = createButtonWithText("QUIT GAME", UIConstants.BUTTON_FONT, 200, 40, true, this::onQuit);
@@ -108,12 +109,11 @@ public class PauseMenuDialogue extends Dialog {
     }
 
     /**
-     * Invoked when the "Restart" button is clicked. For now, it prints a
-     * message to the console.
+     * Invoked when the "Restart" button is clicked. Restarts the game.
      */
     private void onRestart(ActionEvent e) {
-        System.out.println("Restart button clicked.");
-        // Future functionality can be implemented here.
+        GameManager.getInstance().restartGame();
+        dispose();  // Close the dialog after restarting the game
     }
 
     /**
