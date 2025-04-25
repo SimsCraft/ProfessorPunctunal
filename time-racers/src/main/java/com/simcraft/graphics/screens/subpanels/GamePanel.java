@@ -4,10 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.util.Set;
 
 import com.simcraft.entities.Ali;
-import com.simcraft.entities.enemies.Enemy;
 import com.simcraft.managers.GameManager;
 import com.simcraft.managers.ImageManager;
 
@@ -51,12 +49,7 @@ public class GamePanel extends Subpanel {
             ali.safeRender(g2d);
         }
 
-        Set<Enemy> enemies = gameManager.getEnemyManager().getEnemies();
-        if (enemies != null) {
-            for (Enemy e : enemies) {
-                e.safeRender(g2d);
-            }
-        }
+        gameManager.getEnemyManager().render(g2d);
     }
 
     @Override

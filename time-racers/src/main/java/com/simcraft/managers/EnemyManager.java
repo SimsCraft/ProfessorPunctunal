@@ -1,8 +1,11 @@
 package com.simcraft.managers;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.lang.StackWalker.StackFrame;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -14,12 +17,13 @@ import com.simcraft.entities.enemies.Lecturer;
 import com.simcraft.entities.enemies.Student;
 import com.simcraft.entities.enemies.Yapper;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
+import com.simcraft.interfaces.Renderable;
 import com.simcraft.interfaces.Updateable;
 
 /**
- * Manages the creation, lifespan, and behaviour of all enemies.
+ * Manages the creation, lifespan, and behaviour of all enemies in the game.
  */
-public class EnemyManager implements Updateable {
+public class EnemyManager implements Updateable, Renderable {
 
     // ----- STATIC VARIABLES -----
     /**
@@ -34,6 +38,10 @@ public class EnemyManager implements Updateable {
 
     // ----- INSTANCE VARIABLES -----
     /**
+     * Time-stamp formatter for debugging purposes.
+     */
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    /**
      * Stores references to all active enemies on screen.
      */
     private HashSet<Enemy> enemies;
@@ -42,18 +50,9 @@ public class EnemyManager implements Updateable {
      */
     private Random random;
     /**
-     * Tracks whether the cooldown timer is active.
+     * The timestamp (in milliseconds) of the last time a new enemy was created.
      */
-    private boolean isOnCreationCooldown;
-    /**
-     * The elapsed time (in milliseconds) since the enemy creation cooldown
-     * began.
-     */
-    private long elapsedCreationCooldownMs;
-    /**
-     * The timestamp (in milliseconds) of the last update call.
-     */
-    private long lastUpdateTime;
+    private long lastEnemyCreationTime;
 
     // ----- CONSTRUCTORS -----
     public EnemyManager() {
@@ -72,15 +71,6 @@ public class EnemyManager implements Updateable {
     }
 
     /**
-     * Checks if the enemy creation cooldown is currently active.
-     *
-     * @return {@code true} if the cooldown is active, otherwise {@code false}.
-     */
-    public boolean isOnCreationCooldown() {
-        return isOnCreationCooldown;
-    }
-
-    /**
      * Gets the cooldown time in milliseconds before another enemy can be
      * created.
      *
@@ -91,21 +81,12 @@ public class EnemyManager implements Updateable {
     }
 
     /**
-     * Returns how many milliseconds of the enemy creation cooldown have passed.
-     *
-     * @return The elasped time.
-     */
-    public long getElapsedCreationCooldownMs() {
-        return elapsedCreationCooldownMs;
-    }
-
-    /**
-     * Returns the last time the manager was updated in milliseconds.
+     * Returns the last time an enemy was created in milliseconds.
      *
      * @return The last update time.
      */
-    public long getLastUpdateTime() {
-        return lastUpdateTime;
+    public long getLastEnemyCreationTime() {
+        return lastEnemyCreationTime;
     }
 
     // ----- BUSINESS LOGIC METHODS -----
@@ -136,9 +117,7 @@ public class EnemyManager implements Updateable {
     public final void init() {
         random = new Random();
         clear();
-        isOnCreationCooldown = false;
-        elapsedCreationCooldownMs = 0;
-        lastUpdateTime = 0;
+        lastEnemyCreationTime = 0;
     }
 
     /**
@@ -156,12 +135,8 @@ public class EnemyManager implements Updateable {
      */
     public boolean canCreateEnemy() {
         ensureRunning("canCreateEnemy");
-
-        System.out.println("Enemies: " + enemies.size()
-                + " | Elapsed Cooldown Time: " + elapsedCreationCooldownMs
-                + " | On Cooldown: " + isOnCreationCooldown());
-
-        return enemies.size() < MAX_ENEMY_COUNT && !isOnCreationCooldown();
+        return (enemies.size() < MAX_ENEMY_COUNT)
+                && (System.currentTimeMillis() - lastEnemyCreationTime >= ENEMY_CREATION_COOLDOWN_MS);
     }
 
     /**
@@ -171,10 +146,10 @@ public class EnemyManager implements Updateable {
      */
     public void addEnemy(final Enemy enemy) {
         ensureRunning("addEnemy");
-        updateEnemyCreationCooldownTimer();
 
         if (canCreateEnemy()) {
             enemies.add(enemy);
+            lastEnemyCreationTime = System.currentTimeMillis();
         }
     }
 
@@ -186,37 +161,38 @@ public class EnemyManager implements Updateable {
      */
     public void createRandomEnemy(final Ali ali) {
         ensureRunning("createRandomEnemy");
-        updateEnemyCreationCooldownTimer();
 
-        if (canCreateEnemy()) {
-            GamePanel gamePanel = GameManager.getInstance().getGamePanel();
-            Enemy newEnemy;
-            int enemyType = random.nextInt(3);
+        long currentTime = System.currentTimeMillis();
+        String currentTimeFormatted = dateFormat.format(new Date(currentTime));
 
-            switch (enemyType) {
-                case 0 ->
-                    newEnemy = new Lecturer.LecturerBuilder(gamePanel).build();
-                case 1 ->
-                    newEnemy = new Student.StudentBuilder(gamePanel).build();
-                case 2 ->
-                    newEnemy = new Yapper.YapperBuilder(gamePanel).build();
-                default ->
-                    throw new IllegalStateException("Switch-case recieved unexpected value: " + enemyType);
-            }
-
-            newEnemy.setPosition(getRandomSpawnPoint());
-            newEnemy.setTarget(ali.getPosition());
-
-            int xMoveSpeed = random.nextInt(5);
-            boolean moveLeft = random.nextBoolean();
-
-            newEnemy.setVelocityX(moveLeft ? -xMoveSpeed : xMoveSpeed);
-
-            enemies.add(newEnemy);
-
-            isOnCreationCooldown = true;
-            elapsedCreationCooldownMs = 0;
+        if (!canCreateEnemy()) {
+            return;
         }
+        GamePanel gamePanel = GameManager.getInstance().getGamePanel();
+        Enemy newEnemy;
+
+        switch (random.nextInt(3)) {
+            case 0 ->
+                newEnemy = new Lecturer.LecturerBuilder(gamePanel).build();
+            case 1 ->
+                newEnemy = new Student.StudentBuilder(gamePanel).build();
+            case 2 ->
+                newEnemy = new Yapper.YapperBuilder(gamePanel).build();
+            default ->
+                throw new IllegalStateException("Unexpected value in createRandomEnemy switch-case.");
+        }
+        newEnemy.setPosition(getRandomSpawnPoint());
+        newEnemy.setTarget(ali.getPosition());
+
+        int xMoveSpeed = random.nextInt(5);
+        boolean moveLeft = random.nextBoolean();
+
+        newEnemy.setVelocityX(moveLeft ? -xMoveSpeed : xMoveSpeed);
+        enemies.add(newEnemy);
+        lastEnemyCreationTime = currentTime; // Update creation time *after* creating
+
+        System.out.println("Created a new enemy at " + currentTimeFormatted);
+        System.out.println("Total active enemies: : " + enemies.size());
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -226,12 +202,23 @@ public class EnemyManager implements Updateable {
     @Override
     public void update() {
         ensureRunning("update");
-
-        lastUpdateTime = System.currentTimeMillis();
-
         createRandomEnemy(GameManager.getInstance().getAli());
         updateEnemies();
         checkCollisions();
+    }
+
+    /**
+     * Renders all currently active enemies
+     *
+     *
+     */
+    @Override
+    public void render(Graphics2D g2d) {
+        if (enemies != null) {
+            for (Enemy e : enemies) {
+                e.safeRender(g2d);
+            }
+        }
     }
 
     // ----- HELPER METHODS -----
@@ -241,31 +228,11 @@ public class EnemyManager implements Updateable {
             StackFrame caller = walker.walk(frames -> frames.skip(1).findFirst().orElse(null));
 
             throw new IllegalStateException(String.format(
-                    "%s.%s: Cannot call %s() when GameMaager is not in the RUNNING state.",
+                    "%s.%s: Cannot call %s() when GameManager is not in the RUNNING state.",
                     caller != null ? caller.getClassName() : "UnknownClass",
                     caller != null ? caller.getMethodName() : "UnknownMethod",
                     methodName
             ));
-        }
-    }
-
-    /**
-     * Updates the attack cooldown timer. This tracks how much time has passed
-     * since the last enemy was created.
-     */
-    private void updateEnemyCreationCooldownTimer() {
-        if (isOnCreationCooldown) {
-            long currentTime = System.currentTimeMillis();
-            long deltaTime = currentTime - lastUpdateTime;
-
-            // Increment the cooldown timer
-            elapsedCreationCooldownMs += deltaTime;
-
-            // If the cooldown time is passed, reset the flag and elapsed time
-            if (elapsedCreationCooldownMs >= ENEMY_CREATION_COOLDOWN_MS) {
-                isOnCreationCooldown = false;
-                elapsedCreationCooldownMs = 0;
-            }
         }
     }
 
@@ -294,6 +261,10 @@ public class EnemyManager implements Updateable {
         );
     }
 
+    /**
+     * Checks for collisions between the player and enemies, and between
+     * enemies.
+     */
     private void checkCollisions() {
         // Ali vs Enemy
         Ali ali = GameManager.getInstance().getAli();

@@ -255,12 +255,15 @@ public abstract class Enemy extends MobileEntity {
      */
     public void setRandomDirection() {
         int[] directions = {-1, 0, 1};
-        setVelocityX(directions[random.nextInt(3)] * getSpeed());
-        setVelocityY(directions[random.nextInt(3)] * getSpeed());
+        int vx;
+        int vy;
+        do {
+            vx = directions[random.nextInt(3)];
+            vy = directions[random.nextInt(3)];
+        } while (vx == 0 && vy == 0);
 
-        if (getVelocityX() == 0 && getVelocityY() == 0) {
-            setRandomDirection();
-        }
+        setVelocityX(vx * getSpeed());
+        setVelocityY(vy * getSpeed());
     }
 
     // ----- OVERRIDDEN METHODS -----
