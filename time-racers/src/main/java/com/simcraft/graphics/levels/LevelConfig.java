@@ -1,0 +1,75 @@
+package com.simcraft.graphics.levels;
+
+import java.awt.Color;
+
+/**
+ * Represents the configuration settings for a specific game level.
+ * <p>
+ * This class acts as a blueprint for all visual and gameplay parameters
+ * associated with each level, such as:
+ * - Background appearance
+ * - Background music
+ * - Time limits
+ * - Enemy count and behavior
+ * - Player settings
+ * </p>
+ */
+public class LevelConfig {
+
+    private final String backgroundImagePath;   // Path to the background image file
+    private final String musicClipName;         // Name of the sound clip to play during this level
+    private final int levelTimeLimitSeconds;    // Time (in seconds) allowed to complete this level
+    private final int maxEnemies;               // Maximum number of enemies allowed on screen
+    private final int playerSpeed;              // Speed of the player character in this level
+    private final Color backgroundColor;        // Fallback background color (if image fails to load)
+
+    /**
+     * Constructor to initialize all configuration properties for a level.
+     *
+     * @param backgroundImagePath  File path to the level's background image.
+     * @param musicClipName        Name of the sound clip to play.
+     * @param levelTimeLimitSeconds Time limit for this level in seconds.
+     * @param maxEnemies           Maximum number of enemies allowed on screen.
+     * @param playerSpeed          Player movement speed during this level.
+     * @param backgroundColor      Background color if image doesn't load.
+     */
+    public LevelConfig(String backgroundImagePath,
+                       String musicClipName,
+                       int levelTimeLimitSeconds,
+                       int maxEnemies,
+                       int playerSpeed,
+                       Color backgroundColor) {
+        this.backgroundImagePath = backgroundImagePath;
+        this.musicClipName = musicClipName;
+        this.levelTimeLimitSeconds = levelTimeLimitSeconds;
+        this.maxEnemies = maxEnemies;
+        this.playerSpeed = playerSpeed;
+        this.backgroundColor = backgroundColor;
+    }
+
+    // ----- GETTERS -----
+
+    public String getBackgroundImagePath() {
+        return backgroundImagePath;
+    }
+
+    public String getMusicClipName() {
+        return musicClipName;
+    }
+
+    public int getLevelTimeLimitSeconds() {
+        return levelTimeLimitSeconds;
+    }
+
+    public int getMaxEnemies() {
+        return maxEnemies;
+    }
+
+    public int getPlayerSpeed() {
+        return playerSpeed;
+    }
+
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+}

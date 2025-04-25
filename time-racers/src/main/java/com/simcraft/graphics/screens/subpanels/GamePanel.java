@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.simcraft.entities.Ali;
 import com.simcraft.entities.enemies.Enemy;
+import com.simcraft.graphics.states.GameState;
 import com.simcraft.managers.GameManager;
 import com.simcraft.managers.ImageManager;
 
@@ -33,7 +34,7 @@ public class GamePanel extends Subpanel {
         super.render(g2d);
 
         GameManager gameManager = GameManager.getInstance();
-        if (!gameManager.isRunning()) {
+        if (!gameManager.getGameState().is(GameState.State.RUNNING)) {
             return;
         }
 

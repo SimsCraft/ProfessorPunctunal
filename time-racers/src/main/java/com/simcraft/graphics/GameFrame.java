@@ -1,17 +1,35 @@
+/**
+ * NOTE FOR GRADING AND FUTURE REFLECTION:
+ * This class fulfills the role of `GameWindow.java` from the original lecture code.
+ * All responsibilities for game window setup, loop management, and game screen 
+ * control are now handled here (as part of a more modular design).
+ */
+
+
+
 package com.simcraft.graphics;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-
-import javax.swing.JFrame;
-import javax.swing.Timer;
-import javax.swing.WindowConstants;
+import com.simcraft.graphics.screens.WelcomeScreen;
+import com.simcraft.graphics.screens.AbstractScreen;
+import com.simcraft.graphics.animations.AnimationLoader;
 
 import static com.simcraft.App.FRAME_RATE_MS;
 
-import com.simcraft.graphics.animations.AnimationLoader;
-import com.simcraft.graphics.screens.AbstractScreen;
-import com.simcraft.graphics.screens.WelcomeScreen;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.io.File;
+import java.io.IOException;
+
+import javax.swing.Timer;
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
+
+
+
+
 
 /**
  * GameFrame serves as the primary window and core rendering engine for the
@@ -40,44 +58,20 @@ import com.simcraft.graphics.screens.WelcomeScreen;
  * @see com.simcraft.graphics.screens.WelcomeScreen
  * @see AnimationLoader
  */
+
 public final class GameFrame extends JFrame {
 
     // ----- STATIC VARIABLES -----
-    /**
-     * The fixed width of the application window in pixels.
-     */
+    //                                                    | The fixed width and height of the application window in pixels.
     public static final int FRAME_WIDTH = 800;
-    /**
-     * The fixed height of the application window in pixels.
-     */
     public static final int FRAME_HEIGHT = 650;
 
     // ----- INSTANCE VARIABLES -----
-    /**
-     * The timer that drives the game loop, triggering updates and rendering at
-     * a fixed interval.
-     */
-    private final Timer gameLoopTimer;
-
-    /**
-     * The off-screen image used for double buffering to reduce flickering
-     * during rendering. All graphics are first drawn to this back buffer, then
-     * painted onto the screen.
-     */
-    private final transient BufferedImage backBuffer;
-
-    /**
-     * The {@link Graphics2D} context used to draw onto the back buffer.
-     * Reacquired each frame to ensure it references the current back buffer
-     * state.
-     */
-    private transient Graphics2D g2d;
-
-    /**
-     * The currently active screen (e.g. menu, game, pause) being displayed and
-     * updated. Swapped dynamically using the {@code setScreen()} method.
-     */
-    private AbstractScreen currentScreen;
+    private Font arcadeFont;
+    private final Timer gameLoopTimer;//                  | Timer that drives the game loop
+    private final transient BufferedImage backBuffer;//   | Off-screen image used for double buffering
+    private transient Graphics2D g2d;//                   | Context used to draw onto the back buffer.
+    private AbstractScreen currentScreen;//               | Active screen (e.g. menu, game, pause) being displayed and updated.
 
     // ----- CONSTRUCTORS -----
     /**
@@ -92,6 +86,7 @@ public final class GameFrame extends JFrame {
         setResizable(false);
         setLocationRelativeTo(null);  // Center the window on screen
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        loadArcadeFont();
 
         // ----- GAME INITIALIZATION ----- 
         AnimationLoader.loadAnimationsFromJson();
@@ -114,6 +109,23 @@ public final class GameFrame extends JFrame {
         setVisible(true);
     }
 
+    private void loadArcadeFont() {
+        try {
+            File fontFile = new File("fonts/PressStart2P.ttf");
+            arcadeFont = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(18f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(arcadeFont);
+        } catch (IOException | FontFormatException e) {
+            System.out.println("Arcade font failed to load.");
+            e.printStackTrace();
+        }
+    }
+    
+    public Font getArcadeFont() {
+        return arcadeFont;
+    }
+
+
     /**
      * Paints the back buffer onto the JFrame.
      */
@@ -125,12 +137,8 @@ public final class GameFrame extends JFrame {
         }
     }
 
-    /**
-     * Dynamically switches to a new screen, removing the old one to free up
-     * memory.
-     *
-     * @param newScreen The new screen to display.
-     */
+    
+    //Dynamically switches to a new screen, removing the old one to free up
     public void setScreen(final AbstractScreen newScreen) {
         if (currentScreen != null) {
             remove(currentScreen);

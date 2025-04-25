@@ -9,10 +9,12 @@ import java.util.Map;
 
 import com.simcraft.entities.Ali;
 import com.simcraft.graphics.GameFrame;
+import com.simcraft.graphics.states.GameState.State;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
 import com.simcraft.managers.GameManager;
 import com.simcraft.managers.SoundManager;
+
 
 /**
  * The main gameplay screen where the game logic and rendering occur. Handles
@@ -23,7 +25,7 @@ public final class GameplayScreen extends AbstractScreen {
     // ----- STATIC VARIABLES -----
     private static final int BASE_SPEED = 5;
 
-    // INSTANCE VARIABLES -----
+    // ----- INSTANCE VARIABLES -----
     private final transient GameManager gameManager;
     private final GamePanel gamePanel;
     private final InfoPanel infoPanel;
@@ -84,8 +86,13 @@ public final class GameplayScreen extends AbstractScreen {
      */
     @Override
     public void update() {
-        if (gameManager.isRunning()) {
-            gameManager.update();
+        switch (gameManager.getGameState().getState()) {
+            case RUNNING -> { gameManager.update(); }
+            case PAUSED -> { /* Show pause overlay if desired */ }
+            case GAME_OVER -> { /* Show game over screen if desired */ }
+            case STOPPED, NOT_INITIALIZED, INITIALIZING -> {
+                // Handle or ignore for now
+            }
         }
     }
 
@@ -96,10 +103,11 @@ public final class GameplayScreen extends AbstractScreen {
      */
     @Override
     public void render(Graphics2D g2d) {
-        if (gameManager.isRunning()) {
+        if (gameManager.getGameState().isRunning()) {
             gamePanel.safeRender(g2d);
             infoPanel.safeRender(g2d);
         }
+        // Optional: You could render additional overlays for PAUSED or GAME_OVER states here
     }
 
     // ----- HELPER METHODS -----
@@ -143,7 +151,7 @@ public final class GameplayScreen extends AbstractScreen {
                 double length = Math.sqrt(Math.pow(velocityX, 2) + Math.pow(velocityY, 2));
                 if (length != 0) {  // Avoid division by zero
                     velocityX = (int) Math.round((velocityX / length) * speed);
-                    velocityY = (int) Math.round((velocityX / length) * speed);
+                    velocityY = (int) Math.round((velocityY / length) * speed);
                 }
 
                 ali.setVelocityX(velocityX);

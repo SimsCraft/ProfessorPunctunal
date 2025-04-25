@@ -3,6 +3,8 @@ package com.simcraft.graphics.screens.subpanels;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -12,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import com.simcraft.entities.Ali;
-import com.simcraft.entities.NPC;
+import com.simcraft.entities.enemies.Enemy;
 import com.simcraft.entities.enemies.Lecturer;
 import com.simcraft.entities.enemies.Student;
 import com.simcraft.entities.enemies.Yapper;
@@ -21,7 +23,7 @@ import com.simcraft.managers.SoundManager;
 public class GamePanel_t extends JPanel implements Runnable {
 
     private Ali ali;
-    private ArrayList<NPC> npcs;
+    private ArrayList<Enemy> npcs;
     private Random random = new Random();
     private Thread gameThread;
     private TimerPanel timerPanel;
@@ -45,7 +47,7 @@ public class GamePanel_t extends JPanel implements Runnable {
     }
 
     public void startGame() {
-        ali = new Ali(this, getWidth() / 2 - 16, getHeight() - 50, soundManager, backgroundImage);
+        //ali = new Ali(this, getWidth() / 2 - 16, getHeight() - 50, soundManager, backgroundImage);
 
         npcs = new ArrayList<>();
         createGameEntities();
@@ -58,18 +60,6 @@ public class GamePanel_t extends JPanel implements Runnable {
         startTimer();
     }
 
-    public void createGameEntities() {
-        npcs.clear(); // Make sure no duplicate NPCs appear
-        for (int i = 0; i < 5; i++) {
-            npcs.add(new Student(this, random.nextInt(getWidth()), random.nextInt(getHeight()), backgroundImage));
-        }
-        for (int i = 0; i < 4; i++) {
-            npcs.add(new Lecturer(this, random.nextInt(getWidth()), random.nextInt(getHeight()), backgroundImage));
-        }
-        for (int i = 0; i < 2; i++) {
-            npcs.add(new Yapper(this, random.nextInt(getWidth()), random.nextInt(getHeight()), backgroundImage));
-        }
-    }
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -85,15 +75,17 @@ public class GamePanel_t extends JPanel implements Runnable {
         if (ali != null) {
             ali.draw(g);
         }
-        for (NPC npc : npcs) {
+        for (Enemy npc : npcs) {
             npc.draw(g);
         }
     }
 
+    public void createGameEntities() {}
+
     public void updateGameEntities() {
         if (!gameOver && ali != null) {
             ali.move();
-            for (NPC npc : npcs) {
+            for (Enemy npc : npcs) {
                 npc.move();
             }
             checkCollisions();
@@ -116,15 +108,15 @@ public class GamePanel_t extends JPanel implements Runnable {
     }
 
     public void checkCollisions() {
-        for (NPC npc : npcs) {
-            for (NPC other : npcs) {
-                if (npc != other && npc.getBounds().intersects(other.getBounds())) {
+        for (Enemy npc : npcs) {
+            for (Enemy other : npcs) {
+                if (npc != other /*&& npc.getBounds().intersects(other.getBounds())*/) {
                     npc.reverseDirection();
                     other.reverseDirection();
                 }
             }
 
-            if (ali.getBounds().intersects(npc.getBounds())) {
+            if (true/*ali.getBounds().intersects(npc.getBounds())*/) {
                 if (!npc.hasCollided) {
                     int timePenalty = (npc instanceof Student) ? 3
                             : (npc instanceof Lecturer) ? 5
@@ -135,8 +127,6 @@ public class GamePanel_t extends JPanel implements Runnable {
                     npc.hasCollided = true;
                 }
                 npc.reverseDirection();
-            } else {
-                npc.hasCollided = false;
             }
         }
     }

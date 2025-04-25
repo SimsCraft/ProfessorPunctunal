@@ -3,6 +3,7 @@ package com.simcraft.entities.enemies;
 import java.awt.Point;
 import java.util.Objects;
 import java.util.Random;
+import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
@@ -18,6 +19,8 @@ import com.simcraft.graphics.GameFrame;
  * attacking the player/{@link Ali}.
  */
 public class Enemy extends MobileEntity {
+
+    public boolean hasCollided; 
 
     /**
      * The cooldown duration before the enemy can move again after a previous
@@ -367,4 +370,11 @@ public class Enemy extends MobileEntity {
             return new Enemy(this);
         }
     }
+
+
+
+
+    public void getBounds() {}
+    public void reverseDirection() {}
+    public void draw (Graphics g) {}
 }

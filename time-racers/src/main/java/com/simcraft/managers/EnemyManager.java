@@ -211,7 +211,8 @@ public class EnemyManager implements Updateable {
 
     // ----- HELPER METHODS -----
     private void ensureRunning(String methodName) {
-        if (!GameManager.getInstance().isRunning()) {
+        if (!GameManager.getInstance().getGameState().isRunning()
+        ) {
             StackWalker walker = StackWalker.getInstance();
             StackFrame caller = walker.walk(frames -> frames.skip(1).findFirst().orElse(null));
 

@@ -1,6 +1,7 @@
 package com.simcraft.entities;
 
 import java.awt.Point;
+import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
@@ -43,4 +44,10 @@ public class Ali extends MobileEntity {
             return new Ali(this);
         }
     }
+
+
+    public void getBounds() {}
+    public void draw (Graphics g) {}
+    public void keyPressed(int keyCode) {}
+    public void keyReleased(int keyCode) {}
 }

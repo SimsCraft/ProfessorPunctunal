@@ -329,4 +329,11 @@ public class SoundManager {
         }
         return null;  // If the format is already PCM_SIGNED, no conversion is needed.
     }
+
+
+
+
+    public void playBackgroundMusic(){}
+    public void stopBackgroundMusic(){}
+    public void playGameOver(){}
 }
