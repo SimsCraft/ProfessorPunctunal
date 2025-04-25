@@ -91,8 +91,8 @@ public class AnimationLoader {
                 int x = column * frameWidth;
                 int y = row * frameHeight;
 
-                BufferedImage frame = extractFrame(spriteSheet, x, y, frameWidth, frameHeight);
-                frames.add(new AnimationFrame(frame, frameDurationMs));
+                BufferedImage frameImage = ImageManager.scaleBufferedImageSize(extractFrameImage(spriteSheet, x, y, frameWidth, frameHeight), 2);
+                frames.add(new AnimationFrame(frameImage, frameDurationMs));
             }
         }
         return frames;
@@ -164,17 +164,17 @@ public class AnimationLoader {
 
     // ----- HELPER METHODS -----
     /**
-     * Extracts a frame from a sprite sheet.
+     * Extracts the image for a frame from a sprite sheet.
      *
      * @param source The source sprite sheet.
-     * @param x X coordinate of the frame.
-     * @param y Y coordinate of the frame.
-     * @param width Width of the frame.
-     * @param height Height of the frame.
+     * @param x X coordinate of the frame image.
+     * @param y Y coordinate of the frame image.
+     * @param width Width of the frame image.
+     * @param height Height of the frame image.
      *
      * @return A new BufferedImage containing the extracted frame.
      */
-    private static BufferedImage extractFrame(BufferedImage source, int x, int y, int width, int height) {
+    private static BufferedImage extractFrameImage(BufferedImage source, int x, int y, int width, int height) {
         BufferedImage frame = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = frame.createGraphics();
         g.drawImage(source.getSubimage(x, y, width, height), 0, 0, null);
