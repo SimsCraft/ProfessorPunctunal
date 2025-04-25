@@ -32,7 +32,7 @@ public class AnimationLoader {
      * ~60 FPS). Used as the reference for computing frame duration via
      * multipliers.
      */
-    private static final double BASE_FRAME_TIME_MS = 1000.0 / FRAME_RATE_MS;
+    //private static final double BASE_FRAME_TIME_MS = 1000.0 / FRAME_RATE_MS;
 
     // ----- CONSTRUCTORS -----
     /**

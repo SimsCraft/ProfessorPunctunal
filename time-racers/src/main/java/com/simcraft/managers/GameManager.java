@@ -11,6 +11,7 @@ import com.simcraft.entities.Ali;
 import com.simcraft.graphics.GameFrame;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
+import com.simcraft.graphics.screens.subpanels.TimerPanel;
 import com.simcraft.graphics.states.GameState;
 import com.simcraft.graphics.states.GameState.State;
 import com.simcraft.graphics.states.LevelState;
@@ -80,6 +81,21 @@ public class GameManager implements Updateable {
      */
     private InfoPanel infoPanel;
 
+    /**
+    * Reference to the timer panel that displays the remaining time.
+    */
+    private TimerPanel timerPanel;
+
+    /**
+    * Time left in seconds for the current level (countdown).
+    */
+    private int timeLeft;
+
+    /**
+    * Controls the countdown timer for the current level.
+    */
+    private Timer countdownTimer;
+
     // ----- CONSTRUCTORS -----
     /**
      * Private constructor to prevent direct instantiation. Singleton pattern.
@@ -145,7 +161,7 @@ public class GameManager implements Updateable {
      * @param gamePanel The panel where the game is displayed.
      * @param infoPanel The panel where the game information is displayed.
      */
-    public final void init(final GamePanel gamePanel, final InfoPanel infoPanel) {
+    public final void init(final GamePanel gamePanel, final InfoPanel infoPanel, final TimerPanel timerPanel) {
         if (!gameState.canInitialize()) {
             System.err.println(String.format(
                     "%s: Cannot initialize unless the game is in the NOT_INITIALIZED or INITIALIZING state.",
@@ -164,8 +180,20 @@ public class GameManager implements Updateable {
         this.gamePanel = gamePanel;
         this.infoPanel = infoPanel;
 
+        if (timerPanel == null) {
+            throw new IllegalStateException(String.format(
+                "%s: TimerPanel must be provided.",
+                this.getClass().getName()
+            ));
+        }
+        
+        this.timerPanel = timerPanel;
+        this.timeLeft = levelState.getCurrentConfig().getLevelTimeLimitSeconds();
+        timerPanel.setTimeLeft(timeLeft); // Set initial value
+
         // Transition to initializing state during setup
         gameState.setState(State.INITIALIZING);
+        startCountdownTimer();
 
         initialiseAli();
         enemyManager.init();
@@ -173,6 +201,34 @@ public class GameManager implements Updateable {
         // Initialization complete. Begin running.
         gameState.setState(State.RUNNING);
         startGameplayTimer();
+    }
+
+    /**
+    * Starts the countdown timer for the level. When time runs out, the game ends.
+     */
+    private void startCountdownTimer() {
+        if (countdownTimer != null) {
+          countdownTimer.stop();
+        }
+
+        countdownTimer = new Timer(1000, e -> {
+          if (timeLeft > 0 && gameState.isRunning()) {
+              timeLeft--;
+              timerPanel.setTimeLeft(timeLeft);
+         }
+
+         if (timeLeft <= 0 && gameState.isRunning()) {
+             gameState.setState(GameState.State.GAME_OVER);
+             stopGameplayTimer();
+             countdownTimer.stop();
+             SoundManager.getInstance().playClip("game_over", false);
+
+             // Optionally notify user here or via UI manager
+             System.out.println("Game Over! Time ran out.");
+         }
+        });
+
+        countdownTimer.start();
     }
 
     /**

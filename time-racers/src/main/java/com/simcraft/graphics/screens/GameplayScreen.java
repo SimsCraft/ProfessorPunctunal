@@ -9,125 +9,117 @@ import java.util.Map;
 
 import com.simcraft.entities.Ali;
 import com.simcraft.graphics.GameFrame;
-import com.simcraft.graphics.states.GameState.State;
+//import com.simcraft.graphics.states.GameState.State;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
+import com.simcraft.graphics.screens.subpanels.TimerPanel;
 import com.simcraft.managers.GameManager;
 import com.simcraft.managers.SoundManager;
 
-
 /**
- * The main gameplay screen where the game logic and rendering occur. Handles
- * player input and updates the game state accordingly.
+ * The main gameplay screen where the game logic and rendering occur.
+ *
+ * Components:
+ * - GamePanel (center)
+ * - InfoPanel (right)
+ * - TimerPanel (top)
+ *
+ * Handles input and screen rendering logic.
  */
 public final class GameplayScreen extends AbstractScreen {
 
-    // ----- STATIC VARIABLES -----
+    // ----- STATIC CONSTANTS -----
     private static final int BASE_SPEED = 5;
 
     // ----- INSTANCE VARIABLES -----
     private final transient GameManager gameManager;
     private final GamePanel gamePanel;
     private final InfoPanel infoPanel;
+    private final TimerPanel timerPanel;
     private final Map<Integer, Boolean> keyStates;
 
-    // ----- CONSTRUCTORS -----
-    /**
-     * Initializes the gameplay screen, setting up the game panels and input
-     * listeners.
-     *
-     * @param gameFrame The parent frame containing this screen.
-     */
+    // ----- CONSTRUCTOR -----
     public GameplayScreen(GameFrame gameFrame) {
         super(gameFrame);
         setLayout(new BorderLayout());
 
         int frameWidth = gameFrame.getWidth();
         int frameHeight = gameFrame.getHeight();
+
+        // Create all 3 subpanels
         gamePanel = new GamePanel(frameHeight, frameHeight, "/images/backgrounds/game-panel.png");
         infoPanel = new InfoPanel(frameWidth - frameHeight, frameHeight, "/images/backgrounds/info-panel.png");
 
+        // Get the level time & font for the timer panel
+        int levelTime = GameManager.getInstance().getLevelState().getCurrentConfig().getLevelTimeLimitSeconds();
+        timerPanel = new TimerPanel(levelTime, gameFrame.getArcadeFont());
+
+        // Add all panels to screen layout
         add(gamePanel, BorderLayout.CENTER);
         add(infoPanel, BorderLayout.LINE_END);
+        add(timerPanel, BorderLayout.NORTH);
 
+        // Initialize GameManager with subpanels
         gameManager = GameManager.getInstance();
-        gameManager.init(gamePanel, infoPanel);
+        gameManager.init(gamePanel, infoPanel, timerPanel);
 
         keyStates = new HashMap<>();
         addKeyListener(createKeyListener());
 
+        // Play background music (can be overridden by level config)
         SoundManager soundManager = SoundManager.getInstance();
         soundManager.stopAll();
         soundManager.playClip("background", true);
     }
 
     // ----- GETTERS -----
-    /**
-     * Retrieves the {@link GamePanel}.
-     *
-     * @return The main game panel.
-     */
     public GamePanel getGamePanel() {
         return gamePanel;
     }
 
-    /**
-     * Retrieves the {@link InfoPanel}.
-     *
-     * @return The information panel.
-     */
     public InfoPanel getInfoPanel() {
         return infoPanel;
     }
 
-    // ----- OVERRIDDEN METHODS -----
-    /**
-     * Updates the game state if it is running.
-     */
+    public TimerPanel getTimerPanel() {
+        return timerPanel;
+    }
+
+    // ----- UPDATE + RENDER -----
     @Override
     public void update() {
         switch (gameManager.getGameState().getState()) {
-            case RUNNING -> { gameManager.update(); }
-            case PAUSED -> { /* Show pause overlay if desired */ }
-            case GAME_OVER -> { /* Show game over screen if desired */ }
+            case RUNNING -> gameManager.update();
+            case PAUSED -> {
+                // Optional: show pause screen overlay
+            }
+            case GAME_OVER -> {
+                // Optional: show game over screen
+            }
             case STOPPED, NOT_INITIALIZED, INITIALIZING -> {
-                // Handle or ignore for now
+                // No-op
             }
         }
     }
 
-    /**
-     * Renders the game screen.
-     *
-     * @param g2d The graphics context used for rendering.
-     */
     @Override
     public void render(Graphics2D g2d) {
         if (gameManager.getGameState().isRunning()) {
             gamePanel.safeRender(g2d);
             infoPanel.safeRender(g2d);
+            // TimerPanel is automatically painted by Swing
         }
-        // Optional: You could render additional overlays for PAUSED or GAME_OVER states here
     }
 
-    // ----- HELPER METHODS -----
-    /**
-     * Creates the key listener that handles player input.
-     *
-     * @return A KeyAdapter instance that listens for key events.
-     */
+    // ----- INPUT LISTENER -----
     private KeyAdapter createKeyListener() {
         return new KeyAdapter() {
-            /**
-             * Updates the player/Ali's movement based on the current key
-             * states.
-             */
             private void updateAliMovement() {
                 Ali ali = gameManager.getAli();
                 int speed = keyStates.getOrDefault(KeyEvent.VK_SHIFT, false) ? BASE_SPEED / 2 : BASE_SPEED;
+
                 int velocityX = 0;
                 int velocityY = 0;
-                // TODO Add proper idle sprite
                 String animationKey = "ali_walk_down";
 
                 if (keyStates.getOrDefault(KeyEvent.VK_W, false) || keyStates.getOrDefault(KeyEvent.VK_UP, false)) {
@@ -147,9 +139,8 @@ public final class GameplayScreen extends AbstractScreen {
                     animationKey = "ali_walk_up_right";
                 }
 
-                // Normalize the movement vector to ensure diagonal movement is not faster
                 double length = Math.sqrt(Math.pow(velocityX, 2) + Math.pow(velocityY, 2));
-                if (length != 0) {  // Avoid division by zero
+                if (length != 0) {
                     velocityX = (int) Math.round((velocityX / length) * speed);
                     velocityY = (int) Math.round((velocityY / length) * speed);
                 }

@@ -6,7 +6,7 @@ import java.awt.Image;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
-import java.util.Random;
+//import java.util.Random;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -24,7 +24,7 @@ public class GamePanel_t extends JPanel implements Runnable {
 
     private Ali ali;
     private ArrayList<Enemy> npcs;
-    private Random random = new Random();
+   // private Random random = new Random();
     private Thread gameThread;
     private TimerPanel timerPanel;
     private SoundManager soundManager;
@@ -32,10 +32,9 @@ public class GamePanel_t extends JPanel implements Runnable {
     private int timeLeft = 60;
     private boolean gameOver = false;
     private Image backgroundImage;
-    private Font arcadeFont;
-
+   //
     public GamePanel_t(Font arcadeFont) {
-        this.arcadeFont = arcadeFont;
+       // this.arcadeFont = arcadeFont;
         this.soundManager = SoundManager.getInstance();
         this.timerPanel = new TimerPanel(timeLeft, arcadeFont);
         soundManager.playBackgroundMusic();
