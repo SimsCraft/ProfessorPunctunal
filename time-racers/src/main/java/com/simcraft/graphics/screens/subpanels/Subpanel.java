@@ -3,7 +3,11 @@ package com.simcraft.graphics.screens.subpanels;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 
 import javax.swing.JPanel;
 
@@ -19,22 +23,24 @@ public abstract class Subpanel extends JPanel implements Renderable {
     // ----- INSTANCE VARIABLES -----
     protected String backgroundImageFilepath;
     protected BufferedImage backgroundImage;
+    protected Random random;
+
+    private boolean sizeInitialized = false; // Flag to track if size is valid
 
     // ----- CONSTRUCTORS -----
     protected Subpanel(final int width, final int height, final String backgroundImageFilepath) {
-        Dimension panelSize = new Dimension(width, height);
-        setPreferredSize(panelSize);
-        setMinimumSize(panelSize);
-        setMaximumSize(panelSize);
+        commonInit(width, height);
         setBackgroundImage(backgroundImageFilepath);
     }
 
     protected Subpanel(final int width, final int height, final BufferedImage backgroundImage) {
-        Dimension panelSize = new Dimension(width, height);
-        setPreferredSize(panelSize);
-        setMinimumSize(panelSize);
-        setMaximumSize(panelSize);
+        commonInit(width, height);
         this.backgroundImage = backgroundImage;
+    }
+
+    // ----- GETTERS -----
+    public boolean isSizeInitialized() {
+        return sizeInitialized;
     }
 
     // ----- SETTERS -----
@@ -54,6 +60,17 @@ public abstract class Subpanel extends JPanel implements Renderable {
                     backgroundImageFilepath
             ));
         }
+    }
+
+    // ----- BUSINESS LOGIC METHODS -----
+    public Point getRandomPoint() {
+        if (!sizeInitialized) {
+            throw new IllegalStateException(this.getClass().getName() + " size not initialized, cannot get random point.");
+        }
+        return new Point(
+                random.nextInt(getWidth()),
+                random.nextInt(getHeight())
+        );
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -80,5 +97,27 @@ public abstract class Subpanel extends JPanel implements Renderable {
         if (backgroundImage != null) {
             g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
         }
+    }
+
+    // ----- HELPER METHODS -----
+    private void commonInit(int width, int height) {
+        Dimension panelSize = new Dimension(width, height);
+        setPreferredSize(panelSize);
+        setMinimumSize(panelSize);
+        setMaximumSize(panelSize);
+        random = new Random();
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                sizeInitialized = true;
+                Dimension size = getSize();
+                System.err.println(String.format(
+                        "%s: resized to: %dx%d.",
+                        this.getClass().getName(),
+                        size.width,
+                        size.height
+                ));
+            }
+        });
     }
 }

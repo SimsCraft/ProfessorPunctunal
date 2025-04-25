@@ -95,17 +95,17 @@ public class EnemyManager implements Updateable, Renderable {
 
         for (int i = 0; i < 5; i++) {
             enemies.add(new Student.StudentBuilder(gamePanel)
-                    .position(getRandomSpawnPoint())
+                    .position(gamePanel.getRandomPoint())
                     .build());
         }
         for (int i = 0; i < 4; i++) {
             enemies.add(new Lecturer.LecturerBuilder(gamePanel)
-                    .position(getRandomSpawnPoint())
+                    .position(gamePanel.getRandomPoint())
                     .build());
         }
         for (int i = 0; i < 2; i++) {
             enemies.add(new Yapper.YapperBuilder(gamePanel)
-                    .position(getRandomSpawnPoint())
+                    .position(gamePanel.getRandomPoint())
                     .build());
         }
     }
@@ -169,30 +169,40 @@ public class EnemyManager implements Updateable, Renderable {
             return;
         }
         GamePanel gamePanel = GameManager.getInstance().getGamePanel();
-        Enemy newEnemy;
-
-        switch (random.nextInt(3)) {
-            case 0 ->
-                newEnemy = new Lecturer.LecturerBuilder(gamePanel).build();
-            case 1 ->
-                newEnemy = new Student.StudentBuilder(gamePanel).build();
-            case 2 ->
-                newEnemy = new Yapper.YapperBuilder(gamePanel).build();
-            default ->
-                throw new IllegalStateException("Unexpected value in createRandomEnemy switch-case.");
+        Point spawnPoint = null;
+        try {
+            spawnPoint = gamePanel.getRandomPoint();
+        } catch (IllegalStateException e) {
+            System.err.println("Error getting spawn point: " + e.getMessage());
+            return;
         }
-        newEnemy.setPosition(getRandomSpawnPoint());
-        newEnemy.setTarget(ali.getPosition());
 
-        int xMoveSpeed = random.nextInt(5);
-        boolean moveLeft = random.nextBoolean();
+        if (spawnPoint != null) {
+            Enemy newEnemy;
 
-        newEnemy.setVelocityX(moveLeft ? -xMoveSpeed : xMoveSpeed);
-        enemies.add(newEnemy);
-        lastEnemyCreationTime = currentTime; // Update creation time *after* creating
+            switch (random.nextInt(3)) {
+                case 0 ->
+                    newEnemy = new Lecturer.LecturerBuilder(gamePanel).build();
+                case 1 ->
+                    newEnemy = new Student.StudentBuilder(gamePanel).build();
+                case 2 ->
+                    newEnemy = new Yapper.YapperBuilder(gamePanel).build();
+                default ->
+                    throw new IllegalStateException("Unexpected value in createRandomEnemy switch-case.");
+            }
+            newEnemy.setPosition(spawnPoint);
+            newEnemy.setTarget(ali.getPosition());
 
-        System.out.println("Created a new enemy at " + currentTimeFormatted);
-        System.out.println("Total active enemies: : " + enemies.size());
+            int xMoveSpeed = random.nextInt(5);
+            boolean moveLeft = random.nextBoolean();
+
+            newEnemy.setVelocityX(moveLeft ? -xMoveSpeed : xMoveSpeed);
+            enemies.add(newEnemy);
+            lastEnemyCreationTime = currentTime; // Update creation time *after* creating
+
+            System.out.println("Created a new enemy at " + currentTimeFormatted);
+            System.out.println("Total active enemies: : " + enemies.size());
+        }
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -251,14 +261,6 @@ public class EnemyManager implements Updateable, Renderable {
             enemy.update();
             return enemy.isFullyOutsidePanel();
         });
-    }
-
-    private Point getRandomSpawnPoint() {
-        GamePanel gamePanel = GameManager.getInstance().getGamePanel();
-        return new Point(
-                random.nextInt(gamePanel.getWidth()),
-                random.nextInt(gamePanel.getHeight())
-        );
     }
 
     /**
