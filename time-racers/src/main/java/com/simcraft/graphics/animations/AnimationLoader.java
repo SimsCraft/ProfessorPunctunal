@@ -91,7 +91,7 @@ public class AnimationLoader {
                 int x = column * frameWidth;
                 int y = row * frameHeight;
 
-                BufferedImage frameImage = ImageManager.scaleBufferedImageSize(extractFrameImage(spriteSheet, x, y, frameWidth, frameHeight), 1.25);
+                BufferedImage frameImage = ImageManager.scaleBufferedImageSize(extractFrameImage(spriteSheet, x, y, frameWidth, frameHeight), 1.5);
                 frames.add(new AnimationFrame(frameImage, frameDurationMs));
             }
         }

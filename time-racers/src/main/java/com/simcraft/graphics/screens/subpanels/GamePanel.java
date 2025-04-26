@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.simcraft.entities.Ali;
-import com.simcraft.graphics.ScrollingBackground;
+import com.simcraft.graphics.HorizontalScrollingBackground;
 import com.simcraft.interfaces.Renderable;
 import com.simcraft.interfaces.Updateable;
 import com.simcraft.managers.GameManager;
@@ -16,7 +16,7 @@ import com.simcraft.managers.GameManager;
 /**
  * A specialized {@link Subpanel} responsible for displaying and updating the
  * main game world. It manages the rendering of game entities, including the
- * player and enemies, and handles the scrolling background.
+ * player and enemies, and handles the horizontal scrolling background.
  */
 public class GamePanel extends Subpanel implements Updateable {
 
@@ -29,9 +29,10 @@ public class GamePanel extends Subpanel implements Updateable {
      */
     private final List<Updateable> updateables = new ArrayList<>();
     /**
-     * The background that scrolls to create the illusion of a larger world.
+     * The background that scrolls horizontally to create the illusion of a
+     * larger world.
      */
-    private ScrollingBackground scrollingBackground;
+    private HorizontalScrollingBackground horizontalScrollingBackground;
 
     /**
      * Manages the overall game state and entities.
@@ -51,7 +52,7 @@ public class GamePanel extends Subpanel implements Updateable {
         super(width, height, backgroundImageFilepath);
         setBackground(new Color(200, 170, 170)); // Backup colour if image loading fails
         gameManager = GameManager.getInstance();
-        initScrollingBackground(backgroundImageFilepath);
+        initHorizontalScrollingBackground(backgroundImageFilepath);
     }
 
     /**
@@ -66,59 +67,33 @@ public class GamePanel extends Subpanel implements Updateable {
         super(width, height, backgroundImage);
         setBackground(new Color(200, 170, 170)); // Backup colour if image is null
         gameManager = GameManager.getInstance();
-        initScrollingBackground(backgroundImage);
+        initHorizontalScrollingBackground(backgroundImage);
+    }
+
+    // ----- BUSINESS LOGIC METHODS -----
+    /**
+     * Retrieves the horizontal scrolling background instance managed by this
+     * panel.
+     *
+     * @return The {@link HorizontalScrollingBackground} object.
+     */
+    public HorizontalScrollingBackground getHorizontalScrollingBackground() {
+        return horizontalScrollingBackground;
     }
 
     /**
-     * Initializes the scrolling background with an image loaded from a file
-     * path.
+     * Sets the horizontal scrolling background instance for this panel.
      *
-     * @param backgroundImageFilepath The file path to the background image.
+     * @param horizontalScrollingBackground The
+     * {@link HorizontalScrollingBackground} object to set.
      */
-    private void initScrollingBackground(String backgroundImageFilepath) {
-        scrollingBackground = new ScrollingBackground(
-                backgroundImageFilepath, 0, 0, 5, "horizontal", this // Default horizontal scroll speed of 5
-        );
-        updateables.add(scrollingBackground);
-        renderables.add(scrollingBackground);
-    }
-
-    /**
-     * Initializes the scrolling background with a pre-loaded
-     * {@link BufferedImage}.
-     *
-     * @param backgroundImage The pre-loaded background image.
-     */
-    private void initScrollingBackground(BufferedImage backgroundImage) {
-        scrollingBackground = new ScrollingBackground(
-                "unused_path", 0, 0, 5, "horizontal", this // Path not used as we provide BufferedImage
-        );
-        scrollingBackground.setImage(backgroundImage); // Set the loaded BufferedImage
-        updateables.add(scrollingBackground);
-        renderables.add(scrollingBackground);
-    }
-
-    /**
-     * Retrieves the scrolling background instance managed by this panel.
-     *
-     * @return The {@link ScrollingBackground} object.
-     */
-    public ScrollingBackground getScrollingBackground() {
-        return scrollingBackground;
-    }
-
-    /**
-     * Sets the scrolling background instance for this panel.
-     *
-     * @param scrollingBackground The {@link ScrollingBackground} object to set.
-     */
-    public void setScrollingBackground(ScrollingBackground scrollingBackground) {
-        this.scrollingBackground = scrollingBackground;
-        if (!updateables.contains(scrollingBackground)) {
-            updateables.add(scrollingBackground);
+    public void setHorizontalScrollingBackground(HorizontalScrollingBackground horizontalScrollingBackground) {
+        this.horizontalScrollingBackground = horizontalScrollingBackground;
+        if (!updateables.contains(horizontalScrollingBackground)) {
+            updateables.add(horizontalScrollingBackground);
         }
-        if (!renderables.contains(scrollingBackground)) {
-            renderables.add(scrollingBackground);
+        if (!renderables.contains(horizontalScrollingBackground)) {
+            renderables.add(horizontalScrollingBackground);
         }
     }
 
@@ -142,11 +117,11 @@ public class GamePanel extends Subpanel implements Updateable {
         this.updateables.add(updateable);
     }
 
-    // ----- BUSINESS LOGIC -----
+    // ----- OVERRIDDEN METHODS -----
     /**
      * Updates all the {@link Updateable} objects managed by this panel,
-     * including the scrolling background and other game entities. It also
-     * updates the scrolling background's player X and Y positions.
+     * including the horizontal scrolling background and other game entities. It
+     * also updates the horizontal scrolling background's player X position.
      */
     @Override
     public void update() {
@@ -154,13 +129,11 @@ public class GamePanel extends Subpanel implements Updateable {
             updatable.update();
         }
         Ali ali = gameManager.getAli();
-        if (scrollingBackground != null && ali != null) {
-            scrollingBackground.setPlayerX(ali.getX());
-            scrollingBackground.setPlayerY(ali.getY());
+        if (horizontalScrollingBackground != null && ali != null) {
+            horizontalScrollingBackground.setPlayerX(ali.getX());
         }
     }
 
-    // ----- OVERRIDDEN METHODS -----
     /**
      * Renders all the graphical components of the game panel, including the
      * background, scrolling layers, player, and enemies.
@@ -212,4 +185,32 @@ public class GamePanel extends Subpanel implements Updateable {
     }
 
     // ----- HELPER METHODS -----
+    /**
+     * Initializes the horizontal scrolling background with an image loaded from
+     * a file path.
+     *
+     * @param backgroundImageFilepath The file path to the background image.
+     */
+    private void initHorizontalScrollingBackground(String backgroundImageFilepath) {
+        horizontalScrollingBackground = new HorizontalScrollingBackground(
+                backgroundImageFilepath, 0, 0, 5, this // Default horizontal scroll speed of 5
+        );
+        updateables.add(horizontalScrollingBackground);
+        renderables.add(horizontalScrollingBackground);
+    }
+
+    /**
+     * Initializes the horizontal scrolling background with a pre-loaded
+     * {@link BufferedImage}.
+     *
+     * @param backgroundImage The pre-loaded background image.
+     */
+    private void initHorizontalScrollingBackground(BufferedImage backgroundImage) {
+        horizontalScrollingBackground = new HorizontalScrollingBackground(
+                "unused_path", 0, 0, 5, this // Path not used as we provide BufferedImage
+        );
+        horizontalScrollingBackground.setImage(backgroundImage); // Set the loaded BufferedImage
+        updateables.add(horizontalScrollingBackground);
+        renderables.add(horizontalScrollingBackground);
+    }
 }

@@ -10,7 +10,7 @@ import java.util.Map;
 
 import com.simcraft.entities.Ali;
 import com.simcraft.graphics.GameFrame;
-import com.simcraft.graphics.ScrollingBackground;
+import com.simcraft.graphics.HorizontalScrollingBackground;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
 import com.simcraft.managers.GameManager;
@@ -19,8 +19,8 @@ import com.simcraft.managers.ImageManager;
 /**
  * The main gameplay screen where the game logic and rendering occur. Handles
  * player input and updates the game state accordingly. This screen manages the
- * game panel, info panel, and the scrolling background, orchestrating the
- * gameplay experience.
+ * game panel, info panel, and the horizontal scrolling background,
+ * orchestrating the gameplay experience.
  */
 public final class GameplayScreen extends AbstractScreen {
 
@@ -29,7 +29,7 @@ public final class GameplayScreen extends AbstractScreen {
     private final GamePanel gamePanel;
     private final InfoPanel infoPanel;
     private final Map<Integer, Boolean> keyStates;
-    private final ScrollingBackground scrollingBackground;
+    private final HorizontalScrollingBackground scrollingBackground;
     private final int levelWidth = 2000;
 
     // ----- CONSTRUCTORS -----
@@ -51,7 +51,7 @@ public final class GameplayScreen extends AbstractScreen {
         gamePanel.addUpdateable(ali);
 
         scrollingBackground = createScrollingBackground(ali);
-        gamePanel.setScrollingBackground(scrollingBackground);
+        gamePanel.setHorizontalScrollingBackground(scrollingBackground); // Use the specific setter
 
         keyStates = new HashMap<>();
         addKeyListener(createKeyListener());
@@ -103,13 +103,12 @@ public final class GameplayScreen extends AbstractScreen {
         );
     }
 
-    private ScrollingBackground createScrollingBackground(Ali ali) {
-        ScrollingBackground background = new ScrollingBackground(
+    private HorizontalScrollingBackground createScrollingBackground(Ali ali) {
+        HorizontalScrollingBackground background = new HorizontalScrollingBackground(
                 "/images/backgrounds/background_0.png",
                 0,
                 0,
                 (int) ali.getSpeed(),
-                "horizontal",
                 gamePanel
         );
         background.setLevelWidth(levelWidth);
@@ -117,11 +116,9 @@ public final class GameplayScreen extends AbstractScreen {
     }
 
     private void updateScrollingBackground() {
-        if (scrollingBackground.isScrollingHorizontally()) {
-            scrollingBackground.setPlayerX((int) gameManager.getAli().getX());
-        }
-        if (scrollingBackground.isScrollingVertically()) {
-            scrollingBackground.setPlayerY((int) gameManager.getAli().getY());
+        if (scrollingBackground != null) {
+            scrollingBackground.update();
+            scrollingBackground.setPlayerX(gameManager.getAli().getX());
         }
     }
 
@@ -159,31 +156,29 @@ public final class GameplayScreen extends AbstractScreen {
                     velocityY = -speed;
                     animationKey = "ali_walk_down";
                 }
-
-                if (scrollingBackground.isScrollingHorizontally()) {
-                    velocityX = handleHorizontalScrolling(ali, speed, movingLeft, movingRight);
-                    animationKey = getHorizontalAnimation(movingLeft, movingRight, animationKey);
-                } else {
-                    velocityX = handleBasicHorizontalMovement(ali, speed, movingLeft, movingRight);
-                    animationKey = getHorizontalAnimation(movingLeft, movingRight, animationKey);
+                if (movingLeft) {
+                    velocityX = -speed;
+                    animationKey = "ali_walk_left";
+                }
+                if (movingRight) {
+                    velocityX = speed;
+                    animationKey = "ali_walk_right";
                 }
 
-                if (scrollingBackground.isScrollingVertically()) {
-                    velocityY = handleVerticalScrolling(ali, speed, movingUp, movingDown);
-                    animationKey = getVerticalAnimation(movingUp, movingDown, animationKey);
-                } else {
-                    velocityY = handleBasicVerticalMovement(ali, speed, movingUp, movingDown);
-                    animationKey = getVerticalAnimation(movingUp, movingDown, animationKey);
-                }
-
+                // Normalize diagonal movement
                 double length = Math.sqrt(Math.pow(velocityX, 2) + Math.pow(velocityY, 2));
-                if (length != 0) {
-                    velocityX = (int) Math.round((velocityX / length) * speed);
-                    velocityY = (int) Math.round((velocityY / length) * speed);
+                if (length > 0) {
+                    double normalizedSpeed = speed / length;
+                    velocityX *= normalizedSpeed;
+                    velocityY *= normalizedSpeed;
                 }
+
                 ali.setVelocityX(velocityX);
                 ali.setVelocityY(velocityY);
                 ali.setAnimation(animationKey);
+
+                // Handle horizontal background scrolling based on Ali's position
+                handleHorizontalBackgroundScroll(ali, speed, movingLeft, movingRight);
             }
 
             private boolean isKeyPressed(int keyCode) {
@@ -192,107 +187,25 @@ public final class GameplayScreen extends AbstractScreen {
         };
     }
 
-    private String getHorizontalAnimation(boolean movingLeft, boolean movingRight, String currentAnimation) {
-        if (movingLeft) {
-            return "ali_walk_left";
-        }
-        if (movingRight) {
-            return "ali_walk_right";
-        }
-        return currentAnimation;
-    }
-
-    private String getVerticalAnimation(boolean movingUp, boolean movingDown, String currentAnimation) {
-        if (movingUp) {
-            return "ali_walk_up";
-        }
-        if (movingDown) {
-            return "ali_walk_down";
-        }
-        return currentAnimation;
-    }
-
-    private double handleBasicHorizontalMovement(Ali ali, double speed, boolean movingLeft, boolean movingRight) {
-        double velocityX = 0;
-        if (movingLeft) {
-            velocityX = -speed;
-        }
-        if (movingRight) {
-            velocityX = speed;
-        }
-        ali.setX((int) Math.max(0, Math.min(ali.getX() + velocityX, gamePanel.getWidth() - ali.getSpriteWidth())));
-        return velocityX;
-    }
-
-    private double handleBasicVerticalMovement(Ali ali, double speed, boolean movingUp, boolean movingDown) {
-        double velocityY = 0;
-        if (movingUp) {
-            velocityY = speed;
-        }
-        if (movingDown) {
-            velocityY = -speed;
-        }
-        ali.setY((int) Math.max(0, Math.min(ali.getY() - velocityY, gamePanel.getHeight() - ali.getSpriteHeight())));
-        return velocityY;
-    }
-
-    private double handleHorizontalScrolling(Ali ali, double speed, boolean movingLeft, boolean movingRight) {
-        double velocityX = 0;
-        int aliX = (int) ali.getX();
+    private void handleHorizontalBackgroundScroll(Ali ali, double speed, boolean movingLeft, boolean movingRight) {
+        int aliX = ali.getX();
         int panelWidth = gamePanel.getWidth();
         int backgroundWidth = scrollingBackground.getImageWidth();
         int backgroundX = scrollingBackground.getBackgroundX();
-        int levelRightBoundary = this.levelWidth;
+        int scrollThreshold = panelWidth / 3;
+        int backgroundScrollSpeed = 0;
 
-        int scrollStart = panelWidth / 3;
-        int scrollEnd = levelRightBoundary - panelWidth / 3;
-
-        if (movingRight && aliX > scrollStart && aliX < scrollEnd && backgroundX > -(backgroundWidth - panelWidth)) {
-            velocityX = -speed; // Move background left
-        } else if (movingLeft && aliX < scrollEnd && aliX > scrollStart && backgroundX < 0) {
-            velocityX = speed; // Move background right
-        } else {
-            velocityX = 0; // Stop background movement
+        // Scroll right if Ali is moving right and near the right threshold
+        if (movingRight && aliX > panelWidth - scrollThreshold && backgroundX > -(backgroundWidth - panelWidth)) {
+            backgroundScrollSpeed = (int) -speed;
+        } // Scroll left if Ali is moving left and near the left threshold
+        else if (movingLeft && aliX < scrollThreshold && backgroundX < 0) {
+            backgroundScrollSpeed = (int) speed;
+        } // Stop scrolling if Ali is not moving or outside the thresholds
+        else {
+            backgroundScrollSpeed = 0;
         }
 
-        if (!movingRight && aliX > panelWidth - ali.getSpriteWidth() && backgroundX >= -(backgroundWidth - panelWidth)) {
-            ali.setX(panelWidth - ali.getSpriteWidth());
-        }
-        if (!movingLeft && aliX < 0 && backgroundX <= 0) {
-            ali.setX(0);
-        }
-
-        return velocityX;
-    }
-
-    private double handleVerticalScrolling(Ali ali, double speed, boolean movingUp, boolean movingDown) {
-        int aliY = (int) ali.getY();
-        int thresholdY = gamePanel.getHeight() / 2;
-        int backgroundY = scrollingBackground.getBackgroundY();
-        int backgroundHeight = scrollingBackground.getImageHeight();
-        double velocityY = 0;
-
-        if (aliY <= thresholdY) {
-            if (movingUp) {
-                if (backgroundY < 0) {
-                    velocityY = speed; // Scroll down
-                } else {
-                    velocityY = speed; // Move player up
-                }
-            } else if (movingDown) {
-                velocityY = -speed; // Move player down
-            }
-        } else {
-            if (movingUp) {
-                velocityY = speed; // Move player up
-            } else if (movingDown) {
-                if (backgroundY > -(backgroundHeight - gamePanel.getHeight())) {
-                    velocityY = -speed; // Scroll up
-                } else {
-                    velocityY = -speed; // Move player down
-                }
-            }
-        }
-        return velocityY;
+        scrollingBackground.setScrollSpeed(backgroundScrollSpeed);
     }
 }
