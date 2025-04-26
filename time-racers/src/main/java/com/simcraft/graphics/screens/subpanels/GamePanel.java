@@ -10,34 +10,47 @@ import com.simcraft.managers.GameManager;
 import com.simcraft.managers.ImageManager;
 
 /**
- * A component that displays all the game entities
+ * A component that displays all the game entities and a scrolling background.
  */
 public class GamePanel extends Subpanel {
 
+    private BufferedImage[] backgroundTiles;
+    private int scrollOffset;
+    private int tileWidth;
+
     // ----- CONSTRUCTORS -----
-    public GamePanel(final int width, final int height, final String backgroundImageFilepath) {
-        super(width, height, backgroundImageFilepath);
+    public GamePanel(final int width, final int height, final BufferedImage[] backgroundTiles) {
+        super(width, height, (BufferedImage) null); // We'll render the tiles ourselves
 
-        // Background colour used as a backup in case the image deosn't load.
-        setBackground(new Color(200, 170, 170));
-        backgroundImage = ImageManager.loadBufferedImage("background/background_1.png");
-    }
+        this.backgroundTiles = backgroundTiles;
+        this.scrollOffset = 0;
+        this.tileWidth = backgroundTiles[0].getWidth();
 
-    public GamePanel(final int width, final int height, final BufferedImage backgroundImage) {
-        super(width, height, backgroundImage);
-
-        // Background colour used as a backup in case the image deosn't load.
         setBackground(new Color(200, 170, 170));
     }
 
     // ----- BUSINESS LOGIC -----
-    // ----- OVERRIDDEN METHODS -----
+
     /**
-     * Renders the screen's graphical components.
+     * Increases scroll offset based on player's movement.
+     * Called externally by GameplayScreen or GameManager.
+     */
+    public void scroll(int dx) {
+        this.scrollOffset += dx;
+    }
+
+    public int getScrollOffset() {
+        return scrollOffset;
+    }
+
+    // ----- OVERRIDDEN METHODS -----
+
+    /**
+     * Renders the background tiles and game entities.
      */
     @Override
     public void render(Graphics2D g2d) {
-        super.render(g2d);
+        renderScrollingBackground(g2d);
 
         GameManager gameManager = GameManager.getInstance();
         if (!gameManager.isRunning()) {
@@ -52,11 +65,13 @@ public class GamePanel extends Subpanel {
         gameManager.getEnemyManager().render(g2d);
     }
 
+    /**
+     * Paints additional components (like exit door).
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // Draw exit door
         g.setColor(Color.DARK_GRAY);
         g.fillRect(getWidth() / 2 - 50, 5, 100, 40);
         g.setColor(Color.WHITE);
@@ -64,4 +79,25 @@ public class GamePanel extends Subpanel {
     }
 
     // ----- HELPER METHODS -----
+
+    /**
+     * Draws background tiles side-by-side with scroll offset.
+     */
+    private void renderScrollingBackground(Graphics2D g2d) {
+        int panelWidth = getWidth();
+        int numTiles = backgroundTiles.length;
+
+        for (int i = 0; i < numTiles; i++) {
+            int x = (i * tileWidth) - scrollOffset;
+            g2d.drawImage(backgroundTiles[i], x, 0, null);
+        }
+    }
+    /**
+    * Sets the horizontal scroll offset (in pixels).
+    *
+    * @param offset The new scroll offset.
+    */
+    public void setScrollOffset(int offset) {
+        this.scrollOffset = offset;
+    }
 }
