@@ -246,29 +246,6 @@ public class GameManager implements Updateable {
         setGamePaused(true);
     }
 
-    // public void startGame() {
-    //     ali = new Ali(this, getWidth() / 2 - 16, getHeight() - 50, soundManager, backgroundImage);
-    //     enemies = new ArrayList<>();
-    //     createGameEntities();
-    //     timeLeft = 60;
-    //     timerPanel.setTimeLeft(timeLeft);
-    //     gameOver = false;
-    //     requestFocusInWindow(); // Fix keyboard input issues
-    //     startGameThread();
-    //     startTimer();
-    // }
-    // // TODO Switch to single-threading
-    // @Override
-    // public void run() {
-    //     while (!gameOver) {
-    //         updateGameEntities();
-    //         try {
-    //             Thread.sleep(16);
-    //         } catch (InterruptedException e) {
-    //             e.printStackTrace();
-    //         }
-    //     }
-    // }
     // ----- OVERRIDDEN METHODS -----
     /**
      * Updates all managed objects and the current game state.
