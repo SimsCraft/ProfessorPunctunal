@@ -109,6 +109,10 @@ public class GameManager implements Updateable {
         return gamePanel;
     }
 
+    public InfoPanel getInfoPanel() {
+        return infoPanel;
+    }
+
     /**
      * Returns the current active {@link Ali} instance (the player).
      *

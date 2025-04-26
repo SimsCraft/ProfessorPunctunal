@@ -268,13 +268,15 @@ public class EnemyManager implements Updateable, Renderable {
      * enemies.
      */
     private void checkCollisions() {
+        GameManager gameManager = GameManager.getInstance();
         // Ali vs Enemy
-        Ali ali = GameManager.getInstance().getAli();
+        Ali ali = gameManager.getAli();
         for (Enemy enemy : enemies) {
             if (ali.collides(enemy)) {
+                gameManager.getInfoPanel().showCollisionNotification(enemy.getClass().getSimpleName(), enemy.getTimePenalty());
                 if (!enemy.hasCollided()) {
                     enemy.setHasCollided(true);
-                    GameManager.getInstance().subtractTimePenalty(enemy.getTimePenalty());
+                    gameManager.subtractTimePenalty(enemy.getTimePenalty());
                 }
                 enemy.reverseMovementDirection();
             } else {
