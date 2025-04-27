@@ -9,6 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 
 import com.simcraft.graphics.UIConstants;
+import com.simcraft.interfaces.Updateable;
 import com.simcraft.managers.GameManager;
 import com.simcraft.utility.ButtonUtil;
 
@@ -19,12 +20,18 @@ import com.simcraft.utility.ButtonUtil;
  * This panel is displayed at the top of the gameplay screen.
  * </p>
  */
-public final class InfoPanel extends Subpanel {
+public final class InfoPanel extends Subpanel implements Updateable {
+
+    // ----- STATIC VARIABLES -----
+    private static final long notificationDurationMillis = 2000; // Display for 2 seconds
 
     // ----- INSTANCE VARIABLES -----
     private final JButton pauseButton;
     private final JLabel levelLabel;
     private final JLabel timerLabel;
+    private final JLabel collisionNotificationLabel;
+    private String currentNotification = "";
+    private long notificationDisplayStartTime = 0;
 
     // ----- CONSTRUCTORS -----
     /**
@@ -54,116 +61,80 @@ public final class InfoPanel extends Subpanel {
         timerLabel.setFont(UIConstants.ARCADE_FONT);
         timerLabel.setForeground(Color.WHITE);
 
+        collisionNotificationLabel = new JLabel("");
+        collisionNotificationLabel.setFont(UIConstants.BODY_FONT_SMALL);
+        collisionNotificationLabel.setForeground(Color.YELLOW);
+
         // Common constraint setup
         gbc.gridy = 0;
         gbc.fill = GridBagConstraints.NONE;
-        gbc.weighty = 1.0;
+        gbc.weighty = 0.5; // Adjust weighty for better vertical distribution
         gbc.anchor = GridBagConstraints.CENTER;
 
         // ----- Left-aligned pause button -----
         gbc.gridx = 0;
         gbc.weightx = 0.33;
         gbc.anchor = GridBagConstraints.LINE_START;
-        gbc.insets = new Insets(0, 20, 0, 0);
+        gbc.insets = new Insets(10, 20, 0, 0); // Add some top padding
         add(pauseButton, gbc);
 
         // ----- Centered level label -----
         gbc.gridx = 1;
         gbc.weightx = 0.34;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(10, 0, 0, 0); // Add some top padding
         add(levelLabel, gbc);
 
         // ----- Right-aligned timer label -----
         gbc.gridx = 2;
         gbc.weightx = 0.33;
         gbc.anchor = GridBagConstraints.LINE_END;
-        gbc.insets = new Insets(0, 0, 0, 20);
+        gbc.insets = new Insets(10, 0, 0, 20); // Add some top padding
         add(timerLabel, gbc);
+
+        // ----- Notification label underneath the timer -----
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        gbc.weighty = 0.5;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        gbc.insets = new Insets(0, 0, 10, 20); // Padding below the timer
+        add(collisionNotificationLabel, gbc);
     }
 
     // ----- BUSINESS LOGIC METHODS -----
     public void updateLevelCounter(final int levelCounter) {
-        timerLabel.setText(String.format("LEVEL %d", levelCounter));
+        levelLabel.setText(String.format("LEVEL %d", levelCounter));
     }
 
     public void updateTimerDisplay(final int remainingSeconds) {
         int minutes = remainingSeconds / 60;
         int seconds = remainingSeconds % 60;
         timerLabel.setText(String.format("Remaining Time: %d:%02d", minutes, seconds));
+        updateCollisionNotificationDisplay(); // Update the notification visibility
+    }
+
+    public void showCollisionNotification(final String enemyName, final int timeLost) {
+        currentNotification = String.format("Stopped by %s! Lost %d seconds!", enemyName, timeLost);
+        notificationDisplayStartTime = System.currentTimeMillis();
+        collisionNotificationLabel.setText(currentNotification);
+    }
+
+    private void updateCollisionNotificationDisplay() {
+        if (notificationDisplayStartTime > 0) {
+            long elapsedTime = System.currentTimeMillis() - notificationDisplayStartTime;
+            if (elapsedTime > notificationDurationMillis) {
+                collisionNotificationLabel.setText("");
+                currentNotification = "";
+                notificationDisplayStartTime = 0;
+            } else {
+                collisionNotificationLabel.setText(currentNotification);
+            }
+        }
     }
 
     // ----- OVERRIDDEN METHODS -----
-    // @Override
-    // protected void paintComponent(Graphics g) {
-    //     super.paintComponent(g);
-    //     Graphics2D g2d = (Graphics2D) g;
-    //     // Enable anti-aliasing for smooth text
-    //     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-    //     // Set font & color
-    //     g2d.setFont(arcadeFont);
-    //     g2d.setColor(Color.WHITE);
-    //     // Draw text centered
-    //     String text = "Time Left: " + timeLeft + "s";
-    //     FontMetrics fm = g2d.getFontMetrics();
-    //     int x = (getWidth() - fm.stringWidth(text)) / 2;
-    //     int y = (getHeight() + fm.getAscent()) / 2 - fm.getDescent();
-    //     g2d.drawString(text, x, y);
-    // }
-    //     score = 0;
-    //     elapsedSeconds = 0;
-    //     // Create the font used for the button and labels.
-    //     Font buttonFont = new Font(GameFrame.BODY_TYPEFACE, Font.PLAIN, 16);
-    //     // Create the pause button.
-    //     pauseMenuButton = createButton(
-    //             "PAUSE", buttonFont, 100, 40, true,
-    //             GameManager.getInstance()::onPause
-    //     );
-    //     // Create the score and timer labels.
-    //     scoreLabel = createStatusLabel();
-    //     timerLabel = createStatusLabel();
-    //     // Arrange components with horizontal spacing.
-    //     add(Box.createHorizontalStrut(20));
-    //     add(pauseMenuButton);
-    //     add(Box.createHorizontalGlue());
-    //     add(scoreLabel);
-    //     add(Box.createHorizontalGlue());
-    //     add(timerLabel);
-    //     add(Box.createHorizontalStrut(20));
-    //     // Initialise the score display.
-    //     updateScoreDisplay(0);
-    // }
-    // /**
-    //  * Updates the displayed score
-    //  *
-    //  * @param score The new score.
-    //  */
-    // public final void updateScoreDisplay(final int score) {
-    //     scoreLabel.setText(String.format("Score: %d", score));
-    // }
-    // /**
-    //  * Updates the timer label with a formatted elapsed time string.
-    //  *
-    //  * @param elapsedSeconds The elapsed time in seconds.
-    //  */
-    // public void updateTimerDisplay(final int elapsedSeconds) {
-    //     int minutes = elapsedSeconds / 60;
-    //     int seconds = elapsedSeconds % 60;
-    //     timerLabel.setText(String.format("Elapsed Time: %d:%02d", minutes, seconds));
-    // }
-    // /**
-    //  * Creates a JLabel for displaying status information (score or timer).
-    //  *
-    //  * Buggy at the moment
-    //  *
-    //  * @return A configured JLabel.
-    //  */
-    // private JLabel createStatusLabel() {
-    //     JLabel label = new JLabel();
-    //     label.setFont(new Font(GameFrame.BODY_TYPEFACE, Font.BOLD, 16));
-    //     label.setForeground(Color.WHITE);
-    //     // Will try to fix for the next assignment
-    //     // label.setForeground(new Color(70, 0, 50));
-    //     // label.setBorder(new RoundedBorder(Color.BLACK, Color.WHITE, 10));
-    //     return label;
-    // }
+    @Override
+    public void update() {
+        updateCollisionNotificationDisplay();
+    }
 }
