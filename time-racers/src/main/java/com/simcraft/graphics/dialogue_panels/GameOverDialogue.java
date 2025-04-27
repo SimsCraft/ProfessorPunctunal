@@ -14,12 +14,10 @@ import javax.swing.JLabel;
 import com.simcraft.graphics.GameFrame;
 import com.simcraft.graphics.UIConstants;
 import com.simcraft.managers.GameManager;
-
 import static com.simcraft.utility.ButtonUtil.createButtonWithText;
 
 public class GameOverDialogue extends Dialog {
 
-    private final GameFrame gameFrame;
     private final JLabel gameOverLabel;
     private final JButton restartButton;
     private final JButton quitGameButton;
@@ -32,8 +30,6 @@ public class GameOverDialogue extends Dialog {
      */
     public GameOverDialogue(GameFrame gameFrame) {
         super(gameFrame, "Game Over", Dialog.ModalityType.APPLICATION_MODAL);
-
-        this.gameFrame = gameFrame;
 
         setSize(400, 250); // Adjusted size
         setLocationRelativeTo(gameFrame);

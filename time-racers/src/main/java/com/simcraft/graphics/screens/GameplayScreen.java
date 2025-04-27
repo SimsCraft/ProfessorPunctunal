@@ -61,8 +61,6 @@ public final class GameplayScreen extends AbstractScreen {
         gameManager = GameManager.getInstance();
         gameManager.init(gamePanel, infoPanel);
 
-        Ali ali = gameManager.getAli();
-
         keyStates = new HashMap<>();
         addKeyListener(createKeyListener());
     }

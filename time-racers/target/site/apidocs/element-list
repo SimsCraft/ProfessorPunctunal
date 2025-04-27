@@ -1,0 +1,16 @@
+com.simcraft
+com.simcraft.entities
+com.simcraft.entities.enemies
+com.simcraft.graphics
+com.simcraft.graphics.animations
+com.simcraft.graphics.dialogue_panels
+com.simcraft.graphics.effects
+com.simcraft.graphics.effects.screen_effects
+com.simcraft.graphics.effects.sprite_effects
+com.simcraft.graphics.screens
+com.simcraft.graphics.screens.subpanels
+com.simcraft.interfaces
+com.simcraft.levels
+com.simcraft.managers
+com.simcraft.states
+com.simcraft.utility

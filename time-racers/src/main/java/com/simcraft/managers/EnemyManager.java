@@ -22,48 +22,67 @@ import com.simcraft.interfaces.Updateable;
 
 /**
  * Manages the creation, lifespan, and behaviour of all enemies in the game.
+ * This class is responsible for spawning new enemies, updating their state,
+ * handling collisions with the player ({@link Ali}), and removing enemies that
+ * are no longer within the game boundaries. It triggers the
+ * {@link com.simcraft.graphics.effects.sprite_effects.HitFlashEffect} on Ali
+ * upon collision.
  */
 public class EnemyManager implements Updateable, Renderable {
 
     // ----- STATIC VARIABLES -----
     /**
-     * The maximum number of enemies that can exist simultaneously.
+     * The maximum number of enemies that can exist simultaneously on the
+     * screen.
      */
     private static final int MAX_ENEMY_COUNT = 10;
     /**
      * The cooldown duration (in milliseconds) before another {@link Enemy} can
-     * be created.
+     * be created. This prevents overwhelming the player with too many enemies
+     * at once.
      */
     private static final long ENEMY_CREATION_COOLDOWN_MS = 5000; // 5 seconds
 
     // ----- INSTANCE VARIABLES -----
     /**
-     * Time-stamp formatter for debugging purposes.
+     * Time-stamp formatter for debugging purposes, allowing for easy logging of
+     * enemy creation times.
      */
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     /**
-     * Stores references to all active enemies on screen.
+     * Stores references to all active enemies currently present on the screen.
+     * Using a {@link HashSet} ensures that each enemy is unique and provides
+     * efficient addition and removal.
      */
     private HashSet<Enemy> enemies;
     /**
-     * Random generator used by various methods.
+     * Random generator used by various methods within the {@code EnemyManager},
+     * such as determining enemy spawn locations and types.
      */
     private Random random;
     /**
      * The timestamp (in milliseconds) of the last time a new enemy was created.
+     * This is used to enforce the {@link #ENEMY_CREATION_COOLDOWN_MS}.
      */
     private long lastEnemyCreationTime;
 
     // ----- CONSTRUCTORS -----
+    /**
+     * Constructs an {@code EnemyManager}. Initializes the manager by clearing
+     * any existing enemies and setting the last enemy creation time to zero.
+     */
     public EnemyManager() {
         init();
     }
 
     // ----- GETTERS -----
     /**
-     * Returns all active {@link Enemy} instances.
+     * Returns all active {@link Enemy} instances currently managed by this
+     * {@code EnemyManager}.
      *
-     * @return The enemies.
+     * @return A {@link Set} containing all active enemy entities.
+     * @throws IllegalStateException If the {@link GameManager} is not in the
+     * {@code RUNNING} state.
      */
     public Set<Enemy> getEnemies() {
         ensureRunning("getEnemies");
@@ -71,25 +90,29 @@ public class EnemyManager implements Updateable, Renderable {
     }
 
     /**
-     * Gets the cooldown time in milliseconds before another enemy can be
-     * created.
+     * Gets the cooldown time in milliseconds before a new enemy can be created.
      *
-     * @return The cooldown time.
+     * @return The cooldown time in milliseconds.
      */
     public long getEnemyCreationCooldownMs() {
         return ENEMY_CREATION_COOLDOWN_MS;
     }
 
     /**
-     * Returns the last time an enemy was created in milliseconds.
+     * Returns the timestamp (in milliseconds) of the last time an enemy was
+     * successfully created.
      *
-     * @return The last update time.
+     * @return The timestamp of the last enemy creation.
      */
     public long getLastEnemyCreationTime() {
         return lastEnemyCreationTime;
     }
 
     // ----- BUSINESS LOGIC METHODS -----
+    /**
+     * A utility method for testing purposes to quickly add a small group of
+     * different enemy types to the game at random locations.
+     */
     public void addEnemiesTest() {
         GamePanel gamePanel = GameManager.getInstance().getGamePanel();
 
@@ -111,27 +134,32 @@ public class EnemyManager implements Updateable, Renderable {
     }
 
     /**
-     * Initializes the EnemyManager for a new game. This method sets up all the
-     * necessary objects to manage enemies and clears old enemy data.
+     * Initializes the {@code EnemyManager} for a new game. This method resets
+     * the random number generator, clears the list of active enemies, and sets
+     * the last enemy creation time to zero.
      */
     public final void init() {
-        random = new Random();
+        this.random = new Random();
         clear();
         lastEnemyCreationTime = 0;
     }
 
     /**
-     * Clears old enemy data.
+     * Clears the set of currently managed enemies. This is typically called
+     * when starting a new game or resetting the game state.
      */
     public void clear() {
         enemies = new HashSet<>();
     }
 
     /**
-     * Checks if a new enemy can be created.
+     * Checks if a new enemy can be created based on the maximum enemy count and
+     * the enemy creation cooldown.
      *
      * @return {@code true} if a new {@link Enemy} can be created, otherwise
      * {@code false}.
+     * @throws IllegalStateException If the {@link GameManager} is not in the
+     * {@code RUNNING} state.
      */
     public boolean canCreateEnemy() {
         ensureRunning("canCreateEnemy");
@@ -140,9 +168,13 @@ public class EnemyManager implements Updateable, Renderable {
     }
 
     /**
-     * Adds a new {@link Enemy} instance to the managed list.
+     * Adds a specific {@link Enemy} instance to the set of managed enemies.
+     * This method also updates the last enemy creation time if the addition is
+     * successful and allowed by {@link #canCreateEnemy()}.
      *
-     * @param enemy The new enemy.
+     * @param enemy The new enemy to add.
+     * @throws IllegalStateException If the {@link GameManager} is not in the
+     * {@code RUNNING} state.
      */
     public void addEnemy(final Enemy enemy) {
         ensureRunning("addEnemy");
@@ -154,10 +186,13 @@ public class EnemyManager implements Updateable, Renderable {
     }
 
     /**
-     * Creates a random {@link Enemy} (if allowed) and adds it to the managed
-     * list.
+     * Creates a new enemy of a random type at a random spawn point (if allowed
+     * by {@link #canCreateEnemy()}) and adds it to the managed list of enemies.
+     * The newly created enemy will target the player ({@link Ali}).
      *
-     * @param ali The player ({@link Ali}) the {@link Enemy} will target.
+     * @param ali The player ({@link Ali}) that the created enemy will target.
+     * @throws IllegalStateException If the {@link GameManager} is not in the
+     * {@code RUNNING} state.
      */
     public void createRandomEnemy(final Ali ali) {
         ensureRunning("createRandomEnemy");
@@ -207,7 +242,10 @@ public class EnemyManager implements Updateable, Renderable {
 
     // ----- OVERRIDDEN METHODS -----
     /**
-     * Updates all managed objects and the current game state.
+     * Updates all managed objects and the current game state. This includes
+     * attempting to create new enemies, updating the state of existing enemies,
+     * and checking for collisions. The hit flash effect for Ali is managed
+     * within the {@link Ali} class itself.
      */
     @Override
     public void update() {
@@ -218,9 +256,10 @@ public class EnemyManager implements Updateable, Renderable {
     }
 
     /**
-     * Renders all currently active enemies
+     * Renders all currently active enemies on the provided {@link Graphics2D}
+     * context.
      *
-     *
+     * @param g2d The {@code Graphics2D} context to draw on.
      */
     @Override
     public void render(Graphics2D g2d) {
@@ -232,6 +271,15 @@ public class EnemyManager implements Updateable, Renderable {
     }
 
     // ----- HELPER METHODS -----
+    /**
+     * Ensures that the {@link GameManager} is in the {@code RUNNING} state
+     * before allowing certain methods to execute. If not, an
+     * {@link IllegalStateException} is thrown.
+     *
+     * @param methodName The name of the method calling this helper, used for
+     * error reporting.
+     * @throws IllegalStateException If the {@code GameManager} is not running.
+     */
     private void ensureRunning(String methodName) {
         if (!GameManager.getInstance().isRunning()) {
             StackWalker walker = StackWalker.getInstance();
@@ -247,8 +295,9 @@ public class EnemyManager implements Updateable, Renderable {
     }
 
     /**
-     * Updates the list of managed enemies and removes any who are fully
-     * off-screen.
+     * Updates the list of managed enemies. This includes calling the
+     * {@code update()} method on each enemy and removing any enemies that are
+     * fully outside the game panel.
      */
     private void updateEnemies() {
         ensureRunning("updateEnemies");
@@ -264,8 +313,12 @@ public class EnemyManager implements Updateable, Renderable {
     }
 
     /**
-     * Checks for collisions between the player and enemies, and between
-     * enemies.
+     * Checks for collisions between the player ({@link Ali}) and all active
+     * enemies, and also checks for collisions between pairs of enemies. When a
+     * collision occurs between Ali and an enemy, Ali's hit flash effect is
+     * started (managed within the {@link Ali} class), and game penalties are
+     * applied. Enemies involved in collisions will reverse their movement
+     * direction.
      */
     private void checkCollisions() {
         GameManager gameManager = GameManager.getInstance();
@@ -278,6 +331,7 @@ public class EnemyManager implements Updateable, Renderable {
                 if (!enemy.hasCollided()) {
                     enemy.setHasCollided(true);
                     gameManager.subtractTimePenalty(enemy.getTimePenalty());
+                    ali.startHitFlash(); // Trigger Ali's hit flash
                 }
                 enemy.reverseMovementDirection();
             } else {

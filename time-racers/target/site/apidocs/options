@@ -1,0 +1,24 @@
+-classpath
+'C:/Users/STMPW/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.17.0/jackson-databind-2.17.0.jar;C:/Users/STMPW/.m2/repository/net/bytebuddy/byte-buddy/1.14.9/byte-buddy-1.14.9.jar;C:/Users/STMPW/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.15.2/jackson-core-2.15.2.jar;C:/Users/STMPW/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.15.2/jackson-annotations-2.15.2.jar'
+-encoding
+'UTF-8'
+-protected
+--release
+21
+-sourcepath
+'C:/Users/STMPW/Documents/Undergrad/Year 3 - 2024-2025/Semester 2/COMP 3609 - Game Programming/Project/ProfessorPunctunal/time-racers/src/main/java'
+-author
+-bottom
+'Copyright &#169; 2025. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'C:/Users/STMPW/Documents/Undergrad/Year 3 - 2024-2025/Semester 2/COMP 3609 - Game Programming/Project/ProfessorPunctunal/time-racers/target/site/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'time-racers 1.0-SNAPSHOT API'
+-use
+-version
+-windowtitle
+'time-racers 1.0-SNAPSHOT API'

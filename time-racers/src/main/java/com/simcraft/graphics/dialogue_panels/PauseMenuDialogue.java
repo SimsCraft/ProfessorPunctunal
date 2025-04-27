@@ -18,7 +18,6 @@ import static com.simcraft.utility.ButtonUtil.createButtonWithText;
 
 public class PauseMenuDialogue extends Dialog {
 
-    private final GameFrame gameFrame;
     private final JLabel menuLabel;
     private final JButton resumeButton;
     private final JButton settingsButton;
@@ -39,8 +38,6 @@ public class PauseMenuDialogue extends Dialog {
      */
     public PauseMenuDialogue(GameFrame gameFrame, Runnable onResumeCallback) {
         super(gameFrame, "Pause Menu", Dialog.ModalityType.APPLICATION_MODAL);
-
-        this.gameFrame = gameFrame;
 
         setSize(250, 350); // Adjusted size for better readability
         setLocationRelativeTo(gameFrame);
