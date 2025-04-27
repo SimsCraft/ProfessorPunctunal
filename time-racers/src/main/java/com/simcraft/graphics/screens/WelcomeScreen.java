@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 
 import com.simcraft.graphics.GameFrame;
 import com.simcraft.graphics.UIConstants;
+import com.simcraft.graphics.effects.screen_effects.HorizontalScreenWipeEffect;
 
 /**
  * The WelcomeScreen is the initial screen shown to the player when launching
@@ -17,36 +18,43 @@ import com.simcraft.graphics.UIConstants;
  * gameplay screen when the ENTER key is pressed.
  */
 public class WelcomeScreen extends AbstractScreen {
+    // ----- STATIC VARIABLES -----
+    private static final String TITLE = "WELCOME TO PROFESSOR PUNCTUAL!";
+    private static final String START_PROMPT = "Press ENTER to Start";
+    private static final Font TITLE_FONT = UIConstants.TITLE_FONT;
+    private static final Font PROMPT_FONT = UIConstants.BODY_FONT;
 
-    private final String title = "WELCOME TO PROFESSOR PUNCTUAL!";
-    private final String prompt = "Press ENTER to Start";
-    private final Font titleFont = UIConstants.TITLE_FONT;
-    private final Font promptFont = UIConstants.BODY_FONT;
+    // ----- INSTANCE VARIABLES -----
+    private HorizontalScreenWipeEffect screenWipeEffect;
 
     public WelcomeScreen(GameFrame gameFrame) {
         super(gameFrame);
         setBackground(Color.BLACK);
         setFocusable(true);
+        screenWipeEffect = new HorizontalScreenWipeEffect(WelcomeScreen.this, 500);
+
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    gameFrame.setScreen(new GameplayScreen(gameFrame));
+                    screenWipeEffect.startEffect(() -> {
+                        gameFrame.setScreen(new GameplayScreen(gameFrame));
+                    });
                 }
             }
         });
     }
 
     // ----- OVERRIDDEN METHODS -----
-    /**
-     * Renders the welcome screen, displaying the game title and start prompt.
-     *
-     * @param g The graphics context to draw on.
-     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        render((Graphics2D) g);
+        Graphics2D g2d = (Graphics2D) g;
+        render(g2d);
+
+        if (screenWipeEffect != null && screenWipeEffect.isEffectActive()) {
+            screenWipeEffect.draw(g2d);
+        }
     }
 
     @Override
@@ -56,29 +64,25 @@ public class WelcomeScreen extends AbstractScreen {
 
         g2d.setColor(Color.BLACK);
         g2d.fillRect(0, 0, width, height);
-
         g2d.setColor(Color.WHITE);
-
-        // Center the title
-        g2d.setFont(titleFont);
-        FontMetrics titleMetrics = g2d.getFontMetrics(titleFont);
-        int titleWidth = titleMetrics.stringWidth(title);
+        g2d.setFont(TITLE_FONT);
+        FontMetrics titleMetrics = g2d.getFontMetrics(TITLE_FONT);
+        int titleWidth = titleMetrics.stringWidth(TITLE);
         int titleX = (width - titleWidth) / 2;
         int titleY = height / 2 - titleMetrics.getHeight();
-        g2d.drawString(title, titleX, titleY);
-
-        // Center the prompt
-        g2d.setFont(promptFont);
-        FontMetrics promptMetrics = g2d.getFontMetrics(promptFont);
-        int promptWidth = promptMetrics.stringWidth(prompt);
+        g2d.drawString(TITLE, titleX, titleY);
+        g2d.setFont(PROMPT_FONT);
+        FontMetrics promptMetrics = g2d.getFontMetrics(PROMPT_FONT);
+        int promptWidth = promptMetrics.stringWidth(START_PROMPT);
         int promptX = (width - promptWidth) / 2;
-        int promptY = height / 2 + promptMetrics.getAscent() + 20; // Adjust vertical spacing
-        g2d.drawString(prompt, promptX, promptY);
+        int promptY = height / 2 + promptMetrics.getAscent() + 20;
+        g2d.drawString(START_PROMPT, promptX, promptY);
     }
 
     @Override
     public void update() {
-        // No dynamic updates required on the welcome screen (yet).
-        // Could potentially have animations in future, like a blinking "PRESS ENTER".
+        if (screenWipeEffect != null && screenWipeEffect.isEffectActive()) {
+            screenWipeEffect.updateEffect();
+        }
     }
 }

@@ -37,11 +37,11 @@ com\simcraft\graphics\effects\TimedVisualEffect.class
 com\simcraft\entities\enemies\Enemy$EnemyBuilder.class
 com\simcraft\graphics\screens\AbstractScreen.class
 com\simcraft\graphics\animations\AnimationLoader$AnimationConfig.class
+com\simcraft\graphics\effects\screen_effects\HorizontalScreenWipeEffect.class
 com\simcraft\graphics\animations\AnimationFrame.class
 com\simcraft\utility\ButtonUtil.class
 com\simcraft\entities\enemies\Student$StudentBuilder.class
 com\simcraft\entities\Entity.class
-com\simcraft\graphics\effects\screen_effects\ScreenDisintegrateEffect.class
 com\simcraft\managers\SoundManager.class
 com\simcraft\utility\UIGameTime.class
 com\simcraft\entities\enemies\Yapper$YapperBuilder.class

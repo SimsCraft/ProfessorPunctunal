@@ -1,6 +1,5 @@
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\animations\AnimationLoader.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\utility\Bearing2D.java
-C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\effects\screen_effects\ScreenDisintegrateEffect.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\screens\subpanels\Subpanel.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\interfaces\Updateable.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\screens\WelcomeScreen.java
@@ -29,6 +28,7 @@ C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Gam
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\GameWindow.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\screens\subpanels\InfoPanel.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\states\GameState.java
+C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\effects\screen_effects\HorizontalScreenWipeEffect.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\effects\TimedVisualEffect.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\utility\ButtonUtil.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\entities\enemies\Enemy.java

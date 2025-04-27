@@ -23,7 +23,7 @@ import com.simcraft.utility.ButtonUtil;
 public final class InfoPanel extends Subpanel implements Updateable {
 
     // ----- STATIC VARIABLES -----
-    private static final long notificationDurationMillis = 2000; // Display for 2 seconds
+    private static final long NOTIFICATION_DURATION_MS = 2000; // Display for 2 seconds
 
     // ----- INSTANCE VARIABLES -----
     private final JButton pauseButton;
@@ -122,7 +122,7 @@ public final class InfoPanel extends Subpanel implements Updateable {
     private void updateCollisionNotificationDisplay() {
         if (notificationDisplayStartTime > 0) {
             long elapsedTime = System.currentTimeMillis() - notificationDisplayStartTime;
-            if (elapsedTime > notificationDurationMillis) {
+            if (elapsedTime > NOTIFICATION_DURATION_MS) {
                 collisionNotificationLabel.setText("");
                 currentNotification = "";
                 notificationDisplayStartTime = 0;

@@ -6,7 +6,7 @@
 --release
 21
 -sourcepath
-'C:/Users/STMPW/Documents/Undergrad/Year 3 - 2024-2025/Semester 2/COMP 3609 - Game Programming/Project/ProfessorPunctunal/time-racers/src/main/java'
+'C:/Users/STMPW/Documents/Undergrad/Year 3 - 2024-2025/Semester 2/COMP 3609 - Game Programming/Project/ProfessorPunctunal/time-racers/src/main/java;C:/Users/STMPW/Documents/Undergrad/Year 3 - 2024-2025/Semester 2/COMP 3609 - Game Programming/Project/ProfessorPunctunal/time-racers/target/generated-sources/annotations'
 -author
 -bottom
 'Copyright &#169; 2025. All rights reserved.'
