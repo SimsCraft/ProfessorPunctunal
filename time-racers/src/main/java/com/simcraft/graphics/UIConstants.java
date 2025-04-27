@@ -15,6 +15,7 @@ public class UIConstants {
 
     public static final Font TITLE_FONT = new Font("Arial", Font.BOLD, 48);
     public static final Font BODY_FONT = new Font("Arial", Font.PLAIN, 20);
+    public static final Font BODY_FONT_SMALL = new Font("Arial", Font.PLAIN, 12);
     public static final Font BUTTON_FONT = new Font("Arial", Font.BOLD, 24);
 
     // Will be initialized in static block

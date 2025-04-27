@@ -55,6 +55,23 @@ public class Student extends Enemy {
     public void move() {
         super.move();
 
+        double vx = getVelocityX();
+        double vy = getVelocityY();
+
+        // Determine direction and set animation
+        if (Math.abs(vx) > Math.abs(vy)) {
+            if (vx > 0) {
+                setAnimation("female_student_walk_right");
+            } else if (vx < 0) {
+                setAnimation("female_student_walk_left");
+            }
+        } else {
+            if (vy > 0) {
+                setAnimation("female_student_walk_down");
+            } else if (vy < 0) {
+                setAnimation("female_student_walk_up");
+            }
+        }
         // TODO Replace with actual movement logic
         // // Get the normalized cosine value in the range [-1, 1]
         // double normalizedCos = Math.cos(position.y);

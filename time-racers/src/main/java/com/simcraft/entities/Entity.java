@@ -194,6 +194,24 @@ public abstract class Entity implements Updateable, Renderable {
 
     // ----- SETTERS -----
     /**
+     * Sets the X-coordinate of the entity's position.
+     *
+     * @param x The X-coordinate.
+     */
+    public void setX(final int x) {
+        position.x = x;
+    }
+
+    /**
+     * Sets the Y-coordinate of the entity's position.
+     *
+     * @param y The Y-coordinate.
+     */
+    public void setY(final int y) {
+        position.y = y;
+    }
+
+    /**
      * Sets the position of the entity.
      *
      * @param position The new position to set.
