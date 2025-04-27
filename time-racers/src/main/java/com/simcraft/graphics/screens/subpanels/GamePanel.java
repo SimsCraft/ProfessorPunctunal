@@ -1,6 +1,7 @@
 package com.simcraft.graphics.screens.subpanels;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -9,17 +10,21 @@ import com.simcraft.entities.Ali;
 import com.simcraft.managers.GameManager;
 
 /**
- * A specialized {@link Subpanel} responsible for displaying and updating the
- * main game world. It manages the rendering of game entities, including the
- * player and enemies, and handles the horizontal scrolling background.
+ * A component that displays all the game entities and a scrolling background.
  */
 public class GamePanel extends Subpanel {
 
-    private final GameManager gameManager;
+    // ----- STATIC VARIABLES -----
+    private static final Color FLOATING_TEXT_COLOUR = Color.RED;
+    private static final long FLOATING_TEXT_DURATION_MS = 2000; // Display for 2 seconds
 
-    private BufferedImage[] backgroundTiles;
+    // ----- INSTANCE VARIABLES -----
+    private final Font floatingTextFont = new Font("Arial", Font.BOLD, 16);
+    private final int tileWidth;
+    private final BufferedImage[] backgroundTiles;
     private int scrollOffset;
-    private int tileWidth;
+    private String floatingText = "";
+    private long floatingTextStartTime = 0;
 
     // ----- CONSTRUCTORS -----
     public GamePanel(final int width, final int height, final BufferedImage[] backgroundTiles) {
@@ -28,7 +33,6 @@ public class GamePanel extends Subpanel {
         this.backgroundTiles = backgroundTiles;
         this.scrollOffset = 0;
         this.tileWidth = backgroundTiles[0].getWidth();
-        gameManager = GameManager.getInstance();
 
         setBackground(new Color(200, 170, 170));
     }
@@ -46,45 +50,45 @@ public class GamePanel extends Subpanel {
         return scrollOffset;
     }
 
+    /**
+     * Triggers the floating text notification above Ali's head.
+     *
+     * @param message The message to display (e.g., "-10s").
+     */
+    public void showFloatingText(String message) {
+        this.floatingText = message;
+        this.floatingTextStartTime = System.currentTimeMillis();
+    }
+
     // ----- OVERRIDDEN METHODS -----
     /**
      * Renders the background tiles and game entities.
      */
     @Override
     public void render(Graphics2D g2d) {
-        super.render(g2d);
+        renderScrollingBackground(g2d);
 
+        GameManager gameManager = GameManager.getInstance();
         if (!gameManager.isRunning()) {
             return;
         }
 
-        renderScrollingBackground(g2d);
-
-        // Render the player
         Ali ali = gameManager.getAli();
         if (ali != null) {
             ali.safeRender(g2d);
+            renderFloatingText(g2d, ali); // Render the floating text after Ali
         }
 
-        // Render enemies
         gameManager.getEnemyManager().render(g2d);
     }
 
     /**
-     * Overrides the {@link JPanel#paintComponent(Graphics)} method to handle
-     * custom drawing. It calls the {@link #render(Graphics2D)} method to draw
-     * game elements and also draws the exit door as a temporary UI element.
-     *
-     * @param g The {@link Graphics} object used for painting. It is cast to
-     * {@link Graphics2D} for more advanced drawing operations.
+     * Paints additional components (like exit door).
      */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
-        render(g2d); // Call the render method for drawing game elements
 
-        // Draw exit door (temporary UI element)
         g.setColor(Color.DARK_GRAY);
         g.fillRect(getWidth() / 2 - 50, 5, 100, 40);
         g.setColor(Color.WHITE);
@@ -101,6 +105,32 @@ public class GamePanel extends Subpanel {
         for (int i = 0; i < numTiles; i++) {
             int x = (i * tileWidth) - scrollOffset;
             g2d.drawImage(backgroundTiles[i], x, 0, null);
+        }
+    }
+
+    /**
+     * Renders the floating text above Ali's head.
+     *
+     * @param g2d The Graphics2D object for drawing.
+     * @param ali The Ali entity.
+     */
+    private void renderFloatingText(Graphics2D g2d, Ali ali) {
+        if (floatingTextStartTime > 0) {
+            long elapsedTime = System.currentTimeMillis() - floatingTextStartTime;
+            if (elapsedTime <= FLOATING_TEXT_DURATION_MS) {
+                g2d.setFont(floatingTextFont);
+                g2d.setColor(FLOATING_TEXT_COLOUR);
+                String text = floatingText;
+                int textWidth = g2d.getFontMetrics().stringWidth(text);
+                
+                // Position relative to Ali's sprite, no scrollOffset subtraction
+                int x = ali.getX() + (ali.getSpriteWidth() - textWidth) / 2;
+                int y = ali.getY() - 10;
+                g2d.drawString(text, x, y);
+            } else {
+                floatingText = "";
+                floatingTextStartTime = 0;
+            }
         }
     }
 

@@ -274,6 +274,7 @@ public class EnemyManager implements Updateable, Renderable {
         for (Enemy enemy : enemies) {
             if (ali.collides(enemy)) {
                 gameManager.getInfoPanel().showCollisionNotification(enemy.getClass().getSimpleName(), enemy.getTimePenalty());
+                gameManager.getGamePanel().showFloatingText("-" + enemy.getTimePenalty() + "s");
                 if (!enemy.hasCollided()) {
                     enemy.setHasCollided(true);
                     gameManager.subtractTimePenalty(enemy.getTimePenalty());
