@@ -6,47 +6,42 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.simcraft.entities.Ali;
 import com.simcraft.graphics.GameFrame;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
+import com.simcraft.levels.LevelConfig;
+import com.simcraft.levels.LevelLibrary;
 import com.simcraft.managers.GameManager;
 import com.simcraft.managers.ImageManager;
 import com.simcraft.managers.SoundManager;
 
 /**
- * The main gameplay screen where the game logic and rendering occur. Handles
- * player input and updates the game state accordingly. Adds horizontal
- * background scrolling using multiple tiles.
+ * Main gameplay screen managing scrolling, player input, and level transitions.
  */
 public final class GameplayScreen extends AbstractScreen {
 
-    // INSTANCE VARIABLES -----
     private final transient GameManager gameManager;
     private final GamePanel gamePanel;
     private final InfoPanel infoPanel;
     private final Map<Integer, Boolean> keyStates;
+    private int currentLevelIndex = 0;
+    private boolean atLevelEnd = false; // Shows "Enter" arrow when true
 
-    // ----- CONSTRUCTORS -----
-    /**
-     * Initializes the gameplay screen, setting up the game panels and input
-     * listeners.
-     *
-     * @param gameFrame The parent frame containing this screen.
-     */
     public GameplayScreen(GameFrame gameFrame) {
         super(gameFrame);
         setLayout(new BorderLayout());
 
-        // Load base tile + repeat tiles (background_0, background_0.1 repeated, background_1)
-        BufferedImage[] backgroundTiles = new BufferedImage[7];
-        backgroundTiles[0] = ImageManager.loadBufferedImage("/images/backgrounds/background_0.png");
-        for (int i = 1; i <= 5; i++) {
-            backgroundTiles[i] = ImageManager.loadBufferedImage("/images/backgrounds/background_0.1.png");
-        }
-        backgroundTiles[6] = ImageManager.loadBufferedImage("/images/backgrounds/background_1.png");
+        LevelConfig levelConfig = LevelLibrary.getLevel(currentLevelIndex);
+
+        // Load all background tiles
+        List<String> backgroundPaths = levelConfig.getBackgroundImagePaths();
+        BufferedImage[] backgroundTiles = backgroundPaths.stream()
+                .map(ImageManager::loadBufferedImage)
+                .toArray(BufferedImage[]::new);
 
         int infoPanelHeight = 100;
         infoPanel = new InfoPanel(
@@ -58,7 +53,7 @@ public final class GameplayScreen extends AbstractScreen {
         gamePanel = new GamePanel(
                 GameFrame.FRAME_WIDTH,
                 GameFrame.FRAME_HEIGHT - infoPanelHeight,
-                backgroundTiles // set as tile sequence
+                backgroundTiles
         );
 
         add(infoPanel, BorderLayout.NORTH);
@@ -72,10 +67,9 @@ public final class GameplayScreen extends AbstractScreen {
 
         SoundManager soundManager = SoundManager.getInstance();
         soundManager.stopAll();
-        soundManager.playClip("background", true);
+        soundManager.playClip(levelConfig.getMusicClipName(), true);
     }
 
-    // ----- GETTERS -----
     public GamePanel getGamePanel() {
         return gamePanel;
     }
@@ -84,7 +78,6 @@ public final class GameplayScreen extends AbstractScreen {
         return infoPanel;
     }
 
-    // ----- OVERRIDDEN METHODS -----
     @Override
     public void update() {
         if (gameManager.isRunning()) {
@@ -97,10 +90,13 @@ public final class GameplayScreen extends AbstractScreen {
         if (gameManager.isRunning()) {
             gamePanel.safeRender(g2d);
             infoPanel.safeRender(g2d);
+
+            if (atLevelEnd) {
+                gamePanel.drawEnterArrow(g2d);
+            }
         }
     }
 
-    // ----- HELPER METHODS -----
     private KeyAdapter createKeyListener() {
         return new KeyAdapter() {
             private void updateAliMovement() {
@@ -132,18 +128,41 @@ public final class GameplayScreen extends AbstractScreen {
                     velocityX = (velocityX / length) * speed;
                     velocityY = (velocityY / length) * speed;
                 }
+
                 ali.setVelocityX(velocityX);
                 ali.setVelocityY(velocityY);
                 ali.setAnimation(animationKey);
 
-                // Trigger background scroll based on Ali's movement
-                gamePanel.setScrollOffset((int)(gamePanel.getScrollOffset() + velocityX));
+                // Scroll logic
+                int centerThreshold = gamePanel.getWidth() / 2;
+                int aliX = (int) ali.getX();
+                double scrollOffset = gamePanel.getScrollOffset();
+                int totalScrollableWidth = (gamePanel.getTileCount() * gamePanel.getTileWidth()) - gamePanel.getWidth();
+
+                if (velocityX > 0) {
+                    if (aliX >= centerThreshold && scrollOffset < totalScrollableWidth) {
+                        gamePanel.setScrollOffset(scrollOffset + velocityX);
+                        ali.setVelocityX(0);
+                    } else if (scrollOffset >= totalScrollableWidth) {
+                        atLevelEnd = true;
+                        ali.setVelocityX(0); // Stop Ali from moving
+                    }
+                } else if (velocityX < 0 && scrollOffset > 0) {
+                    if (aliX <= centerThreshold) {
+                        gamePanel.setScrollOffset(scrollOffset + velocityX);
+                        ali.setVelocityX(0);
+                    }
+                }
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
                 keyStates.put(e.getKeyCode(), true);
                 updateAliMovement();
+
+                if (e.getKeyCode() == KeyEvent.VK_ENTER && atLevelEnd) {
+                    loadNextLevel();
+                }
             }
 
             @Override
@@ -152,5 +171,29 @@ public final class GameplayScreen extends AbstractScreen {
                 updateAliMovement();
             }
         };
+    }
+
+    /**
+     * Loads the next level if available.
+     */
+    private void loadNextLevel() {
+        if (currentLevelIndex + 1 >= LevelLibrary.getTotalLevels()) {
+            System.out.println("You've finished all available levels!");
+            return;
+        }
+
+        currentLevelIndex++;
+        atLevelEnd = false;
+
+        // Load new level
+        LevelConfig levelConfig = LevelLibrary.getLevel(currentLevelIndex);
+        List<String> backgroundPaths = levelConfig.getBackgroundImagePaths();
+        BufferedImage[] backgroundTiles = backgroundPaths.stream()
+                .map(ImageManager::loadBufferedImage)
+                .toArray(BufferedImage[]::new);
+
+        gamePanel.loadNewBackground(backgroundTiles);
+        SoundManager.getInstance().stopAll();
+        SoundManager.getInstance().playClip(levelConfig.getMusicClipName(), true);
     }
 }

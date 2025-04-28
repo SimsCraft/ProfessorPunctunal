@@ -1,6 +1,7 @@
 package com.simcraft.levels;
 
 import java.awt.Color;
+import java.util.List;
 
 /**
  * Represents the configuration settings for a specific game level.
@@ -16,7 +17,7 @@ import java.awt.Color;
  */
 public class LevelConfig {
 
-    private final String backgroundImagePath;   // Path to the background image file
+    private final List<String> backgroundImagePaths;   // Path to the background image file
     private final String musicClipName;         // Name of the sound clip to play during this level
     private final int levelTimeLimitSeconds;    // Time (in seconds) allowed to complete this level
     private final int maxEnemies;               // Maximum number of enemies allowed on screen
@@ -33,13 +34,13 @@ public class LevelConfig {
      * @param playerSpeed          Player movement speed during this level.
      * @param backgroundColor      Background color if image doesn't load.
      */
-    public LevelConfig(String backgroundImagePath,
+    public LevelConfig(List<String> backgroundImagePaths,
                        String musicClipName,
                        int levelTimeLimitSeconds,
                        int maxEnemies,
                        int playerSpeed,
                        Color backgroundColor) {
-        this.backgroundImagePath = backgroundImagePath;
+        this.backgroundImagePaths = backgroundImagePaths;
         this.musicClipName = musicClipName;
         this.levelTimeLimitSeconds = levelTimeLimitSeconds;
         this.maxEnemies = maxEnemies;
@@ -49,8 +50,8 @@ public class LevelConfig {
 
     // ----- GETTERS -----
 
-    public String getBackgroundImagePath() {
-        return backgroundImagePath;
+    public List<String> getBackgroundImagePaths() {
+        return backgroundImagePaths;
     }
 
     public String getMusicClipName() {

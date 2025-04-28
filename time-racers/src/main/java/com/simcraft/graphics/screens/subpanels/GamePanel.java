@@ -15,7 +15,7 @@ import com.simcraft.managers.ImageManager;
 public class GamePanel extends Subpanel {
 
     private BufferedImage[] backgroundTiles;
-    private int scrollOffset;
+    private double scrollOffset;
     private int tileWidth;
 
     // ----- CONSTRUCTORS -----
@@ -39,7 +39,7 @@ public class GamePanel extends Subpanel {
         this.scrollOffset += dx;
     }
 
-    public int getScrollOffset() {
+    public double getScrollOffset() {
         return scrollOffset;
     }
 
@@ -86,18 +86,47 @@ public class GamePanel extends Subpanel {
     private void renderScrollingBackground(Graphics2D g2d) {
         int panelWidth = getWidth();
         int numTiles = backgroundTiles.length;
+        double startTileIndex = scrollOffset / tileWidth;
+        double offsetWithinTile = scrollOffset % tileWidth;
 
-        for (int i = 0; i < numTiles; i++) {
-            int x = (i * tileWidth) - scrollOffset;
-            g2d.drawImage(backgroundTiles[i], x, 0, null);
+        for (double x = -offsetWithinTile, i = startTileIndex; x < panelWidth; x += tileWidth, i++) {
+            BufferedImage tile = backgroundTiles[(int)(i % backgroundTiles.length)];
+            if (tile == null) continue;
+        
+            g2d.drawImage(tile, (int)x, 0, null); 
         }
     }
     /**
     * Sets the horizontal scroll offset (in pixels).
     *
-    * @param offset The new scroll offset.
+    * @param offset
     */
-    public void setScrollOffset(int offset) {
+    public void setScrollOffset(double offset) {
         this.scrollOffset = offset;
+    }
+
+    public int getTileCount() {
+        return backgroundTiles.length;
+    }
+    
+    public int getTileWidth() {
+        return tileWidth;
+    }
+    /**
+    * Replaces background tiles and resets scroll.
+     */
+    public void loadNewBackground(BufferedImage[] newBackgroundTiles) {
+        this.backgroundTiles = newBackgroundTiles;
+        this.scrollOffset = 0;
+        if (newBackgroundTiles.length > 0) {
+            this.tileWidth = newBackgroundTiles[0].getWidth();
+        }
+    }
+    /**
+    * Draws an arrow prompting the player to press Enter.
+    */
+    public void drawEnterArrow(Graphics2D g2d) {
+        g2d.setColor(Color.WHITE);
+        g2d.drawString("Press ENTER to continue ➡", getWidth() / 2 - 50, getHeight() / 2);
     }
 }

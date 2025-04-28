@@ -19,46 +19,34 @@ public class LevelLibrary {
 
     private static final List<LevelConfig> levels = new ArrayList<>();
 
-    // ----- STATIC INITIALIZATION BLOCK -----
     static {
         // -------- LEVEL 1 --------
         levels.add(new LevelConfig(
-            "/images/backgrounds/classroom_day.png",  // background image path
-            "bg_music_1",                             // background music
-            60,                                       // level duration
-            5,                                        // max enemies
-            4,                                        // player speed
-            new Color(200, 170, 170)                  // background color
+            List.of(
+                "/images/backgrounds/background_0.png",
+                "/images/backgrounds/background_0.1.png",
+                "/images/backgrounds/background_0.1.png",
+                "/images/backgrounds/background_0.1.png"
+            ),
+            "bg_music_1",
+            60,
+            5,
+            4,
+            new Color(200, 170, 170)
         ));
 
         // -------- LEVEL 2 --------
         levels.add(new LevelConfig(
-            "/images/backgrounds/classroom_evening.png",
+            List.of(
+                "/images/backgrounds/background_lvl3.png",
+                "/images/backgrounds/background_lvl3.png",
+                "/images/backgrounds/ba3.png"
+            ),
             "bg_music_2",
             75,
             8,
             5,
             new Color(180, 140, 160)
-        ));
-
-        // -------- LEVEL 3 --------
-        levels.add(new LevelConfig(
-            "/images/backgrounds/exam_hall.png",
-            "bg_music_3",
-            90,
-            10,
-            6,
-            new Color(150, 150, 180)
-        ));
-
-        // -------- ALT REALITY LEVEL (Optional) --------
-        levels.add(new LevelConfig(
-            "/images/backgrounds/alt_reality.png",
-            "distorted_theme",
-            120,
-            12,
-            6,
-            new Color(50, 50, 50)
         ));
     }
 
