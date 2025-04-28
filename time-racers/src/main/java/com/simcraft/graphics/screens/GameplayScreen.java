@@ -33,7 +33,7 @@ public final class GameplayScreen extends AbstractScreen {
     // ----- INSTANCE VARIABLES -----
     private final transient GameManager gameManager;
     private final transient SoundManager soundManager;
-    private final GamePanel gamePanel;
+    private GamePanel gamePanel;
     private final InfoPanel infoPanel;
     private final Map<Integer, Boolean> keyStates;
     private final int levelWidth = 2000;
@@ -64,40 +64,20 @@ public final class GameplayScreen extends AbstractScreen {
         super(gameFrame);
         setLayout(new BorderLayout());
 
-        LevelConfig levelConfig = LevelLibrary.getLevel(currentLevelIndex);
-        List<String> backgroundPaths = levelConfig.getBackgroundImagePaths();
-        BufferedImage[] backgroundTiles = backgroundPaths.stream()
-                .map(ImageManager::loadBufferedImage)
-                .toArray(BufferedImage[]::new);
-
         int infoPanelHeight = 100;
         infoPanel = new InfoPanel(
                 GameFrame.FRAME_WIDTH,
                 infoPanelHeight,
                 "/images/backgrounds/info_panel.png"
         );
-
-        gamePanel = new GamePanel(
-                GameFrame.FRAME_WIDTH,
-                GameFrame.FRAME_HEIGHT - infoPanelHeight,
-                backgroundTiles
-        );
-
         add(infoPanel, BorderLayout.NORTH);
-        add(gamePanel, BorderLayout.CENTER);
 
         gameManager = GameManager.getInstance();
-        gameManager.init(gamePanel, infoPanel);
-
+        soundManager = SoundManager.getInstance();
         keyStates = new HashMap<>();
         addKeyListener(createKeyListener());
 
-        soundManager = SoundManager.getInstance();
-        soundManager.stopAll();
-        soundManager.playClip("background", true);
-
-        currentLevelType = levelConfig.getLevelType();
-        applyLevelSettings();
+        loadLevel(currentLevelIndex);
     }
 
     // ----- GETTERS -----
@@ -376,13 +356,16 @@ public final class GameplayScreen extends AbstractScreen {
         currentLevelIndex++;
         atLevelEnd = false;
 
+        gameManager.setRemainingSeconds(300);
+
         if (currentLevelIndex >= LevelLibrary.getTotalLevels()) {
             System.out.println("You've finished all levels!");
             return;
         }
 
-        removeAll();
-        loadLevel(currentLevelIndex);
+        removeAll(); // Remove all components
+        loadLevel(currentLevelIndex); // Load the next level (creates new GamePanel)
+        add(infoPanel, BorderLayout.NORTH); // Re-add the InfoPanel
         revalidate();
         repaint();
     }
@@ -438,17 +421,26 @@ public final class GameplayScreen extends AbstractScreen {
                 .map(ImageManager::loadBufferedImage)
                 .toArray(BufferedImage[]::new);
 
-        gamePanel.loadNewBackground(backgroundTiles);
-        SoundManager soundManager = SoundManager.getInstance();
-        soundManager.stopAll();
-        soundManager.playClip("background", true);
+        gamePanel = new GamePanel(
+                GameFrame.FRAME_WIDTH,
+                GameFrame.FRAME_HEIGHT - infoPanel.getHeight(),
+                backgroundTiles
+        );
+        add(gamePanel, BorderLayout.CENTER);
 
-        nextLevelName = "LEVEL " + (currentLevelIndex + 1);
+        gameManager.init(gamePanel, infoPanel);
+        gameManager.getEnemyManager().clear();
+
+        nextLevelName = "LEVEL " + (index + 1);
+        infoPanel.updateLevelCounter(index + 1);
         showLevelText = true;
         levelTextOpacity = 1.0f;
 
         currentLevelType = levelConfig.getLevelType();
         applyLevelSettings();
+
+        soundManager.stopAll();
+        soundManager.playClip("background", true);
     }
 
     /**
