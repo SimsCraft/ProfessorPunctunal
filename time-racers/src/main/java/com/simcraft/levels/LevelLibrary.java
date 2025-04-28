@@ -23,8 +23,8 @@ public class LevelLibrary {
         // -------- LEVEL 1 --------
         levels.add(new LevelConfig(
             List.of(
-                "/images/backgrounds/background_0.png",
-                "/images/backgrounds/background_0.1.png"
+                "/images/backgrounds/background_0.png"//,
+                //"/images/backgrounds/background_0.1.png"
             ),
             "background.wav",
             60,

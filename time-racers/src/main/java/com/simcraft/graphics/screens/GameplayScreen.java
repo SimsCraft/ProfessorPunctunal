@@ -75,7 +75,7 @@ public final class GameplayScreen extends AbstractScreen {
 
         SoundManager soundManager = SoundManager.getInstance();
         soundManager.stopAll();
-        soundManager.playClip(levelConfig.getMusicClipName(), true);
+        soundManager.playClip("background", true);
 
         currentLevelType = levelConfig.getLevelType();
         applyLevelSettings();
@@ -89,8 +89,9 @@ public final class GameplayScreen extends AbstractScreen {
                 .toArray(BufferedImage[]::new);
 
         gamePanel.loadNewBackground(backgroundTiles);
-        SoundManager.getInstance().stopAll();
-        SoundManager.getInstance().playClip(levelConfig.getMusicClipName(), true);
+        SoundManager soundManager = SoundManager.getInstance();
+        soundManager.stopAll();
+        soundManager.playClip("background", true);
 
         nextLevelName = "LEVEL " + (currentLevelIndex + 1);
         showLevelText = true;
