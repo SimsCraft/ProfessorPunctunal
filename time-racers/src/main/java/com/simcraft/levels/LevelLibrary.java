@@ -26,11 +26,12 @@ public class LevelLibrary {
                 "/images/backgrounds/background_0.png",
                 "/images/backgrounds/background_0.1.png"
             ),
-            "bg_music_1",
+            "background.wav",
             60,
             5,
             4,
-            new Color(200, 170, 170)
+            new Color(200, 170, 170),
+            LevelType.TOP_DOWN
         ));
 
         // -------- LEVEL 2 --------
@@ -40,11 +41,12 @@ public class LevelLibrary {
                 "/images/backgrounds/background(lvl 3).jpg",
                 "/images/backgrounds/ba3.png"
             ),
-            "bg_music_2",
+            "background.wav",
             75,
             8,
             5,
-            new Color(180, 140, 160)
+            new Color(180, 140, 160),
+            LevelType.SIDE_SCROLLING
         ));
 
         // -------- LEVEL 3 --------
@@ -52,11 +54,12 @@ public class LevelLibrary {
             List.of(
                 "/images/backgrounds/bg2.jpeg"
             ),
-            "bg_music_1",
+            "background.wav",
             60,
             5,
             4,
-            new Color(200, 170, 170)
+            new Color(200, 170, 170),
+            LevelType.TOP_DOWN
         ));
     }
 

@@ -15,6 +15,8 @@ import java.util.List;
  * - Player settings
  * </p>
  */
+
+
 public class LevelConfig {
 
     private final List<String> backgroundImagePaths;   // Path to the background image file
@@ -23,6 +25,7 @@ public class LevelConfig {
     private final int maxEnemies;               // Maximum number of enemies allowed on screen
     private final int playerSpeed;              // Speed of the player character in this level
     private final Color backgroundColor;        // Fallback background color (if image fails to load)
+    private final LevelType levelType;
 
     /**
      * Constructor to initialize all configuration properties for a level.
@@ -39,16 +42,19 @@ public class LevelConfig {
                        int levelTimeLimitSeconds,
                        int maxEnemies,
                        int playerSpeed,
-                       Color backgroundColor) {
+                       Color backgroundColor,
+                       LevelType levelType) {
         this.backgroundImagePaths = backgroundImagePaths;
         this.musicClipName = musicClipName;
         this.levelTimeLimitSeconds = levelTimeLimitSeconds;
         this.maxEnemies = maxEnemies;
         this.playerSpeed = playerSpeed;
         this.backgroundColor = backgroundColor;
+        this.levelType = levelType;
     }
 
     // ----- GETTERS -----
+
 
     public List<String> getBackgroundImagePaths() {
         return backgroundImagePaths;
@@ -72,5 +78,9 @@ public class LevelConfig {
 
     public Color getBackgroundColor() {
         return backgroundColor;
+    }
+
+    public LevelType getLevelType() {
+        return levelType;
     }
 }
