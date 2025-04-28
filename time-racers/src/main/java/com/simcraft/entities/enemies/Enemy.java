@@ -2,6 +2,7 @@ package com.simcraft.entities.enemies;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 import java.util.Random;
@@ -83,6 +84,7 @@ public abstract class Enemy extends MobileEntity {
      */
     protected Enemy(EnemyBuilder<?> builder) {
         super(builder);
+        this.sprite = getCurrentSprite();
         random = new Random();
         hasCollided = false;
     }
@@ -282,6 +284,20 @@ public abstract class Enemy extends MobileEntity {
     public void reverseMovementDirection() {
         setVelocityX(-getVelocityX());
         setVelocityY(-getVelocityY());
+    }
+
+    public void setWorldPosition(double x, double y) {
+        setX(x);
+        setY(y);
+    }
+    
+    public Rectangle getBounds() {
+        if (sprite == null) {
+            return new Rectangle((int) getX(), (int) getY(), 32, 32); // Default small size
+        }
+        return new Rectangle((int) getX(), (int) getY(),
+                (int) (sprite.getWidth() * getScale()),
+                (int) (sprite.getHeight() * getScale()));
     }
 
     /**

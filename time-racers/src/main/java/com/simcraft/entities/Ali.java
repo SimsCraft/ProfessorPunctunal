@@ -2,6 +2,7 @@ package com.simcraft.entities;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,6 +35,8 @@ public class Ali extends MobileEntity {
 
         // Temporary initial animation; will be updated dynamically during movement
         setAnimation("ali_walk_down");
+
+        this.sprite = getCurrentSprite();
 
         setSpeed(6); // Fast (he's in a hurry)
 
@@ -68,9 +71,9 @@ public class Ali extends MobileEntity {
         updateScreenPosition();
     }
 
-    private void updateScreenPosition() {
+    public void updateScreenPosition() {
         // PATCH: Calculate screen position based on scroll offset
-        int scrollOffset = (int) GameManager.getInstance().getScrollOffset();
+        int scrollOffset = (int) GameManager.getInstance().getGamePanel().getScrollOffset();
         position.x = (int) (worldX - scrollOffset);
         position.y = (int) (worldY);
     }
@@ -105,5 +108,18 @@ public class Ali extends MobileEntity {
         public Ali build() {
             return new Ali(this);
         }
+    }
+
+    public boolean isJumping() {
+        return jumping; // Or however you track jumps
+    }
+
+    public void updateScreenPosition(double scrollOffset) {
+        position.x = (int) (worldX - scrollOffset);
+        position.y = (int) worldY;
+    }
+    
+    public Rectangle getBounds() {
+        return new Rectangle(position.x, position.y, (int)(sprite.getWidth() *  getScale()), (int)(sprite.getHeight() *  getScale()));
     }
 }

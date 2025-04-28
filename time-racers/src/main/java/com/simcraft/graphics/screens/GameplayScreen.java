@@ -4,11 +4,12 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.simcraft.entities.Ali;
+import com.simcraft.entities.*;
 import com.simcraft.graphics.GameFrame;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
@@ -39,7 +40,10 @@ public final class GameplayScreen extends AbstractScreen {
     private float levelTextOpacity = 0f;
     private String nextLevelName = "";
 
-    private LevelType currentLevelType = LevelType.TOP_DOWN; // NEW
+    private LevelType currentLevelType = LevelType.TOP_DOWN;
+
+    private int flashTimer = 0;
+    private static final int FLASH_DURATION = 30; // frames
 
     public GameplayScreen(GameFrame gameFrame) {
         super(gameFrame);
@@ -68,6 +72,7 @@ public final class GameplayScreen extends AbstractScreen {
         add(gamePanel, BorderLayout.CENTER);
 
         gameManager = GameManager.getInstance();
+        gameManager.setGameplayScreen(this); 
         gameManager.init(gamePanel, infoPanel);
 
         keyStates = new HashMap<>();
@@ -75,7 +80,7 @@ public final class GameplayScreen extends AbstractScreen {
 
         SoundManager soundManager = SoundManager.getInstance();
         soundManager.stopAll();
-        soundManager.playClip("background", true);
+        soundManager.playClip(levelConfig.getMusicClipName(), true);
 
         currentLevelType = levelConfig.getLevelType();
         applyLevelSettings();
@@ -89,9 +94,8 @@ public final class GameplayScreen extends AbstractScreen {
                 .toArray(BufferedImage[]::new);
 
         gamePanel.loadNewBackground(backgroundTiles);
-        SoundManager soundManager = SoundManager.getInstance();
-        soundManager.stopAll();
-        soundManager.playClip("background", true);
+        SoundManager.getInstance().stopAll();
+        SoundManager.getInstance().playClip(levelConfig.getMusicClipName(), true);
 
         nextLevelName = "LEVEL " + (currentLevelIndex + 1);
         showLevelText = true;
@@ -103,28 +107,39 @@ public final class GameplayScreen extends AbstractScreen {
 
     private void applyLevelSettings() {
         Ali ali = gameManager.getAli();
-    
+        ali.resetPosition();
+
+        gamePanel.clearSpecialObjects();
+
         if (currentLevelType == LevelType.SIDE_SCROLLING) {
-            ali.setScale(5.0);
+            ali.setScale(4.0);
             ali.setHorizontalOnly(true);
-            ali.setYOrigin(ali.getY()); // Save current Y for jumping
-    
-            // Update all enemies
+            ali.setYOrigin(gamePanel.getHeight() - 150);
+            ali.setWorldPosition(0, ali.getYOrigin());
+
             gameManager.getEnemyManager().getEnemies().forEach(enemy -> {
-                enemy.setScale(5.0);
+                enemy.setScale(4.0);
                 enemy.setHorizontalOnly(true);
-                enemy.setYOrigin(enemy.getY());
+                enemy.setYOrigin(gamePanel.getHeight() - 150);
+                enemy.setWorldPosition(enemy.getWorldX(), enemy.getYOrigin());
             });
-    
+
+            // Place EnterClassroom object
+            double endX = (gamePanel.getTileCount() * gamePanel.getTileWidth()) - 300;
+            gamePanel.setEnterClassroom(new EnterClassroom((int) endX, (int) ali.getYOrigin()));
         } else { // TOP_DOWN
             ali.setScale(1.0);
             ali.setHorizontalOnly(false);
-    
-            // Update all enemies
+            ali.setWorldPosition(0, gamePanel.getHeight() / 2.0);
+
             gameManager.getEnemyManager().getEnemies().forEach(enemy -> {
                 enemy.setScale(1.0);
                 enemy.setHorizontalOnly(false);
             });
+
+            // Place TeleportArrow object
+            double endX = (gamePanel.getTileCount() * gamePanel.getTileWidth()) - 150;
+            gamePanel.setTeleportArrow(new TeleportArrow((int) endX, (int) (gamePanel.getHeight() / 2.0 - 50)));
         }
     }
 
@@ -143,11 +158,11 @@ public final class GameplayScreen extends AbstractScreen {
             handleFade();
             handleCinematicWalk();
             handleLevelTextFade();
-            handleJump();
-            checkLevelEnd();
+            handleDamageEffects();
+            handleJump(); 
+            handleCollisions();
         }
     }
-
     @Override
     public void render(Graphics2D g2d) {
         if (gameManager.isRunning()) {
@@ -213,8 +228,8 @@ public final class GameplayScreen extends AbstractScreen {
                 ali.setVelocityY(velocityY);
                 ali.setAnimation(animationKey);
 
-                if (keyStates.getOrDefault(KeyEvent.VK_SPACE, false) && !jumping && currentLevelType == LevelType.SIDE_SCROLLING) {
-                    startJump();
+                if (keyStates.getOrDefault(KeyEvent.VK_SPACE, false) && !ali.isJumping() && currentLevelType == LevelType.SIDE_SCROLLING) {
+                    ali.jump(12.0);
                 }
             }
 
@@ -232,62 +247,37 @@ public final class GameplayScreen extends AbstractScreen {
         };
     }
 
-    private void startJump() {
-        jumping = true;
-        jumpProgress = 0;
-    }
-
-    private void handleJump() {
-        if (jumping) {
-            jumpProgress += 0.05;
-
-            double jumpHeight = -Math.pow((jumpProgress - 1), 2) + 1;
-            double scaledJump = 10 * jumpHeight;
-
-            Ali ali = gameManager.getAli();
-            ali.setY(ali.getYOrigin() - scaledJump);
-
-            if (jumpProgress >= 2.0) {
-                jumping = false;
-                ali.setY(ali.getYOrigin());
-            }
+    private void handleDamageEffects() {
+        Ali ali = gameManager.getAli();
+        if (flashTimer > 0) {
+            flashTimer--;
         }
+
+        // Check for collisions with enemies
+        gameManager.getEnemyManager().getEnemies().forEach(enemy -> {
+            if (ali.getBounds().intersects(enemy.getBounds())) {
+                if (flashTimer == 0) {
+                    flashTimer = FLASH_DURATION;
+                    gamePanel.spawnFloatingText("-10s", (int) ali.getX(), (int) ali.getY() - 40, Color.RED);
+                    gameManager.reduceTime(10); // Decrease time
+                }
+            }
+        });
     }
 
     private void handleCinematicWalk() {
         if (!cinematicWalk) return;
-    
+
         Ali ali = gameManager.getAli();
-        double speed = 2.0; // Slow walking speed
+        double speed = 2.0;
         ali.setAnimation("ali_walk_right");
-    
-        double aliWorldX = ali.getX() + gamePanel.getScrollOffset();
-        int totalWorldWidth = gamePanel.getTileCount() * gamePanel.getTileWidth();
-        double scrollOffset = gamePanel.getScrollOffset();
-    
-        // If Ali reaches near the end of level, stop cinematic
-        if (aliWorldX >= totalWorldWidth - 50) {
-            ali.setVelocityX(0);
-            cinematicWalk = false;
-            startFadeOut();
-            return;
-        }
-    
+
         if (ali.getX() >= gamePanel.getWidth() / 2) {
-            if (scrollOffset < totalWorldWidth - gamePanel.getWidth()) {
-                // If we can still scroll background
-                gamePanel.setScrollOffset(scrollOffset + speed);
-                ali.setVelocityX(0); // Stop Ali while background scrolls
-            } else {
-                // Can't scroll background anymore -> Move Ali normally
-                ali.setVelocityX(speed);
-            }
+            gamePanel.scroll(speed);
+            ali.setVelocityX(0);
         } else {
-            // Ali still moving towards center of screen
             ali.setVelocityX(speed);
         }
-    
-        ali.setVelocityY(0);
     }
 
     private void handleFade() {
@@ -307,7 +297,6 @@ public final class GameplayScreen extends AbstractScreen {
     private void completeLevelTransition() {
         fadingOut = false;
         fadeOpacity = 0f;
-
         currentLevelIndex++;
         atLevelEnd = false;
 
@@ -322,16 +311,32 @@ public final class GameplayScreen extends AbstractScreen {
         repaint();
     }
 
-    private void checkLevelEnd() {
+    private void handleJump() {
+        if (jumping) {
+            jumpProgress += 0.04; // slower, smoother curve
+    
+            double jumpHeight = Math.sin(Math.PI * jumpProgress);
+            double scaledJump = 80 * jumpHeight; // max jump height
+    
+            Ali ali = gameManager.getAli();
+            ali.setY(ali.getYOrigin() - scaledJump);
+    
+            if (jumpProgress >= 1.0) { // DONE jumping
+                jumping = false;
+                ali.setY(ali.getYOrigin());
+            }
+        }
+    }
+
+    private void handleCollisions() {
         Ali ali = gameManager.getAli();
-        double aliX = ali.getX();
-        double scrollOffset = gamePanel.getScrollOffset();
+        Rectangle aliBounds = ali.getBounds();
 
-        int totalScrollableWidth = (gamePanel.getTileCount() * gamePanel.getTileWidth());
-        int playerOffsetX = (int) (aliX + scrollOffset);
+        if (gamePanel.getTeleportArrow() != null && aliBounds.intersects(gamePanel.getTeleportArrowBounds())) {
+            startFadeOut();
+        }
 
-        if (playerOffsetX >= totalScrollableWidth - 50) {
-            atLevelEnd = true;
+        if (gamePanel.getEnterClassroom() != null && aliBounds.intersects(gamePanel.getEnterClassroomBounds())) {
             startFadeOut();
         }
     }

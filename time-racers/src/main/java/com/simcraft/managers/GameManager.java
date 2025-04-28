@@ -10,6 +10,7 @@ import javax.swing.Timer;
 import com.simcraft.entities.Ali;
 import com.simcraft.graphics.GameFrame;
 import com.simcraft.graphics.dialogue_panels.PauseMenuDialogue;
+import com.simcraft.graphics.screens.GameplayScreen;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
 import com.simcraft.interfaces.Updateable;
@@ -80,6 +81,8 @@ public class GameManager implements Updateable {
      * Used to track when to decrement the remaining time.
      */
     private long lastSecondTimestamp = System.currentTimeMillis();
+    private int timeLeft = 300;
+    private GameplayScreen gameplayScreen;
 
 //     private Random random = new Random();
 //     private boolean gameOver = false;
@@ -107,6 +110,10 @@ public class GameManager implements Updateable {
 
     public GamePanel getGamePanel() {
         return gamePanel;
+    }
+
+    public GameplayScreen getGameplayScreen() {
+        return gameplayScreen;
     }
 
     /**
@@ -181,6 +188,10 @@ public class GameManager implements Updateable {
         //     soundManager.playGameOver();
         //     JOptionPane.showMessageDialog(this, "Game Over! Time ran out.", "Game Over", JOptionPane.WARNING_MESSAGE);
         //     System.exit(0);
+    }
+
+    public void setGameplayScreen(GameplayScreen gameplayScreen) {
+        this.gameplayScreen = gameplayScreen;
     }
 
     // ----- BUSINESS LOGIC METHODS -----
@@ -386,6 +397,13 @@ public class GameManager implements Updateable {
         }
     }
 
+    public void reduceTime(int seconds) {
+        timeLeft -= seconds;
+        if (timeLeft < 0) {
+            timeLeft = 0;
+        }
+    }
+
     // TODO reimplement
     // public void checkGameOver() {
     //     if (timeLeft <= 0 && !gameOver) {
@@ -401,27 +419,4 @@ public class GameManager implements Updateable {
         infoPanel.updateTimerDisplay(remainingSeconds);
     }
 
-// public int getScore() {
-//     return score;
-// }
-// public void setScore(final int score) {
-//     this.score = score;
-//     updateScoreDisplay();
-// }
-// /**
-//  * Updates the displayed score and internal score counter.
-//  *
-//  * @param score The new score.
-//  */
-// public final void updateScoreDisplay() {
-//     statusPanel.updateScoreDisplay(score);
-// }
-// /**
-//  * Updates the timer label with a formatted elapsed time string.
-//  *
-//  * @param elapsedSeconds The elapsed time in seconds.
-//  */
-// public void updateTimerDisplay() {
-//     statusPanel.updateTimerDisplay(elapsedSeconds);
-// }
 }
