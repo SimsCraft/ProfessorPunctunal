@@ -18,7 +18,7 @@ This project includes assets created by various artists and developers. Below is
 
 ## 🎵 Music & Sound Effects
 
-(List pending)
+- [**Person Running - LOOP**](https://pixabay.com/sound-effects/person-running-loop-245173/) by [BlenderTimer (Daniel Roberts)](https://pixabay.com/users/blendertimer-9538909/)
 
 ---
 
@@ -28,11 +28,15 @@ This project includes assets created by various artists and developers. Below is
 
 - **BatAlienGame-ScrollingBackground-Vert** - Original codebase from course labs.
 
-- **Untitled Danmaku** - Reused/modified classes from a previous assignment.
+- [**Untitled Danmaku**](https://github.com/Zurun-Rikuthin/untitled_danmaku) - Reused/modified classes from a previous assignment.
 
 ---
 
 ## 📝 Tools Used  
+
+- [**Pixel Space Background Generator**](https://deep-fold.itch.io/space-background-generator) by [Deep-Fold](https://deep-fold.itch.io).
+
+  - Used to generate InfoPanel background.
 
 - [**"Online-Convert.com - Convert audio to WAV"**](https://audio.online-convert.com/convert-to-wav)
   
@@ -42,9 +46,9 @@ This project includes assets created by various artists and developers. Below is
 
 ## 🏗️ Contributors  
 
-- **TamiaWill [Tamia Williams]** - Developer, UI Designer, Sound Designer, etc. *(Original )*
+- **TamiaWill [Tamia Williams]** - Developer, UI Designer, Sound Designer, etc. *(Original Game Concept)*
 
-- **Zurun-Rikuthin [Skyler Almarales]** - Developer, UI Designer, Sound Designer, etc. *(Also for Untitled Danmaku)*
+- **Zurun-Rikuthin [Skyler Almarales]** - Developer, UI Designer, Sound Designer, etc. *(Creator of Untitled Danmaku)*
 
 - **Dr. Permanand Mohan (Teacher)** - Original Codebase (*BatAlienGame-ScrollingBackground-Vert*)
 
@@ -58,4 +62,4 @@ This project includes assets created by various artists and developers. Below is
 
 ---
 
-*Last Updated: [2025-04-20 22:08 UTC-04:00]*
+*Last Updated: [2025-04-27 20:47 UTC-04:00]*

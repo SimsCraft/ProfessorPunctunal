@@ -14,6 +14,7 @@ import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
 import com.simcraft.managers.GameManager;
 import com.simcraft.managers.ImageManager;
+import com.simcraft.managers.SoundManager;
 
 /**
  * The main gameplay screen where the game logic and rendering occur. Handles
@@ -24,6 +25,7 @@ public final class GameplayScreen extends AbstractScreen {
 
     // ----- INSTANCE VARIABLES -----
     private final transient GameManager gameManager;
+    private final transient SoundManager soundManager;
     private final GamePanel gamePanel;
     private final InfoPanel infoPanel;
     private final Map<Integer, Boolean> keyStates;
@@ -33,6 +35,7 @@ public final class GameplayScreen extends AbstractScreen {
     public GameplayScreen(GameFrame gameFrame) {
         super(gameFrame);
         setLayout(new BorderLayout());
+        soundManager = SoundManager.getInstance();
 
         // Load base tile + repeat tiles (background_0, background_0.1 repeated, background_1)
         BufferedImage[] backgroundTiles = new BufferedImage[7];
@@ -46,7 +49,7 @@ public final class GameplayScreen extends AbstractScreen {
         infoPanel = new InfoPanel(
                 GameFrame.FRAME_WIDTH,
                 infoPanelHeight,
-                "/images/backgrounds/info-panel.png"
+                "/images/backgrounds/info_panel.png"
         );
 
         gamePanel = new GamePanel(
@@ -99,22 +102,28 @@ public final class GameplayScreen extends AbstractScreen {
                 double velocityX = 0;
                 double velocityY = 0;
                 String animationKey = "ali_walk_down";
+                boolean isMoving = false;
+                String playerMovingSoundKey = "person_running";
 
                 if (keyStates.getOrDefault(KeyEvent.VK_W, false)) {
                     velocityY = speed;
                     animationKey = "ali_walk_up";
+                    isMoving = true;
                 }
                 if (keyStates.getOrDefault(KeyEvent.VK_S, false)) {
                     velocityY = -speed;
                     animationKey = "ali_walk_down";
+                    isMoving = true;
                 }
                 if (keyStates.getOrDefault(KeyEvent.VK_A, false)) {
                     velocityX = -speed;
                     animationKey = "ali_walk_left";
+                    isMoving = true;
                 }
                 if (keyStates.getOrDefault(KeyEvent.VK_D, false)) {
                     velocityX = speed;
                     animationKey = "ali_walk_right";
+                    isMoving = true;
                 }
 
                 double length = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
@@ -128,6 +137,12 @@ public final class GameplayScreen extends AbstractScreen {
 
                 // Trigger background scroll based on Ali's movement
                 gamePanel.setScrollOffset((int) (gamePanel.getScrollOffset() + velocityX));
+
+                if (isMoving && !soundManager.isClipPlaying(playerMovingSoundKey)) {
+                    soundManager.playClip(playerMovingSoundKey, true);
+                } else if (!isMoving) {
+                    soundManager.stopClip(playerMovingSoundKey);
+                }
             }
 
             @Override

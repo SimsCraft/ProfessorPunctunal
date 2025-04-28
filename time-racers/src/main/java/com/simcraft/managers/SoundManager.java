@@ -99,6 +99,18 @@ public class SoundManager {
         return volume;
     }
 
+    /**
+     * Checks if a given sound clip (by key) is currently playing.
+     *
+     * @param key The key of the sound clip to check.
+     * @return {@code true} if the clip is currently running, {@code false}
+     * otherwise.
+     */
+    public boolean isClipPlaying(String key) {
+        Clip clip = getClip(key);
+        return clip != null && clip.isRunning();
+    }
+
     // ----- SETTERS -----
     /**
      * Sets the global volume level.
@@ -132,7 +144,7 @@ public class SoundManager {
         }
 
         try {
-            clips.put(key, loadClipFromAudioFile(SOUNDS_FOLDER + fileName));
+            clips.put(key, loadClipFromAudioFile(SOUNDS_FOLDER + fileName, key)); // Pass the key
         } catch (IOException e) {
             System.err.println("Failed to load clip (I/O error): " + fileName + " - " + e.getMessage());
         } catch (UnsupportedAudioFileException e) {
@@ -152,6 +164,7 @@ public class SoundManager {
      *
      * @param filePath The path to the audio file (relative to classpath or
      * absolute).
+     * @param key The key associated with this audio clip.
      * @return A {@link Clip} instance containing the loaded audio.
      * @throws IllegalArgumentException If the file path is empty or
      * {@code null}.
@@ -162,7 +175,7 @@ public class SoundManager {
      * @throws LineUnavailableException If no audio line is available for
      * playback.
      */
-    public static Clip loadClipFromAudioFile(final String filePath) throws IllegalArgumentException, IOException, UnsupportedAudioFileException, LineUnavailableException {
+    public static Clip loadClipFromAudioFile(final String filePath, final String key) throws IllegalArgumentException, IOException, UnsupportedAudioFileException, LineUnavailableException {
         if (filePath == null || filePath.isBlank()) {
             throw new IllegalArgumentException("SoundManager: Must provide a valid file path for the audio clip.");
         }
@@ -205,7 +218,7 @@ public class SoundManager {
                 audioIn.close();
             }
         }
-        System.out.println("SoundManager: Loaded audio clip <'" + filePath + "'>");
+        System.out.println("SoundManager: Loaded audio clip <'" + key + "'>");
         return clip;
     }
 
@@ -224,6 +237,8 @@ public class SoundManager {
             } else {
                 clip.start();
             }
+        } else {
+            System.err.println("SoundManager: Cannot play clip. Key not found: " + key);
         }
     }
 
@@ -258,6 +273,7 @@ public class SoundManager {
         loadAndStoreClip("background", "background.wav");
         loadAndStoreClip("footstep", "footstep.wav");
         loadAndStoreClip("game_over", "game_over.wav");
+        loadAndStoreClip("person_running", "person_running.wav");
     }
 
     /**
@@ -266,10 +282,14 @@ public class SoundManager {
     private void applyVolumeToAllClips() {
         for (Clip clip : clips.values()) {
             FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            float min = gainControl.getMinimum();
-            float max = gainControl.getMaximum();
-            float newVolume = min + (volume * (max - min));
-            gainControl.setValue(newVolume);
+            if (gainControl != null) {
+                float min = gainControl.getMinimum();
+                float max = gainControl.getMaximum();
+                float newVolume = min + (volume * (max - min));
+                gainControl.setValue(newVolume);
+            } else {
+                System.err.println("SoundManager: Master Gain control not supported for a clip.");
+            }
         }
     }
 
@@ -327,6 +347,6 @@ public class SoundManager {
                     false // Little-endian
             );
         }
-        return null;  // If the format is already PCM_SIGNED, no conversion is needed.
+        return null; // If the format is already PCM_SIGNED, no conversion is needed.
     }
 }
