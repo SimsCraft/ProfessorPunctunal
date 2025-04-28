@@ -12,7 +12,11 @@ This project includes assets created by various artists and developers. Below is
 
 ## 🎨 Art & Graphics  
 
-(List pending)
+- [32 Free animated characters pack!](https://lexlom.itch.io/32-character-pack-pixel-art-4-direction-idle-walking) by [Lexlom](https://lexlom.itch.io/)
+
+  - **License Notes:**
+    - Public Domain
+
 
 ---
 
@@ -64,4 +68,4 @@ This project includes assets created by various artists and developers. Below is
 
 ---
 
-*Last Updated: [2025-04-27 22:00 UTC-04:00]*
+*Last Updated: [2025-04-27 23:23 UTC-04:00]*
