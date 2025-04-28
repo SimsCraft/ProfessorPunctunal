@@ -105,13 +105,13 @@ public final class GameplayScreen extends AbstractScreen {
         Ali ali = gameManager.getAli();
     
         if (currentLevelType == LevelType.SIDE_SCROLLING) {
-            ali.setScale(4.0);
+            ali.setScale(5.0);
             ali.setHorizontalOnly(true);
             ali.setYOrigin(ali.getY()); // Save current Y for jumping
     
             // Update all enemies
             gameManager.getEnemyManager().getEnemies().forEach(enemy -> {
-                enemy.setScale(4.0);
+                enemy.setScale(5.0);
                 enemy.setHorizontalOnly(true);
                 enemy.setYOrigin(enemy.getY());
             });

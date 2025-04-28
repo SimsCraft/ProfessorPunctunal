@@ -8,7 +8,6 @@ import java.awt.image.BufferedImage;
 
 import com.simcraft.entities.Ali;
 import com.simcraft.managers.GameManager;
-import com.simcraft.managers.ImageManager;
 
 /**
  * A component that displays all the game entities and a scrolling background.
