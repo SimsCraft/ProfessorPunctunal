@@ -24,8 +24,6 @@ public class LevelLibrary {
         levels.add(new LevelConfig(
             List.of(
                 "/images/backgrounds/background_0.png",
-                "/images/backgrounds/background_0.1.png",
-                "/images/backgrounds/background_0.1.png",
                 "/images/backgrounds/background_0.1.png"
             ),
             "bg_music_1",
@@ -38,8 +36,8 @@ public class LevelLibrary {
         // -------- LEVEL 2 --------
         levels.add(new LevelConfig(
             List.of(
-                "/images/backgrounds/background_lvl3.png",
-                "/images/backgrounds/background_lvl3.png",
+                "/images/backgrounds/background(lvl 3).jpg",
+                "/images/backgrounds/background(lvl 3).jpg",
                 "/images/backgrounds/ba3.png"
             ),
             "bg_music_2",
@@ -47,6 +45,18 @@ public class LevelLibrary {
             8,
             5,
             new Color(180, 140, 160)
+        ));
+
+        // -------- LEVEL 3 --------
+        levels.add(new LevelConfig(
+            List.of(
+                "/images/backgrounds/bg2.jpeg"
+            ),
+            "bg_music_1",
+            60,
+            5,
+            4,
+            new Color(200, 170, 170)
         ));
     }
 

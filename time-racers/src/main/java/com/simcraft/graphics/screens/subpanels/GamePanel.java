@@ -1,5 +1,6 @@
 package com.simcraft.graphics.screens.subpanels;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -86,14 +87,17 @@ public class GamePanel extends Subpanel {
     private void renderScrollingBackground(Graphics2D g2d) {
         int panelWidth = getWidth();
         int numTiles = backgroundTiles.length;
-        double startTileIndex = scrollOffset / tileWidth;
         double offsetWithinTile = scrollOffset % tileWidth;
-
-        for (double x = -offsetWithinTile, i = startTileIndex; x < panelWidth; x += tileWidth, i++) {
-            BufferedImage tile = backgroundTiles[(int)(i % backgroundTiles.length)];
-            if (tile == null) continue;
-        
-            g2d.drawImage(tile, (int)x, 0, null); 
+        int startTileIndex = (int)Math.floor(scrollOffset / tileWidth);
+    
+        int x = (int)(-offsetWithinTile);
+        int tileIndex = startTileIndex;
+    
+        while (x < panelWidth + tileWidth) { // +tileWidth ensures full coverage
+            BufferedImage tile = backgroundTiles[tileIndex % numTiles];
+            g2d.drawImage(tile, x, 0, null);
+            x += tileWidth;
+            tileIndex++;
         }
     }
     /**
@@ -126,7 +130,13 @@ public class GamePanel extends Subpanel {
     * Draws an arrow prompting the player to press Enter.
     */
     public void drawEnterArrow(Graphics2D g2d) {
-        g2d.setColor(Color.WHITE);
-        g2d.drawString("Press ENTER to continue ➡", getWidth() / 2 - 50, getHeight() / 2);
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f)); // semi-transparent
+        g2d.setColor(Color.CYAN);
+        int x = getWidth() - 100;
+        int y = getHeight() / 2;
+        g2d.fillRect(x, y, 30, 30); // Arrow as a block
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)); // reset alpha
     }
+
+
 }
