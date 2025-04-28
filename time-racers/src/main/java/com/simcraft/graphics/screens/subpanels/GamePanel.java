@@ -1,5 +1,6 @@
 package com.simcraft.graphics.screens.subpanels;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -20,8 +21,8 @@ public class GamePanel extends Subpanel {
 
     // ----- INSTANCE VARIABLES -----
     private final Font floatingTextFont = new Font("Arial", Font.BOLD, 16);
-    private final int tileWidth;
-    private final BufferedImage[] backgroundTiles;
+    private int tileWidth;
+    private BufferedImage[] backgroundTiles;
     private int scrollOffset;
     private String floatingText = "";
     private long floatingTextStartTime = 0;
@@ -37,17 +38,47 @@ public class GamePanel extends Subpanel {
         setBackground(new Color(200, 170, 170));
     }
 
+    // ----- GETTERS -----
+    public int getTileCount() {
+        return backgroundTiles.length;
+    }
+
+    public int getTileWidth() {
+        return tileWidth;
+    }
+
+    public double getScrollOffset() {
+        return scrollOffset;
+    }
+
+    // ----- SETTERS -----
+    /**
+     * Sets the horizontal scroll offset (in pixels).
+     *
+     * @param offset The new scroll offset.
+     */
+    public void setScrollOffset(final int offset) {
+        this.scrollOffset = offset;
+    }
+
+    /**
+     * Replaces background tiles and resets scroll.
+     */
+    public void loadNewBackground(final BufferedImage[] newBackgroundTiles) {
+        backgroundTiles = newBackgroundTiles;
+        scrollOffset = 0;
+        if (newBackgroundTiles.length > 0) {
+            tileWidth = newBackgroundTiles[0].getWidth();
+        }
+    }
+
     // ----- BUSINESS LOGIC -----
     /**
      * Increases scroll offset based on player's movement. Called externally by
      * GameplayScreen or GameManager.
      */
-    public void scroll(int dx) {
+    public void scroll(final int dx) {
         this.scrollOffset += dx;
-    }
-
-    public int getScrollOffset() {
-        return scrollOffset;
     }
 
     /**
@@ -55,9 +86,21 @@ public class GamePanel extends Subpanel {
      *
      * @param message The message to display (e.g., "-10s").
      */
-    public void showFloatingText(String message) {
+    public void showFloatingText(final String message) {
         this.floatingText = message;
         this.floatingTextStartTime = System.currentTimeMillis();
+    }
+
+    /**
+     * Draws an arrow prompting the player to press Enter.
+     */
+    public void drawEnterArrow(final Graphics2D g2d) {
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f)); // semi-transparent
+        g2d.setColor(Color.CYAN);
+        int x = getWidth() - 100;
+        int y = getHeight() / 2;
+        g2d.fillRect(x, y, 30, 30); // Arrow as a block
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)); // reset alpha
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -65,7 +108,7 @@ public class GamePanel extends Subpanel {
      * Renders the background tiles and game entities.
      */
     @Override
-    public void render(Graphics2D g2d) {
+    public void render(final Graphics2D g2d) {
         renderScrollingBackground(g2d);
 
         GameManager gameManager = GameManager.getInstance();
@@ -86,7 +129,7 @@ public class GamePanel extends Subpanel {
      * Paints additional components (like exit door).
      */
     @Override
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
 
         g.setColor(Color.DARK_GRAY);
@@ -99,12 +142,19 @@ public class GamePanel extends Subpanel {
     /**
      * Draws background tiles side-by-side with scroll offset.
      */
-    private void renderScrollingBackground(Graphics2D g2d) {
+    private void renderScrollingBackground(final Graphics2D g2d) {
         int numTiles = backgroundTiles.length;
+        double offsetWithinTile = scrollOffset % tileWidth;
+        int startTileIndex = scrollOffset / tileWidth;
 
-        for (int i = 0; i < numTiles; i++) {
-            int x = (i * tileWidth) - scrollOffset;
-            g2d.drawImage(backgroundTiles[i], x, 0, null);
+        int x = (int) (-offsetWithinTile);
+        int tileIndex = startTileIndex;
+
+        while (x < getWidth() + tileWidth) { // +tileWidth ensures full coverage
+            BufferedImage tile = backgroundTiles[tileIndex % numTiles];
+            g2d.drawImage(tile, x, 0, null);
+            x += tileWidth;
+            tileIndex++;
         }
     }
 
@@ -114,7 +164,7 @@ public class GamePanel extends Subpanel {
      * @param g2d The Graphics2D object for drawing.
      * @param ali The Ali entity.
      */
-    private void renderFloatingText(Graphics2D g2d, Ali ali) {
+    private void renderFloatingText(final Graphics2D g2d, final Ali ali) {
         if (floatingTextStartTime > 0) {
             long elapsedTime = System.currentTimeMillis() - floatingTextStartTime;
             if (elapsedTime <= FLOATING_TEXT_DURATION_MS) {
@@ -122,7 +172,7 @@ public class GamePanel extends Subpanel {
                 g2d.setColor(FLOATING_TEXT_COLOUR);
                 String text = floatingText;
                 int textWidth = g2d.getFontMetrics().stringWidth(text);
-                
+
                 // Position relative to Ali's sprite, no scrollOffset subtraction
                 int x = ali.getX() + (ali.getSpriteWidth() - textWidth) / 2;
                 int y = ali.getY() - 10;
@@ -132,14 +182,5 @@ public class GamePanel extends Subpanel {
                 floatingTextStartTime = 0;
             }
         }
-    }
-
-    /**
-     * Sets the horizontal scroll offset (in pixels).
-     *
-     * @param offset The new scroll offset.
-     */
-    public void setScrollOffset(int offset) {
-        this.scrollOffset = offset;
     }
 }

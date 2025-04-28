@@ -44,6 +44,7 @@ com\simcraft\entities\enemies\Student$StudentBuilder.class
 com\simcraft\entities\Entity.class
 com\simcraft\managers\SoundManager.class
 com\simcraft\utility\UIGameTime.class
+com\simcraft\levels\LevelType.class
 com\simcraft\entities\enemies\Yapper$YapperBuilder.class
 com\simcraft\levels\LevelLibrary.class
 com\simcraft\graphics\animations\AnimationInstance.class

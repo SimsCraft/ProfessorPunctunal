@@ -1,6 +1,8 @@
 package com.simcraft.entities;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -151,6 +153,17 @@ public class Ali extends MobileEntity {
                 super.hashCode(),
                 hitFlashEffect
         );
+    }
+
+    @Override
+    public void render(Graphics2D g2d) {
+        BufferedImage currentSprite = getCurrentSprite();
+        if (currentSprite == null) {
+            return;
+        }
+        int width = (int) (currentSprite.getWidth() * getScale());
+        int height = (int) (currentSprite.getHeight() * getScale());
+        g2d.drawImage(currentSprite, getX(), getY(), width, height, null);
     }
 
     // ----- BUILDER PATTERN -----

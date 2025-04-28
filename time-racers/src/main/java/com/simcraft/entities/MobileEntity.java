@@ -1,5 +1,6 @@
 package com.simcraft.entities;
 
+import java.awt.image.BufferedImage;
 import java.util.Objects;
 
 import javax.swing.JPanel;
@@ -72,6 +73,15 @@ public abstract class MobileEntity extends Entity {
      * movement.
      */
     protected double speed;
+    private double scale = 1.0; // Default scale
+    private boolean horizontalOnly = false; // Default is free movement (top-down)
+    private int yOrigin; // Y position baseline for horizontal-only games
+    private boolean jumping = false;
+    private double jumpVelocity = 0;
+    private final double gravity = 0.5;
+    protected double x, y; // actual positions
+    protected BufferedImage sprite;
+    
 
     // ----- CONSTRUCTORS -----
     /**
@@ -200,6 +210,45 @@ public abstract class MobileEntity extends Entity {
         this.speed = speed;
     }
 
+
+    public void setScale(double scale) {
+        this.scale = scale;
+    }
+    
+    public double getScale() {
+        return scale;
+    }
+    
+    public void setHorizontalOnly(boolean horizontalOnly) {
+        this.horizontalOnly = horizontalOnly;
+    }
+    
+    public boolean isHorizontalOnly() {
+        return horizontalOnly;
+    }
+    
+    public void setYOrigin(int yOrigin) {
+        this.yOrigin = yOrigin;
+    }
+    
+    public double getYOrigin() {
+        return yOrigin;
+    }
+    
+    public void jump(double initialVelocity) {
+        if (!jumping && horizontalOnly) {
+            jumping = true;
+            jumpVelocity = initialVelocity;
+        }
+    }
+
+
+    public int getX() { return (int) x; }
+    public int getY() { return (int) y; }
+
+    public void setX(double x) { this.x = x; }
+    public void setY(double y) { this.y = y; }
+
 // ---- BUSINESS LOGIC METHODS -----
     /**
      * Updates the entity's position based on its current velocities along the x
@@ -217,7 +266,22 @@ public abstract class MobileEntity extends Entity {
      */
     public void move() {
         position.x += velocityX;
-        position.y -= velocityY; // Inverted for screen coordinates
+        if (horizontalOnly) {
+            if (jumping) {
+                position.y -= jumpVelocity;
+                jumpVelocity -= gravity;
+                if (position.y >= yOrigin) {
+                    position.y = yOrigin;
+                    jumping = false;
+                    jumpVelocity = 0;
+                }
+            }
+        } else {
+            position.y -= velocityY;
+        }
+        // Keep x, y in sync
+        this.x = position.x;
+        this.y = position.y;
     }
 
     // ----- OVERRIDDEN METHODS -----
