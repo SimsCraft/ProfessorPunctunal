@@ -53,7 +53,7 @@ public class SoundManager {
      */
     private SoundManager() {
         clips = new HashMap<>();
-        volume = 1.0f; // Default volume
+        volume = 0.5f; // Default volume
         loadDefaultClips();
     }
 
@@ -223,7 +223,7 @@ public class SoundManager {
     }
 
     /**
-     * Plays a sound clip.
+     * Plays a sound clip with the current global volume..
      *
      * @param key The key of the sound clip.
      * @param looping If {@code true}, the sound will loop continuously.
@@ -236,6 +236,38 @@ public class SoundManager {
                 clip.loop(Clip.LOOP_CONTINUOUSLY);
             } else {
                 clip.start();
+            }
+        } else {
+            System.err.println("SoundManager: Cannot play clip. Key not found: " + key);
+        }
+    }
+
+    /**
+     * Plays a sound clip with a custom volume level.
+     *
+     * @param key The key of the sound clip.
+     * @param looping If {@code true}, the sound will loop continuously.
+     * @param volume The volume level for this playback (range: 0.0 to 1.0).
+     */
+    public void playClip(String key, boolean looping, float volume) {
+        Clip clip = getClip(key);
+        if (clip != null) {
+            clip.setFramePosition(0);
+            if (looping) {
+                clip.loop(Clip.LOOP_CONTINUOUSLY);
+            } else {
+                clip.start();
+            }
+            // Adjust volume for this specific playback
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            if (gainControl != null) {
+                float min = gainControl.getMinimum();
+                float max = gainControl.getMaximum();
+                float gain = min + (Math.clamp(volume, 0.0f, 1.0f) * (max - min));
+                gainControl.setValue(gain);
+                System.out.println("SoundManager: Adjusted volume for clip '" + key + "' to " + gain + " dB (custom).");
+            } else {
+                System.out.println("SoundManager: Master gain control not found for clip '" + key + "'.");
             }
         } else {
             System.err.println("SoundManager: Cannot play clip. Key not found: " + key);
@@ -274,6 +306,12 @@ public class SoundManager {
         loadAndStoreClip("footstep", "footstep.wav");
         loadAndStoreClip("game_over", "game_over.wav");
         loadAndStoreClip("person_running", "person_running.wav");
+        loadAndStoreClip("aight_later", "aight_later.wav");
+        loadAndStoreClip("ey_ey_ey", "ey_ey_ey.wav");
+        loadAndStoreClip("i_hadda_go", "i_hadda_go.wav");
+        loadAndStoreClip("i_hafta_go", "i_hafta_go.wav");
+        loadAndStoreClip("no_later_boi", "no_later_boi.wav");
+        loadAndStoreClip("sorry_i_cah_stay", "sorry_i_cah_stay.wav");
     }
 
     /**

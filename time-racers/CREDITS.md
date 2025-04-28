@@ -54,6 +54,8 @@ This project includes assets created by various artists and developers. Below is
 
 - **Ms. Zainab Hanif  (Lab Assistant)** - Original Codebase (*BatAlienGame-ScrollingBackground-Vert*)
 
+- **Gerard Almarales** - Voiced sound effects for when Mr. Ali collides with an enemy.
+
 ---
 
 ## 📜 License Information  
@@ -62,4 +64,4 @@ This project includes assets created by various artists and developers. Below is
 
 ---
 
-*Last Updated: [2025-04-27 20:47 UTC-04:00]*
+*Last Updated: [2025-04-27 22:00 UTC-04:00]*
