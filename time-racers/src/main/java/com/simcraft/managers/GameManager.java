@@ -227,7 +227,7 @@ public class GameManager implements Updateable {
         SwingUtilities.invokeLater(this::startGameplayTimer);
 
         SoundManager.getInstance().stopAll();
-        SoundManager.getInstance().playClip("background", true);
+        SoundManager.getInstance().playClip("background", true, 0.8f);
     }
 
     /**

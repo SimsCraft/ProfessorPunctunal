@@ -53,7 +53,7 @@ public class SoundManager {
      */
     private SoundManager() {
         clips = new HashMap<>();
-        volume = 1.0f; // Default volume
+        volume = 0.5f; // Default volume
         loadDefaultClips();
     }
 
@@ -99,6 +99,18 @@ public class SoundManager {
         return volume;
     }
 
+    /**
+     * Checks if a given sound clip (by key) is currently playing.
+     *
+     * @param key The key of the sound clip to check.
+     * @return {@code true} if the clip is currently running, {@code false}
+     * otherwise.
+     */
+    public boolean isClipPlaying(String key) {
+        Clip clip = getClip(key);
+        return clip != null && clip.isRunning();
+    }
+
     // ----- SETTERS -----
     /**
      * Sets the global volume level.
@@ -132,7 +144,7 @@ public class SoundManager {
         }
 
         try {
-            clips.put(key, loadClipFromAudioFile(SOUNDS_FOLDER + fileName));
+            clips.put(key, loadClipFromAudioFile(SOUNDS_FOLDER + fileName, key)); // Pass the key
         } catch (IOException e) {
             System.err.println("Failed to load clip (I/O error): " + fileName + " - " + e.getMessage());
         } catch (UnsupportedAudioFileException e) {
@@ -152,6 +164,7 @@ public class SoundManager {
      *
      * @param filePath The path to the audio file (relative to classpath or
      * absolute).
+     * @param key The key associated with this audio clip.
      * @return A {@link Clip} instance containing the loaded audio.
      * @throws IllegalArgumentException If the file path is empty or
      * {@code null}.
@@ -162,7 +175,7 @@ public class SoundManager {
      * @throws LineUnavailableException If no audio line is available for
      * playback.
      */
-    public static Clip loadClipFromAudioFile(final String filePath) throws IllegalArgumentException, IOException, UnsupportedAudioFileException, LineUnavailableException {
+    public static Clip loadClipFromAudioFile(final String filePath, final String key) throws IllegalArgumentException, IOException, UnsupportedAudioFileException, LineUnavailableException {
         if (filePath == null || filePath.isBlank()) {
             throw new IllegalArgumentException("SoundManager: Must provide a valid file path for the audio clip.");
         }
@@ -205,12 +218,12 @@ public class SoundManager {
                 audioIn.close();
             }
         }
-        System.out.println("SoundManager: Loaded audio clip <'" + filePath + "'>");
+        System.out.println("SoundManager: Loaded audio clip <'" + key + "'>");
         return clip;
     }
 
     /**
-     * Plays a sound clip.
+     * Plays a sound clip with the current global volume..
      *
      * @param key The key of the sound clip.
      * @param looping If {@code true}, the sound will loop continuously.
@@ -224,6 +237,40 @@ public class SoundManager {
             } else {
                 clip.start();
             }
+        } else {
+            System.err.println("SoundManager: Cannot play clip. Key not found: " + key);
+        }
+    }
+
+    /**
+     * Plays a sound clip with a custom volume level.
+     *
+     * @param key The key of the sound clip.
+     * @param looping If {@code true}, the sound will loop continuously.
+     * @param volume The volume level for this playback (range: 0.0 to 1.0).
+     */
+    public void playClip(String key, boolean looping, float volume) {
+        Clip clip = getClip(key);
+        if (clip != null) {
+            clip.setFramePosition(0);
+            if (looping) {
+                clip.loop(Clip.LOOP_CONTINUOUSLY);
+            } else {
+                clip.start();
+            }
+            // Adjust volume for this specific playback
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            if (gainControl != null) {
+                float min = gainControl.getMinimum();
+                float max = gainControl.getMaximum();
+                float gain = min + (Math.clamp(volume, 0.0f, 1.0f) * (max - min));
+                gainControl.setValue(gain);
+                System.out.println("SoundManager: Adjusted volume for clip '" + key + "' to " + gain + " dB (custom).");
+            } else {
+                System.out.println("SoundManager: Master gain control not found for clip '" + key + "'.");
+            }
+        } else {
+            System.err.println("SoundManager: Cannot play clip. Key not found: " + key);
         }
     }
 
@@ -258,6 +305,13 @@ public class SoundManager {
         loadAndStoreClip("background", "background.wav");
         loadAndStoreClip("footstep", "footstep.wav");
         loadAndStoreClip("game_over", "game_over.wav");
+        loadAndStoreClip("person_running", "person_running.wav");
+        loadAndStoreClip("aight_later", "aight_later.wav");
+        loadAndStoreClip("ey_ey_ey", "ey_ey_ey.wav");
+        loadAndStoreClip("i_hadda_go", "i_hadda_go.wav");
+        loadAndStoreClip("i_hafta_go", "i_hafta_go.wav");
+        loadAndStoreClip("no_later_boi", "no_later_boi.wav");
+        loadAndStoreClip("sorry_i_cah_stay", "sorry_i_cah_stay.wav");
     }
 
     /**
@@ -266,10 +320,14 @@ public class SoundManager {
     private void applyVolumeToAllClips() {
         for (Clip clip : clips.values()) {
             FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            float min = gainControl.getMinimum();
-            float max = gainControl.getMaximum();
-            float newVolume = min + (volume * (max - min));
-            gainControl.setValue(newVolume);
+            if (gainControl != null) {
+                float min = gainControl.getMinimum();
+                float max = gainControl.getMaximum();
+                float newVolume = min + (volume * (max - min));
+                gainControl.setValue(newVolume);
+            } else {
+                System.err.println("SoundManager: Master Gain control not supported for a clip.");
+            }
         }
     }
 
@@ -327,6 +385,6 @@ public class SoundManager {
                     false // Little-endian
             );
         }
-        return null;  // If the format is already PCM_SIGNED, no conversion is needed.
+        return null; // If the format is already PCM_SIGNED, no conversion is needed.
     }
 }

@@ -42,6 +42,17 @@ public class EnemyManager implements Updateable, Renderable {
      * at once.
      */
     private static final long ENEMY_CREATION_COOLDOWN_MS = 5000; // 5 seconds
+    /**
+     * An array of keys for the random collision sound clips.
+     */
+    private static final String[] COLLISION_SOUND_KEYS = {
+        "aight_later",
+        "ey_ey_ey",
+        "i_hadda_go",
+        "i_hafta_go",
+        "no_later_boi",
+        "sorry_i_cah_stay"
+    };
 
     // ----- INSTANCE VARIABLES -----
     /**
@@ -65,6 +76,17 @@ public class EnemyManager implements Updateable, Renderable {
      * This is used to enforce the {@link #ENEMY_CREATION_COOLDOWN_MS}.
      */
     private long lastEnemyCreationTime;
+    /**
+     * The singleton instance of the {@link SoundManager}.
+     */
+    private final SoundManager soundManager;
+    /**
+     * *
+     * The key of the sound clip that is currently playing due to a an
+     * {@link Enemy} colliding with {@link Ali}. {@code null} if no such sound
+     * is playing.
+     */
+    private String currentAliCollisionSoundKey;
 
     // ----- CONSTRUCTORS -----
     /**
@@ -73,6 +95,7 @@ public class EnemyManager implements Updateable, Renderable {
      */
     public EnemyManager() {
         init();
+        soundManager = SoundManager.getInstance();
     }
 
     // ----- GETTERS -----
@@ -142,6 +165,7 @@ public class EnemyManager implements Updateable, Renderable {
         this.random = new Random();
         clear();
         lastEnemyCreationTime = 0;
+        currentAliCollisionSoundKey = null;
     }
 
     /**
@@ -313,16 +337,21 @@ public class EnemyManager implements Updateable, Renderable {
     }
 
     /**
-     * Checks for collisions between the player ({@link Ali}) and all active
-     * enemies, and also checks for collisions between pairs of enemies. When a
-     * collision occurs between Ali and an enemy, Ali's hit flash effect is
-     * started (managed within the {@link Ali} class), and game penalties are
-     * applied. Enemies involved in collisions will reverse their movement
-     * direction.
+     * Handles collision checks between the player ({@link Ali}) and all active
+     * enemies, and between pairs of enemies.
      */
     private void checkCollisions() {
+        handleAliCollisions();
+        handleEnemyCollisions();
+    }
+
+    /**
+     * Handles collisions between the player ({@link Ali}) and active enemies.
+     * Upon collision, applies game penalties, triggers Ali's hit flash, and
+     * plays a random collision sound effect if one is not already playing.
+     */
+    private void handleAliCollisions() {
         GameManager gameManager = GameManager.getInstance();
-        // Ali vs Enemy
         Ali ali = gameManager.getAli();
         for (Enemy enemy : enemies) {
             if (ali.collides(enemy)) {
@@ -331,15 +360,24 @@ public class EnemyManager implements Updateable, Renderable {
                 if (!enemy.hasCollided()) {
                     enemy.setHasCollided(true);
                     gameManager.subtractTimePenalty(enemy.getTimePenalty());
-                    ali.startHitFlash(); // Trigger Ali's hit flash
+                    ali.startHitFlash();
+
+                    if (!isCollisionSoundPlaying()) {
+                        playRandomCollisionSound();
+                    }
                 }
                 enemy.reverseMovementDirection();
             } else {
                 enemy.setHasCollided(false);
             }
         }
+    }
 
-        // Enemy vs Enemy
+    /**
+     * Handles collisions between pairs of active enemies. Upon collision, the
+     * involved enemies reverse their movement direction.
+     */
+    private void handleEnemyCollisions() {
         List<Enemy> enemyList = new ArrayList<>(enemies);
         for (int i = 0; i < enemyList.size(); i++) {
             Enemy e1 = enemyList.get(i);
@@ -351,5 +389,35 @@ public class EnemyManager implements Updateable, Renderable {
                 }
             }
         }
+    }
+
+    /**
+     * Plays a random sound clip from the available collision sounds.
+     */
+    private void playRandomCollisionSound() {
+        System.out.println("playRandomCollisionSound() called.");
+        if (COLLISION_SOUND_KEYS.length > 0) {
+            int randomIndex = random.nextInt(COLLISION_SOUND_KEYS.length);
+            String soundKey = COLLISION_SOUND_KEYS[randomIndex];
+            System.out.println("Trying to play sound with key: " + soundKey);
+            soundManager.playClip(soundKey, false, 1.0f);
+        } else {
+            System.out.println("No collision sound keys available.");
+        }
+    }
+
+    /**
+     * Checks if any of the collision sound effects are currently playing.
+     *
+     * @return {@code true} if any collision sound is playing, {@code false}
+     * otherwise.
+     */
+    private boolean isCollisionSoundPlaying() {
+        for (String key : COLLISION_SOUND_KEYS) {
+            if (soundManager.isClipPlaying(key)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

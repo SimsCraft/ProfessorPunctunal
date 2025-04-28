@@ -46,7 +46,7 @@ public final class InfoPanel extends Subpanel implements Updateable {
 
         // ----- Initialise elements -----
         pauseButton = ButtonUtil.createButtonWithIcon(
-                "/images/icons/pause-button.png",
+                "/images/icons/pause_button.png",
                 64,
                 64,
                 true,
