@@ -11,6 +11,7 @@ import com.simcraft.entities.Ali;
 import com.simcraft.graphics.GameFrame;
 import com.simcraft.graphics.dialogue_panels.GameOverDialogue;
 import com.simcraft.graphics.dialogue_panels.PauseMenuDialogue;
+import com.simcraft.graphics.screens.GameplayScreen;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
 import com.simcraft.interfaces.Updateable;
@@ -81,6 +82,8 @@ public class GameManager implements Updateable {
      * Used to track when to decrement the remaining time.
      */
     private long lastSecondTimestamp = System.currentTimeMillis();
+    private int timeLeft = 300;
+    private GameplayScreen gameplayScreen;
 
     // ----- CONSTRUCTORS -----
     /**
@@ -110,6 +113,10 @@ public class GameManager implements Updateable {
 
     public InfoPanel getInfoPanel() {
         return infoPanel;
+    }
+
+    public GameplayScreen getGameplayScreen() {
+        return gameplayScreen;
     }
 
     /**
@@ -194,6 +201,10 @@ public class GameManager implements Updateable {
      */
     public void setRemainingSeconds(final int remainingSeconds) {
         this.remainingSeconds = Math.abs(remainingSeconds);
+    }
+
+    public void setGameplayScreen(GameplayScreen gameplayScreen) {
+        this.gameplayScreen = gameplayScreen;
     }
 
     // ----- BUSINESS LOGIC METHODS -----
@@ -328,9 +339,10 @@ public class GameManager implements Updateable {
         }
 
         ali = new Ali.AliBuilder(gamePanel).build();
+        ali.sprite = ali.getCurrentSprite(); // <-- ADD THIS LINE!!
 
         // Trying to do this dynamically wasn't working, so hard-coding for now
-        int x = (GameFrame.FRAME_HEIGHT / 2) - (ali.getSpriteWidth() / 2);
+        int x = (GameFrame.FRAME_WIDTH / 2) - (ali.getSpriteWidth() / 2);
         int y = GameFrame.FRAME_HEIGHT - (2 * ali.getSpriteHeight());
 
         ali.setPosition(new Point(x, y));
@@ -403,6 +415,13 @@ public class GameManager implements Updateable {
     private void stopGameplayTimer() {
         if (gameplayTimer != null) {
             gameplayTimer.stop();
+        }
+    }
+
+    public void reduceTime(int seconds) {
+        timeLeft -= seconds;
+        if (timeLeft < 0) {
+            timeLeft = 0;
         }
     }
 

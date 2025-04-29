@@ -2,6 +2,7 @@ package com.simcraft.entities;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Objects;
@@ -12,6 +13,7 @@ import javax.swing.JPanel;
 
 import com.simcraft.entities.enemies.Enemy;
 import com.simcraft.graphics.effects.sprite_effects.HitFlashEffect;
+import com.simcraft.managers.GameManager;
 
 /**
  * Represents the main playable character, Mr. Ali. Extends the
@@ -24,6 +26,10 @@ public class Ali extends MobileEntity {
      * The visual effect displayed when Ali is hit.
      */
     private HitFlashEffect hitFlashEffect;
+
+    // PATCH: Add world coordinates
+    protected double worldX;
+    protected double worldY;
 
     // ----- CONSTRUCTORS -----
     /**
@@ -49,9 +55,15 @@ public class Ali extends MobileEntity {
         // Temporary initial animation; will be updated dynamically during movement
         setAnimation("ali_walk_down");
 
+        this.sprite = getCurrentSprite();
+
         setSpeed(6); // Fast (he's in a hurry)
 
         this.hitFlashEffect = new HitFlashEffect(this, 500);
+
+        // PATCH: Initialize world position
+        this.worldX = builder.startX;
+        this.worldY = builder.startY;
     }
 
     // ----- GETTERS -----
@@ -80,7 +92,20 @@ public class Ali extends MobileEntity {
      * Resets Ali's position to a predefined starting point.
      */
     public void resetPosition() {
-        setPosition(new Point(350, 550));
+        setWorldPosition(350, 550);
+    }
+
+    public void setWorldPosition(double x, double y) {
+        this.worldX = x;
+        this.worldY = y;
+    }
+
+    public double getWorldX() {
+        return worldX;
+    }
+
+    public double getWorldY() {
+        return worldY;
     }
 
     /**
@@ -112,6 +137,14 @@ public class Ali extends MobileEntity {
     public void move() {
         super.move();
         correctPosition();
+        updateScreenPosition();
+    }
+
+    public void updateScreenPosition() {
+        // PATCH: Calculate screen position based on scroll offset
+        int scrollOffset = (int) GameManager.getInstance().getGamePanel().getScrollOffset();
+        position.x = (int) (worldX - scrollOffset);
+        position.y = (int) (worldY);
     }
 
     /**
@@ -174,6 +207,10 @@ public class Ali extends MobileEntity {
      */
     public static class AliBuilder extends MobileEntityBuilder<AliBuilder> {
 
+        // PATCH: Add start positions
+        private int startX = 0;
+        private int startY = 0;
+
         // ------ CONSTRUCTORS -----
         /**
          * Constructs an {@code AliBuilder} with the specified {@link JPanel} as
@@ -183,6 +220,12 @@ public class Ali extends MobileEntity {
          */
         public AliBuilder(final JPanel panel) {
             super(panel);
+        }
+
+        public AliBuilder startPosition(int x, int y) {
+            this.startX = x;
+            this.startY = y;
+            return this;
         }
 
         // ----- BUSINESS LOGIC METHODS ----
@@ -196,4 +239,18 @@ public class Ali extends MobileEntity {
             return new Ali(this);
         }
     }
+
+    public boolean isJumping() {
+        return jumping; // Or however you track jumps
+    }
+
+    public void updateScreenPosition(double scrollOffset) {
+        position.x = (int) (worldX - scrollOffset);
+        position.y = (int) worldY;
+    }
+
+    public Rectangle getBounds() {
+        return new Rectangle(position.x, position.y, (int) (sprite.getWidth() * getScale()), (int) (sprite.getHeight() * getScale()));
+    }
+
 }

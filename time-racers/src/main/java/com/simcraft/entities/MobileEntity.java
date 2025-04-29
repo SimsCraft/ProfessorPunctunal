@@ -5,6 +5,8 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
+import com.simcraft.managers.GameManager;
+
 /**
  * Represents a mobile entity in the game that can move around the game world.
  * Extends the {@link Entity} class to add movement-related behavior.
@@ -76,11 +78,13 @@ public abstract class MobileEntity extends Entity {
     private double scale = 1.0; // Default scale
     private boolean horizontalOnly = false; // Default is free movement (top-down)
     private int yOrigin; // Y position baseline for horizontal-only games
-    private boolean jumping = false;
+    protected boolean jumping = false;
     private double jumpVelocity = 0;
-    private final double gravity = 0.5;
+    private final double gravity = 0.6;
     protected double x, y; // actual positions
-    protected BufferedImage sprite;
+    public BufferedImage sprite;
+    protected double worldX;
+    protected double worldY;
     
 
     // ----- CONSTRUCTORS -----
@@ -249,6 +253,8 @@ public abstract class MobileEntity extends Entity {
     public void setX(double x) { this.x = x; }
     public void setY(double y) { this.y = y; }
 
+
+
 // ---- BUSINESS LOGIC METHODS -----
     /**
      * Updates the entity's position based on its current velocities along the x
@@ -265,23 +271,21 @@ public abstract class MobileEntity extends Entity {
      * conditions.
      */
     public void move() {
-        position.x += velocityX;
+        worldX += velocityX;
         if (horizontalOnly) {
             if (jumping) {
-                position.y -= jumpVelocity;
+                worldY -= jumpVelocity;
                 jumpVelocity -= gravity;
-                if (position.y >= yOrigin) {
-                    position.y = yOrigin;
+                if (worldY >= yOrigin) {
+                    worldY = yOrigin;
                     jumping = false;
                     jumpVelocity = 0;
                 }
             }
         } else {
-            position.y -= velocityY;
+            worldY -= velocityY;
         }
-        // Keep x, y in sync
-        this.x = position.x;
-        this.y = position.y;
+        updateScreenPosition();
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -407,5 +411,18 @@ public abstract class MobileEntity extends Entity {
             this.speed = speed;
             return self();
         }
+    }
+
+    public void updateScreenPosition() {
+        position.x = (int) (worldX - GameManager.getInstance().getGamePanel().getScrollOffset());
+        position.y = (int) worldY;
+    }
+
+    public double getWorldX() {
+        return worldX;
+    }
+
+    public double getWorldY() {
+        return worldY;
     }
 }

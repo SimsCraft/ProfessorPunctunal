@@ -5,14 +5,16 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.simcraft.entities.Ali;
+import com.simcraft.entities.*;
 import com.simcraft.graphics.GameFrame;
 import com.simcraft.graphics.screens.subpanels.GamePanel;
 import com.simcraft.graphics.screens.subpanels.InfoPanel;
@@ -49,7 +51,11 @@ public final class GameplayScreen extends AbstractScreen {
     private float fadeOpacity = 0f;
     private float levelTextOpacity = 0f;
     private String nextLevelName = "";
-    private LevelType currentLevelType = LevelType.TOP_DOWN; // NEW
+
+    private LevelType currentLevelType = LevelType.TOP_DOWN;
+
+    private int flashTimer = 0;
+    private static final int FLASH_DURATION = 30; // frames
 
     // ----- CONSTRUCTORS -----
     /**
@@ -74,9 +80,10 @@ public final class GameplayScreen extends AbstractScreen {
 
         gameManager = GameManager.getInstance();
         soundManager = SoundManager.getInstance();
+
         keyStates = new HashMap<>();
         addKeyListener(createKeyListener());
-
+        
         loadLevel(currentLevelIndex);
     }
 
@@ -113,8 +120,9 @@ public final class GameplayScreen extends AbstractScreen {
             handleFade();
             handleCinematicWalk();
             handleLevelTextFade();
+            handleDamageEffects();
             handleJump();
-            checkLevelEnd();
+            handleCollisions();
         }
     }
 
@@ -160,6 +168,50 @@ public final class GameplayScreen extends AbstractScreen {
      */
     private KeyAdapter createKeyListener() {
         return new KeyAdapter() {
+            private void updateAliMovement() {
+                if (cinematicWalk) {
+                    return;
+                }
+                Ali ali = gameManager.getAli();
+                double speed = ali.getSpeed();
+                double velocityX = 0;
+                double velocityY = 0;
+                String animationKey = "ali_walk_right";
+
+                if (currentLevelType == LevelType.TOP_DOWN) {
+                    if (keyStates.getOrDefault(KeyEvent.VK_W, false)) {
+                        velocityY = speed;
+                        animationKey = "ali_walk_up";
+                    }
+                    if (keyStates.getOrDefault(KeyEvent.VK_S, false)) {
+                        velocityY = -speed;
+                        animationKey = "ali_walk_down";
+                    }
+                }
+
+                if (keyStates.getOrDefault(KeyEvent.VK_A, false)) {
+                    velocityX = -speed;
+                    animationKey = "ali_walk_left";
+                }
+                if (keyStates.getOrDefault(KeyEvent.VK_D, false)) {
+                    velocityX = speed;
+                    animationKey = "ali_walk_right";
+                }
+
+                double length = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
+                if (length != 0) {
+                    velocityX = (velocityX / length) * speed;
+                    velocityY = (velocityY / length) * speed;
+                }
+
+                ali.setVelocityX(velocityX);
+                ali.setVelocityY(velocityY);
+                ali.setAnimation(animationKey);
+
+                if (keyStates.getOrDefault(KeyEvent.VK_SPACE, false) && !ali.isJumping() && currentLevelType == LevelType.SIDE_SCROLLING) {
+                    ali.jump(12.0);
+                }
+            }
 
             @Override
             public void keyPressed(KeyEvent e) {
@@ -175,102 +227,22 @@ public final class GameplayScreen extends AbstractScreen {
         };
     }
 
-    /**
-     * Updates the movement of the player character ({@link Ali}) based on the
-     * current state of the pressed keys. It determines the velocity and
-     * animation of Ali based on the input and the current {@link LevelType}.
-     * Also handles playing and stopping the player's movement sound and
-     * initiates jumping in side-scrolling levels when the space key is pressed.
-     */
-    private void updateAliMovement() {
-        if (cinematicWalk) {
-            return;
-        }
+    private void handleDamageEffects() {
         Ali ali = gameManager.getAli();
-        double speed = ali.getSpeed();
-        double velocityX = 0;
-        double velocityY = 0;
-        String animationKey = "ali_walk_right";
-        boolean isMoving = false;
-        String playerMovingSoundKey = "person_running";
+        if (flashTimer > 0) {
+            flashTimer--;
+        }
 
-        if (currentLevelType == LevelType.TOP_DOWN) {
-            if (keyStates.getOrDefault(KeyEvent.VK_W, false)) {
-                velocityY = speed;
-                animationKey = "ali_walk_up";
-                isMoving = true;
+        // Check for collisions with enemies
+        gameManager.getEnemyManager().getEnemies().forEach(enemy -> {
+            if (ali.getBounds().intersects(enemy.getBounds())) {
+                if (flashTimer == 0) {
+                    flashTimer = FLASH_DURATION;
+                    gamePanel.spawnFloatingText("-10s", (int) ali.getX(), (int) ali.getY() - 40, Color.RED);
+                    gameManager.reduceTime(10); // Decrease time
+                }
             }
-            if (keyStates.getOrDefault(KeyEvent.VK_S, false)) {
-                velocityY = -speed;
-                animationKey = "ali_walk_down";
-                isMoving = true;
-            }
-        }
-
-        if (keyStates.getOrDefault(KeyEvent.VK_A, false)) {
-            velocityX = -speed;
-            animationKey = "ali_walk_left";
-            isMoving = true;
-        }
-        if (keyStates.getOrDefault(KeyEvent.VK_D, false)) {
-            velocityX = speed;
-            animationKey = "ali_walk_right";
-            isMoving = true;
-        }
-
-        double length = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
-        if (length != 0) {
-            velocityX = (velocityX / length) * speed;
-            velocityY = (velocityY / length) * speed;
-        }
-
-        ali.setVelocityX(velocityX);
-        ali.setVelocityY(velocityY);
-        ali.setAnimation(animationKey);
-
-        // Trigger background scroll based on Ali's movement
-        gamePanel.setScrollOffset((int) (gamePanel.getScrollOffset() + velocityX));
-
-        if (isMoving && !soundManager.isClipPlaying(playerMovingSoundKey)) {
-            soundManager.playClip(playerMovingSoundKey, true);
-        } else if (!isMoving) {
-            soundManager.stopClip(playerMovingSoundKey);
-            if (keyStates.getOrDefault(KeyEvent.VK_SPACE, false) && !jumping && currentLevelType == LevelType.SIDE_SCROLLING) {
-                startJump();
-            }
-        }
-    }
-
-    /**
-     * Initiates a jump for the player character in side-scrolling levels. Sets
-     * the {@code jumping} flag to true and resets the {@code jumpProgress}.
-     */
-    private void startJump() {
-        jumping = true;
-        jumpProgress = 0;
-    }
-
-    /**
-     * Handles the jumping motion of the player character. Updates the player's
-     * vertical position based on a parabolic curve defined by
-     * {@code jumpProgress}. Resets the {@code jumping} flag when the jump is
-     * complete.
-     */
-    private void handleJump() {
-        if (jumping) {
-            jumpProgress += 0.05;
-
-            double jumpHeight = -Math.pow((jumpProgress - 1), 2) + 1;
-            double scaledJump = 10 * jumpHeight;
-
-            Ali ali = gameManager.getAli();
-            ali.setY(ali.getYOrigin() - scaledJump);
-
-            if (jumpProgress >= 2.0) {
-                jumping = false;
-                ali.setY(ali.getYOrigin());
-            }
-        }
+        });
     }
 
     /**
@@ -287,13 +259,12 @@ public final class GameplayScreen extends AbstractScreen {
         }
 
         Ali ali = gameManager.getAli();
-        double speed = 2.0; // Slow walking speed
+        double speed = 2.0;
         ali.setAnimation("ali_walk_right");
 
         double aliWorldX = ali.getX() + gamePanel.getScrollOffset();
         int totalWorldWidth = gamePanel.getTileCount() * gamePanel.getTileWidth();
         double scrollOffset = gamePanel.getScrollOffset();
-
         // If Ali reaches near the end of level, stop cinematic
         if (aliWorldX >= totalWorldWidth - 50) {
             ali.setVelocityX(0);
@@ -311,12 +282,7 @@ public final class GameplayScreen extends AbstractScreen {
                 // Can't scroll background anymore -> Move Ali normally
                 ali.setVelocityX(speed);
             }
-        } else {
-            // Ali still moving towards center of screen
-            ali.setVelocityX(speed);
         }
-
-        ali.setVelocityY(0);
     }
 
     /**
@@ -352,7 +318,6 @@ public final class GameplayScreen extends AbstractScreen {
     private void completeLevelTransition() {
         fadingOut = false;
         fadeOpacity = 0f;
-
         currentLevelIndex++;
         atLevelEnd = false;
 
@@ -370,23 +335,32 @@ public final class GameplayScreen extends AbstractScreen {
         repaint();
     }
 
-    /**
-     * Checks if the player character has reached the end of the current level.
-     * The end of the level is determined by the player's horizontal position
-     * relative to the total scrollable width of the game panel. If the player
-     * is near the end, the {@code atLevelEnd} flag is set, and a fade-out
-     * transition is initiated.
-     */
-    private void checkLevelEnd() {
+    private void handleJump() {
+        if (jumping) {
+            jumpProgress += 0.04; // slower, smoother curve
+
+            double jumpHeight = Math.sin(Math.PI * jumpProgress);
+            double scaledJump = 80 * jumpHeight; // max jump height
+
+            Ali ali = gameManager.getAli();
+            ali.setY(ali.getYOrigin() - scaledJump);
+
+            if (jumpProgress >= 1.0) { // DONE jumping
+                jumping = false;
+                ali.setY(ali.getYOrigin());
+            }
+        }
+    }
+
+    private void handleCollisions() {
         Ali ali = gameManager.getAli();
-        double aliX = ali.getX();
-        double scrollOffset = gamePanel.getScrollOffset();
+        Rectangle aliBounds = ali.getBounds();
 
-        int totalScrollableWidth = (gamePanel.getTileCount() * gamePanel.getTileWidth());
-        int playerOffsetX = (int) (aliX + scrollOffset);
+        if (gamePanel.getTeleportArrow() != null && aliBounds.intersects(gamePanel.getTeleportArrowBounds())) {
+            startFadeOut();
+        }
 
-        if (playerOffsetX >= totalScrollableWidth - 50) {
-            atLevelEnd = true;
+        if (gamePanel.getEnterClassroom() != null && aliBounds.intersects(gamePanel.getEnterClassroomBounds())) {
             startFadeOut();
         }
     }
@@ -450,28 +424,39 @@ public final class GameplayScreen extends AbstractScreen {
      */
     private void applyLevelSettings() {
         Ali ali = gameManager.getAli();
+        ali.resetPosition();
+
+        gamePanel.clearSpecialObjects();
 
         if (currentLevelType == LevelType.SIDE_SCROLLING) {
             ali.setScale(4.0);
             ali.setHorizontalOnly(true);
-            ali.setYOrigin(ali.getY()); // Save current Y for jumping
+            ali.setYOrigin(gamePanel.getHeight() - 150);
+            ali.setWorldPosition(0, ali.getYOrigin());
 
-            // Update all enemies
             gameManager.getEnemyManager().getEnemies().forEach(enemy -> {
                 enemy.setScale(4.0);
                 enemy.setHorizontalOnly(true);
-                enemy.setYOrigin(enemy.getY());
+                enemy.setYOrigin(gamePanel.getHeight() - 150);
+                enemy.setWorldPosition(enemy.getWorldX(), enemy.getYOrigin());
             });
 
+            // Place EnterClassroom object
+            double endX = (gamePanel.getTileCount() * gamePanel.getTileWidth()) - 300;
+            gamePanel.setEnterClassroom(new EnterClassroom((int) endX, (int) ali.getYOrigin()));
         } else { // TOP_DOWN
             ali.setScale(1.0);
             ali.setHorizontalOnly(false);
+            ali.setWorldPosition(0, gamePanel.getHeight() / 2.0);
 
-            // Update all enemies
             gameManager.getEnemyManager().getEnemies().forEach(enemy -> {
                 enemy.setScale(1.0);
                 enemy.setHorizontalOnly(false);
             });
+
+            // Place TeleportArrow object
+            double endX = (gamePanel.getTileCount() * gamePanel.getTileWidth()) - 150;
+            gamePanel.setTeleportArrow(new TeleportArrow((int) endX, (int) (gamePanel.getHeight() / 2.0 - 50)));
         }
     }
 

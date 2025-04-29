@@ -220,13 +220,14 @@ public class EnemyManager implements Updateable, Renderable {
      */
     public void createRandomEnemy(final Ali ali) {
         ensureRunning("createRandomEnemy");
-
+    
         long currentTime = System.currentTimeMillis();
         String currentTimeFormatted = dateFormat.format(new Date(currentTime));
-
+    
         if (!canCreateEnemy()) {
             return;
         }
+    
         GamePanel gamePanel = GameManager.getInstance().getGamePanel();
         Point spawnPoint = null;
         try {
@@ -235,30 +236,29 @@ public class EnemyManager implements Updateable, Renderable {
             System.err.println("Error getting spawn point: " + e.getMessage());
             return;
         }
-
+    
         if (spawnPoint != null) {
             Enemy newEnemy;
-
             switch (random.nextInt(3)) {
-                case 0 ->
-                    newEnemy = new Lecturer.LecturerBuilder(gamePanel).build();
-                case 1 ->
-                    newEnemy = new Student.StudentBuilder(gamePanel).build();
-                case 2 ->
-                    newEnemy = new Yapper.YapperBuilder(gamePanel).build();
-                default ->
-                    throw new IllegalStateException("Unexpected value in createRandomEnemy switch-case.");
+                case 0 -> newEnemy = new Lecturer.LecturerBuilder(gamePanel).build();
+                case 1 -> newEnemy = new Student.StudentBuilder(gamePanel).build();
+                case 2 -> newEnemy = new Yapper.YapperBuilder(gamePanel).build();
+                default -> throw new IllegalStateException("Unexpected value in createRandomEnemy switch-case.");
             }
+    
+            newEnemy.sprite = newEnemy.getCurrentSprite(); // <-- ADD THIS LINE!!
+    
             newEnemy.setPosition(spawnPoint);
             newEnemy.setTarget(ali.getPosition());
-
+    
             int xMoveSpeed = random.nextInt(5);
             boolean moveLeft = random.nextBoolean();
-
+    
             newEnemy.setVelocityX(moveLeft ? -xMoveSpeed : xMoveSpeed);
+    
             enemies.add(newEnemy);
             lastEnemyCreationTime = currentTime; // Update creation time *after* creating
-
+    
             System.out.println("Created a new enemy at " + currentTimeFormatted);
             System.out.println("Total active enemies: : " + enemies.size());
         }

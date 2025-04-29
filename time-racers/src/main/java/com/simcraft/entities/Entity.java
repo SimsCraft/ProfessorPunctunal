@@ -85,6 +85,13 @@ public abstract class Entity implements Updateable, Renderable {
         setHitboxFromCurrentSprite();
     }
 
+    protected Entity(int x, int y) {
+        this.panel = null; // No specific panel assigned (optional, fix if needed)
+        this.position = new Point(x, y);
+        this.animationKeys = new HashSet<>();
+        this.hitbox = new Rectangle(x, y, 0, 0); // We'll assume empty hitbox unless set
+    }
+    
     // ----- GETTERS -----
     /**
      * Returns the panel where the entity is rendered.
@@ -121,6 +128,7 @@ public abstract class Entity implements Updateable, Renderable {
     public int getY() {
         return position.y;
     }
+
 
     /**
      * Returns the set of keys this entity can use to query
