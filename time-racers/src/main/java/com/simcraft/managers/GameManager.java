@@ -315,13 +315,14 @@ public class GameManager implements Updateable {
                     "Cannot initialise player/Ali without being in the INITIALIZING state."
             );
         }
-
+    
         ali = new Ali.AliBuilder(gamePanel).build();
-
+        ali.sprite = ali.getCurrentSprite(); // <-- ADD THIS LINE!!
+    
         // Trying to do this dynamically wasn't working, so hard-coding for now
-        int x = (GameFrame.FRAME_HEIGHT / 2) - (ali.getSpriteWidth() / 2);
+        int x = (GameFrame.FRAME_WIDTH / 2) - (ali.getSpriteWidth() / 2);
         int y = GameFrame.FRAME_HEIGHT - (2 * ali.getSpriteHeight());
-
+    
         ali.setPosition(new Point(x, y));
     }
 

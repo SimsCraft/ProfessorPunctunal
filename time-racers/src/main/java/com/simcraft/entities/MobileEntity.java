@@ -82,7 +82,7 @@ public abstract class MobileEntity extends Entity {
     private double jumpVelocity = 0;
     private final double gravity = 0.6;
     protected double x, y; // actual positions
-    protected BufferedImage sprite;
+    public BufferedImage sprite;
     protected double worldX;
     protected double worldY;
     
