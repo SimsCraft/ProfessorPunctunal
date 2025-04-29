@@ -31,6 +31,11 @@ public class Ali extends MobileEntity {
     protected double worldX;
     protected double worldY;
 
+    /**
+     * Flag indicating if Ali is currently jumping.
+     */
+    private boolean jumping = false; // Assuming a basic jumping implementation
+
     // ----- CONSTRUCTORS -----
     /**
      * Constructs an {@code Ali} object using the provided {@link AliBuilder}.
@@ -76,6 +81,15 @@ public class Ali extends MobileEntity {
         return hitFlashEffect;
     }
 
+    /**
+     * Returns wither Mr. Ali is currently jumping.
+     * 
+     * @return {@code true if he's jumping}, {@code false otherwise}
+     */
+    public boolean isJumping() {
+        return jumping;
+    }
+
     // ----- SETTERS -----
     /**
      * Sets the {@link HitFlashEffect} for Ali. This can be used to provide a
@@ -87,25 +101,55 @@ public class Ali extends MobileEntity {
         this.hitFlashEffect = hitFlashEffect;
     }
 
-    // ----- BUSINESS LOGIC METHODS -----
     /**
-     * Resets Ali's position to a predefined starting point.
+     * Sets the world X-coordinate of Ali.
+     *
+     * @param worldX The new world X-coordinate.
      */
-    public void resetPosition() {
-        setWorldPosition(350, 550);
+    public void setWorldX(double worldX) {
+        this.worldX = worldX;
     }
 
+    /**
+     * Sets the world Y-coordinate of Ali.
+     *
+     * @param worldY The new world Y-coordinate.
+     */
+    public void setWorldY(double worldY) {
+        this.worldY = worldY;
+    }
+
+    /**
+     * Sets whether Ali is currently jumping.
+     *
+     * @param jumping {@code true} if Ali is jumping, {@code false} otherwise.
+     */
+    public void setJumping(boolean jumping) {
+        this.jumping = jumping;
+    }
+
+    // ----- BUSINESS LOGIC METHODS -----
+    /**
+     * Resets Ali's position to a predefined starting point in the game world.
+     * This method updates Ali's world coordinates.
+     *
+     * @param x The starting world X-coordinate.
+     * @param y The starting world Y-coordinate.
+     */
+    public void resetPosition(double x, double y) {
+        setWorldPosition(x, y);
+    }
+
+    /**
+     * Sets Ali's position in the game world. This updates Ali's world
+     * coordinates.
+     *
+     * @param x The new world X-coordinate.
+     * @param y The new world Y-coordinate.
+     */
     public void setWorldPosition(double x, double y) {
         this.worldX = x;
         this.worldY = y;
-    }
-
-    public double getWorldX() {
-        return worldX;
-    }
-
-    public double getWorldY() {
-        return worldY;
     }
 
     /**
@@ -130,26 +174,31 @@ public class Ali extends MobileEntity {
 
     // ----- OVERRIDDEN METHODS -----
     /**
-     * Moves Ali based on the current velocity and then corrects his position to
-     * ensure they remain within the game boundaries.
+     * Moves Ali based on the current velocity and then updates his screen
+     * position based on the game's scroll offset.
      */
     @Override
     public void move() {
         super.move();
-        correctPosition();
         updateScreenPosition();
     }
 
+    /**
+     * Updates Ali's screen position based on the current scroll offset of the
+     * game panel. This ensures Ali is rendered correctly relative to the game
+     * world.
+     */
     public void updateScreenPosition() {
         // PATCH: Calculate screen position based on scroll offset
-        int scrollOffset = (int) GameManager.getInstance().getGamePanel().getScrollOffset();
-        position.x = (int) (worldX - scrollOffset);
-        position.y = (int) (worldY);
+        if (GameManager.getInstance().getGamePanel() != null) {
+            int scrollOffset = (int) GameManager.getInstance().getGamePanel().getScrollOffset();
+            position.x = (int) (worldX - scrollOffset);
+            position.y = (int) (worldY);
+        }
     }
 
     /**
-     * Extends {@link MobileEntity#update} to manage Ali's hit flash effect when
-     * colliding with an {@link Enemy}.
+     * Extends {@link MobileEntity#update} to manage Ali's hit flash effect.
      */
     @Override
     public void update() {
@@ -168,7 +217,7 @@ public class Ali extends MobileEntity {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof Entity)) {
+        if (!(obj instanceof Ali)) {
             return false;
         }
         Ali other = (Ali) obj;
@@ -188,6 +237,11 @@ public class Ali extends MobileEntity {
         );
     }
 
+    /**
+     * Renders Ali on the provided graphics context.
+     *
+     * @param g2d The graphics context to draw on.
+     */
     @Override
     public void render(Graphics2D g2d) {
         BufferedImage currentSprite = getCurrentSprite();
@@ -199,7 +253,21 @@ public class Ali extends MobileEntity {
         g2d.drawImage(currentSprite, getX(), getY(), width, height, null);
     }
 
-    // ----- BUILDER PATTERN -----
+    /**
+     * Returns the bounding rectangle of Ali for collision detection, based on
+     * his current screen position and sprite dimensions.
+     *
+     * @return A {@link Rectangle} representing Ali's bounds on the screen.
+     */
+    public Rectangle getBounds() {
+        BufferedImage currentSprite = getCurrentSprite();
+        if (currentSprite == null) {
+            return new Rectangle(getX(), getY(), 0, 0); // Or some default size
+        }
+        return new Rectangle(getX(), getY(), (int) (currentSprite.getWidth() * getScale()), (int) (currentSprite.getHeight() * getScale()));
+    }
+
+    // ----- STATIC BUILDER FOR ALI -----
     /**
      * The {@code AliBuilder} class provides a fluent API for constructing an
      * {@link Ali} object. It extends {@link MobileEntityBuilder} and allows
@@ -222,6 +290,13 @@ public class Ali extends MobileEntity {
             super(panel);
         }
 
+        /**
+         * Sets the starting position of Ali in the game world.
+         *
+         * @param x The starting world X-coordinate.
+         * @param y The starting world Y-coordinate.
+         * @return The builder instance.
+         */
         public AliBuilder startPosition(int x, int y) {
             this.startX = x;
             this.startY = y;
@@ -239,18 +314,4 @@ public class Ali extends MobileEntity {
             return new Ali(this);
         }
     }
-
-    public boolean isJumping() {
-        return jumping; // Or however you track jumps
-    }
-
-    public void updateScreenPosition(double scrollOffset) {
-        position.x = (int) (worldX - scrollOffset);
-        position.y = (int) worldY;
-    }
-
-    public Rectangle getBounds() {
-        return new Rectangle(position.x, position.y, (int) (sprite.getWidth() * getScale()), (int) (sprite.getHeight() * getScale()));
-    }
-
 }

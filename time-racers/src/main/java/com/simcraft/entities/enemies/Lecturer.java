@@ -6,11 +6,6 @@ import java.util.stream.Stream;
 
 import javax.swing.JPanel;
 
-// public class Lecturer extends Enemy {
-//     public Lecturer(JPanel panel, int xPos, int yPos, Image backgroundImage) {
-//         super(panel, xPos, yPos, 3, "Lecturers/FemLec", backgroundImage); // Medium speed
-//     }
-// }
 /**
  * Represents a Lecturer enemy in the game.
  * <p>
@@ -27,7 +22,8 @@ public class Lecturer extends Enemy {
     /**
      * Constructor used to create a Lecturer instance.
      *
-     * @param builder The {@link EnemyBuilder} used to construct the Lecturer.
+     * @param builder The {@link LecturerBuilder} used to construct the
+     * Lecturer.
      */
     public Lecturer(LecturerBuilder builder) {
         super(builder);
@@ -44,17 +40,15 @@ public class Lecturer extends Enemy {
         setAnimation("female_lecturer_walk_down");
         currentDirectionKey = "female_lecturer_walk_down";
 
-        setSpeed(4); // Medium
+        setSpeed(4); // Medium speed
         setTimePenalty(3);
     }
 
     // ----- OVERRIDDEN METHODS -----
     /**
-     * Extends {@link Enemy#move()} by applying a cosine function to oscillate
-     * the y-coordinate with a given amplitude.
-     * <p>
-     * The final y-coordinate is clamped to stay within the desired range of 1/5
-     * to 3/5 of the screen height.
+     * Extends {@link Enemy#move()} to update the lecturer's animation based on
+     * their current movement direction. It prioritizes vertical movement if
+     * it's significantly larger than horizontal movement.
      */
     @Override
     public void move() {
@@ -72,7 +66,7 @@ public class Lecturer extends Enemy {
 
         String newDirectionKey;
 
-        // Determine primary direction with a bias
+        // Determine primary direction with a bias towards vertical movement
         if (Math.abs(vy) > Math.abs(vx) * verticalBiasFactor) {
             // Prioritize vertical movement
             if (vy < -threshold) {
@@ -80,7 +74,7 @@ public class Lecturer extends Enemy {
             } else {
                 newDirectionKey = "female_lecturer_walk_down";
             }
-        } else if (Math.abs(vx) > threshold) { // Only consider horizontal if moving horizontally
+        } else if (Math.abs(vx) > threshold) {
             // Horizontal movement
             if (vx < -threshold) {
                 newDirectionKey = "female_lecturer_walk_left";
@@ -92,7 +86,7 @@ public class Lecturer extends Enemy {
             return;
         }
 
-        // Set animation only if it's changed
+        // Set animation only if the direction has changed
         if (!newDirectionKey.equals(currentDirectionKey)) {
             setAnimation(newDirectionKey);
             currentDirectionKey = newDirectionKey;
@@ -100,14 +94,29 @@ public class Lecturer extends Enemy {
     }
 
     // ----- STATIC BUILDER FOR LECTURER -----
+    /**
+     * A builder class for creating instances of {@link Lecturer}. Extends
+     * {@link EnemyBuilder} to inherit common enemy properties.
+     */
     public static class LecturerBuilder extends EnemyBuilder<LecturerBuilder> {
 
         // ----- CONSTRUCTOR -----
+        /**
+         * Constructs a new {@code LecturerBuilder} with the specified panel.
+         *
+         * @param panel The {@link JPanel} that will contain the Lecturer.
+         */
         public LecturerBuilder(JPanel panel) {
             super(panel);
         }
 
-        // ----- OVERRIDDEN METHODS -----
+        // ----- BUSINESS LOGIC METHODS -----
+        /**
+         * Builds and returns a new {@link Lecturer} instance using the
+         * properties configured in this builder.
+         *
+         * @return A new {@link Lecturer} instance.
+         */
         public Lecturer build() {
             return new Lecturer(this);
         }

@@ -18,55 +18,60 @@ import com.simcraft.managers.ImageManager;
 
 /**
  * Utility class for loading animations from sprite sheets (strip files) and
- * from JSON configuration files.
+ * from JSON configuration files. This class provides static methods to parse
+ * image files and JSON data to create {@link AnimationFrame} lists and register
+ * {@link AnimationTemplate} objects with the {@link AnimationManager}.
  */
 public class AnimationLoader {
 
     // ----- STATIC VARIABLES -----
     /**
-     * Base folder where animation image assets are located.
+     * Base folder where animation image assets are located within the
+     * resources.
      */
     private static final String ANIMATION_FOLDER = "/images/animations/";
+
     /**
-     * The base duration of one frame at the app's set frame rate (default is
-     * ~60 FPS). Used as the reference for computing frame duration via
+     * The base duration of one frame in milliseconds, calculated based on the
+     * application's target frame rate. This value is used as a reference point
+     * for defining the duration of individual animation frames using
      * multipliers.
      */
     private static final double BASE_FRAME_TIME_MS = 1000.0 / FRAME_RATE_MS;
 
     // ----- CONSTRUCTORS -----
     /**
-     * Private constructor to prevent instantiation.
+     * Private constructor to prevent instantiation of this utility class.
      */
     private AnimationLoader() {
+        // Utility class, should not be instantiated
     }
 
     // ----- BUSINESS LOGIC METHODS -----
     /**
-     * Loads frames from a sprite sheet image based on rows and columns.
+     * Loads a list of animation frames from a sprite sheet image. The sprite
+     * sheet is divided into a grid of frames based on the specified number of
+     * rows and columns. Each extracted frame will have the same specified
+     * duration.
      * <p>
-     * Each frame is assumed to have equal dimensions with no spacing between
-     * frames. Additionally, the image is assumed to have no margins/space
-     * between the edge and the frames.
-     * <p>
-     * The animation is formed by slicing the image evenly based on the
-     * specified number of rows and columns.
+     * It is assumed that the frames in the sprite sheet are of equal size and
+     * there is no spacing or margin between them or the edges of the image.
      *
-     * @param filePath Path to the sprite sheet image.
-     * @param numRows The number of rows in the sprite sheet. (Minimum value: 1)
-     * @param numColumns The number of columns in the sprite sheet. (Minimum
-     * value: 1)
-     * @param frameDurationMs Duration of each frame in milliseconds. (Minimum
-     * value: 1)
-     *
-     * @return List of AnimationFrame objects extracted from the sprite sheet.
-     *
-     * @throws IllegalArgumentException If the file path is empty or
-     * {@code null}.
-     * @throws IOException If the image file cannot be loaded.
-     *
+     * @param filePath Path to the sprite sheet image file within the resources.
+     * Must not be {@code null} or empty.
+     * @param numRows The number of rows in the sprite sheet grid. Must be at
+     * least 1.
+     * @param numColumns The number of columns in the sprite sheet grid. Must be
+     * at least 1.
+     * @param frameDurationMs The duration in milliseconds for which each
+     * extracted frame should be displayed. Must be at least 1.
+     * @return A {@link List} of {@link AnimationFrame} objects, where each
+     * frame corresponds to a section of the sprite sheet.
+     * @throws IllegalArgumentException If the file path is {@code null} or
+     * empty.
+     * @throws IOException If an error occurs while loading the image file.
      * @see <a href="resources/images/README.md">resources/images/README.md</a>
-     * for sprite sheet construction guidelines.
+     * for guidelines on constructing sprite sheets.
      */
     public static List<AnimationFrame> loadFromSpriteSheet(final String filePath, int numRows, int numColumns, long frameDurationMs) throws IllegalArgumentException, IOException {
         if (filePath == null || filePath.isEmpty()) {
@@ -91,7 +96,8 @@ public class AnimationLoader {
                 int x = column * frameWidth;
                 int y = row * frameHeight;
 
-                BufferedImage frameImage = ImageManager.scaleBufferedImageSize(extractFrameImage(spriteSheet, x, y, frameWidth, frameHeight), 1.5);
+                BufferedImage frameImage = ImageManager.scaleBufferedImageSize(
+                        extractFrameImage(spriteSheet, x, y, frameWidth, frameHeight), 1.5);
                 frames.add(new AnimationFrame(frameImage, frameDurationMs));
             }
         }
@@ -99,33 +105,33 @@ public class AnimationLoader {
     }
 
     /**
-     * Dynamically loads animation templates from a JSON configuration file.
-     * <p>
-     * This method reads a list of animation definitions from a file named
-     * {@code animations_config.json} located in the
+     * Loads animation templates dynamically from a JSON configuration file
+     * named {@code animations_config.json} located in the
      * {@code /resources/images/animations/} directory.
      * <p>
-     * Each entry in the file specifies the metadata required to construct an
-     * animation from a sprite strip, including the file name, number of rows
-     * and columns, frame duration, and whether the animation should loop.
+     * The JSON file should contain a list of animation configurations, where
+     * each configuration specifies the necessary information to load an
+     * animation from a sprite sheet, including the file name, grid dimensions
+     * (rows and columns), a frame time multiplier, and whether the animation
+     * should loop.
      * <p>
-     * The method then loads each animation, creates an
-     * {@code AnimationTemplate}, and registers it with the
-     * {@code AnimationManager} using the file name (without the extension) as
-     * the animation key.
-     * <p>
-     * This approach allows for easier configuration and extension of animations
-     * without modifying source code.
+     * For each valid animation configuration, this method loads the frames from
+     * the corresponding sprite sheet using
+     * {@link #loadFromSpriteSheet(String, int, int, long)}, creates an
+     * {@link AnimationTemplate}, and registers it with the
+     * {@link AnimationManager} using the base file name (without extension) as
+     * the key.
      *
-     * @throws JsonProcessingException if the configuration file is of an
-     * invalid format
-     * @throws IOException if the configuration file cannot be read
+     * @throws JsonProcessingException If the {@code animations_config.json}
+     * file contains invalid JSON format.
+     * @throws IOException If an error occurs while reading the
+     * {@code animations_config.json} file or any of the sprite sheet images.
      */
     public static void loadAnimationsFromJson() {
         try {
             ObjectMapper mapper = new ObjectMapper();
 
-            // Load the JSON configuration file containing animation data
+            // Load the JSON configuration file
             InputStream input = AnimationLoader.class.getResourceAsStream("/images/animations/animations_config.json");
             if (input == null) {
                 throw new IOException("animations_config.json not found in " + ANIMATION_FOLDER);
@@ -135,19 +141,19 @@ public class AnimationLoader {
             });
 
             for (AnimationConfig config : configs) {
-                // Load the frames from the sprite sheet using the data from the JSON
+                // Load frames from the sprite sheet
                 List<AnimationFrame> frames = AnimationLoader.loadFromSpriteSheet(
-                        ANIMATION_FOLDER + config.fileName,
-                        config.numRows,
-                        config.numColumns,
-                        (long) (config.frameTimeMultiplier * BASE_FRAME_TIME_MS)
+                        ANIMATION_FOLDER + config.fileName(),
+                        config.numRows(),
+                        config.numColumns(),
+                        (long) (config.frameTimeMultiplier() * BASE_FRAME_TIME_MS)
                 );
 
                 // Create an AnimationTemplate
-                AnimationTemplate animationTemplate = new AnimationTemplate(frames, config.isLooping);
+                AnimationTemplate animationTemplate = new AnimationTemplate(frames, config.isLooping());
 
-                // Generate a unique key for the animation from the file name (without the extension or parent directory)
-                String fileNameOnly = java.nio.file.Paths.get(config.fileName).getFileName().toString();
+                // Generate a unique key from the file name
+                String fileNameOnly = java.nio.file.Paths.get(config.fileName()).getFileName().toString();
                 String animationKey = fileNameOnly.substring(0, fileNameOnly.lastIndexOf('.'));
 
                 // Add the animation to the AnimationManager
@@ -164,15 +170,15 @@ public class AnimationLoader {
 
     // ----- HELPER METHODS -----
     /**
-     * Extracts the image for a frame from a sprite sheet.
+     * Extracts a single frame image from a larger sprite sheet.
      *
-     * @param source The source sprite sheet.
-     * @param x X coordinate of the frame image.
-     * @param y Y coordinate of the frame image.
-     * @param width Width of the frame image.
-     * @param height Height of the frame image.
-     *
-     * @return A new BufferedImage containing the extracted frame.
+     * @param source The source {@link BufferedImage} representing the sprite
+     * sheet.
+     * @param x The x-coordinate of the top-left corner of the frame to extract.
+     * @param y The y-coordinate of the top-left corner of the frame to extract.
+     * @param width The width of the frame to extract.
+     * @param height The height of the frame to extract.
+     * @return A new {@link BufferedImage} containing the extracted frame.
      */
     private static BufferedImage extractFrameImage(BufferedImage source, int x, int y, int width, int height) {
         BufferedImage frame = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -184,16 +190,18 @@ public class AnimationLoader {
 
     // ----- PRIVATE INNER CLASSES -----
     /**
-     * Immutable record representing the configuration for a single animation.
+     * An immutable record representing the configuration for a single
+     * animation, used for deserializing animation metadata from a JSON file.
      *
-     * Used for deserialization of animation metadata from JSON files.
-     *
-     * @param fileName Name of the sprite sheet file.
-     * @param numRows Number of rows in the sprite grid.
-     * @param numColumns Number of columns in the sprite grid.
-     * @param frameTimeMultiplier Multiplier to apply to the base frame
-     * duration.
-     * @param isLooping Whether the animation should loop.
+     * @param fileName The name of the sprite sheet file (e.g.,
+     * "player_walk.png").
+     * @param numRows The number of rows in the sprite sheet grid.
+     * @param numColumns The number of columns in the sprite sheet grid.
+     * @param frameTimeMultiplier A multiplier to apply to the base frame
+     * duration to determine the actual display time for each frame. A value of
+     * 1.0 means the frame duration is equal to {@link #BASE_FRAME_TIME_MS}.
+     * @param isLooping {@code true} if the animation should loop after the last
+     * frame, {@code false} otherwise.
      */
     public static record AnimationConfig(
             String fileName,
@@ -204,14 +212,21 @@ public class AnimationLoader {
             ) {
 
         /**
-         * Constructs a validated {@code AnimationConfig} from JSON.
+         * Creates a validated {@code AnimationConfig} instance from JSON
+         * properties. This constructor performs basic validation on the input
+         * parameters to ensure they are within acceptable ranges.
          *
-         * @param fileName Name of the sprite sheet file.
-         * @param numGridRows Number of grid rows.
-         * @param numGridColumns Number of grid columns.
-         * @param frameTimeMultiplier Frame time multiplier (> 0).
-         * @param isLooping Whether the animation loops.
-         * @throws IllegalArgumentException if any argument is invalid.
+         * @param fileName The name of the sprite sheet file. Must not be
+         * {@code null} or blank.
+         * @param numRows The number of rows in the sprite grid. Must be greater
+         * than or equal to 1.
+         * @param numColumns The number of columns in the sprite grid. Must be
+         * greater than or equal to 1.
+         * @param frameTimeMultiplier A multiplier for the base frame duration.
+         * Must be greater than 0.
+         * @param isLooping Whether the animation should loop.
+         * @throws IllegalArgumentException If any of the input parameters fail
+         * the validation checks.
          */
         @JsonCreator
         public AnimationConfig(
@@ -238,5 +253,4 @@ public class AnimationLoader {
             this.isLooping = isLooping;
         }
     }
-
 }

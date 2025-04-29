@@ -9,7 +9,6 @@ import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,30 +31,130 @@ import com.simcraft.managers.SoundManager;
  */
 public final class GameplayScreen extends AbstractScreen {
 
-    // ----- INSTANCE VARIABLES -----
-    private final transient GameManager gameManager;
-    private final transient SoundManager soundManager;
-    private GamePanel gamePanel;
-    private final InfoPanel infoPanel;
-    private final Map<Integer, Boolean> keyStates;
-    private final int levelWidth = 2000;
-    private final float fadeSpeed = 0.02f;
-
-    private boolean atLevelEnd = false;
-    private boolean fadingOut = false;
-    private boolean cinematicWalk = false;
-    private boolean jumping = false;
-    private boolean showLevelText = false;
-    private double jumpProgress = 0;
-    private int currentLevelIndex = 0;
-    private float fadeOpacity = 0f;
-    private float levelTextOpacity = 0f;
-    private String nextLevelName = "";
-
-    private LevelType currentLevelType = LevelType.TOP_DOWN;
-
-    private int flashTimer = 0;
+    // ----- CONSTANTS -----
+    /**
+     * The height of the information panel at the top of the screen.
+     */
+    private static final int INFO_PANEL_HEIGHT = 100;
+    /**
+     * The speed at which the fade-out effect occurs.
+     */
+    private static final float FADE_SPEED = 0.02f;
+    /**
+     * The duration of the damage flash effect in frames.
+     */
     private static final int FLASH_DURATION = 30; // frames
+    /**
+     * The speed of the player character during a cinematic walk sequence.
+     */
+    private static final double CINEMATIC_WALK_SPEED = 2.0;
+    /**
+     * The initial upward velocity applied when the player jumps.
+     */
+    private static final double JUMP_INITIAL_VELOCITY = 12.0;
+    /**
+     * The increment value for the jump progress, controlling the jump curve.
+     */
+    private static final double JUMP_PROGRESS_INCREMENT = 0.04;
+    /**
+     * The maximum height reached during a jump.
+     */
+    private static final double MAX_JUMP_HEIGHT = 80.0;
+    /**
+     * The horizontal offset from the end of the level to trigger level
+     * completion.
+     */
+    private static final int LEVEL_END_OFFSET = 50;
+    /**
+     * The horizontal offset for placing the teleport arrow at the end of a
+     * top-down level.
+     */
+    private static final int TELEPORT_ARROW_OFFSET_X = 150;
+    /**
+     * The horizontal offset for placing the enter classroom object at the end
+     * of a side-scrolling level.
+     */
+    private static final int CLASSROOM_OFFSET_X = 300;
+    /**
+     * The vertical offset from the bottom of the screen to position entities in
+     * side-scrolling levels.
+     */
+    private static final int SIDE_SCROLLING_GROUND_Y_OFFSET = 150;
+
+    // ----- INSTANCE VARIABLES -----
+    /**
+     * The singleton instance of the game manager.
+     */
+    private final transient GameManager gameManager;
+    /**
+     * The singleton instance of the sound manager.
+     */
+    private final transient SoundManager soundManager;
+    /**
+     * The panel responsible for rendering the game world.
+     */
+    private GamePanel gamePanel;
+    /**
+     * The panel displaying game information (score, time, etc.).
+     */
+    private final InfoPanel infoPanel;
+    /**
+     * A map storing the current state (pressed or released) of each relevant
+     * key.
+     */
+    private final Map<Integer, Boolean> keyStates;
+    /**
+     * The fixed width of the current level in pixels.
+     */
+    private final int levelWidth = 2000;
+    /**
+     * Flag indicating if the player has reached the end of the current level.
+     */
+    private boolean atLevelEnd = false;
+    /**
+     * Flag indicating if a fade-out transition is currently in progress.
+     */
+    private boolean fadingOut = false;
+    /**
+     * Flag indicating if a cinematic walk sequence is currently active.
+     */
+    private boolean cinematicWalk = false;
+    /**
+     * Flag indicating if the player character is currently jumping.
+     */
+    private boolean jumping = false;
+    /**
+     * Flag indicating if the level name text should be displayed.
+     */
+    private boolean showLevelText = false;
+    /**
+     * The progress of the current jump animation (0.0 to 1.0).
+     */
+    private double jumpProgress = 0;
+    /**
+     * The index of the currently loaded level in the {@link LevelLibrary}.
+     */
+    private int currentLevelIndex = 0;
+    /**
+     * The current opacity of the fade-out overlay (0.0 to 1.0).
+     */
+    private float fadeOpacity = 0f;
+    /**
+     * The current opacity of the level name text (0.0 to 1.0).
+     */
+    private float levelTextOpacity = 0f;
+    /**
+     * The name of the next level to be displayed.
+     */
+    private String nextLevelName = "";
+    /**
+     * The type of the currently loaded level (TOP_DOWN or SIDE_SCROLLING).
+     */
+    private LevelType currentLevelType = LevelType.TOP_DOWN;
+    /**
+     * A timer used to control the duration of the damage flash effect.
+     */
+    private int flashTimer = 0;
 
     // ----- CONSTRUCTORS -----
     /**
@@ -70,10 +169,9 @@ public final class GameplayScreen extends AbstractScreen {
         super(gameFrame);
         setLayout(new BorderLayout());
 
-        int infoPanelHeight = 100;
         infoPanel = new InfoPanel(
                 GameFrame.FRAME_WIDTH,
-                infoPanelHeight,
+                INFO_PANEL_HEIGHT,
                 "/images/backgrounds/info_panel.png"
         );
         add(infoPanel, BorderLayout.NORTH);
@@ -83,7 +181,7 @@ public final class GameplayScreen extends AbstractScreen {
 
         keyStates = new HashMap<>();
         addKeyListener(createKeyListener());
-        
+
         loadLevel(currentLevelIndex);
     }
 
@@ -111,7 +209,7 @@ public final class GameplayScreen extends AbstractScreen {
     /**
      * Updates the state of the gameplay screen. This includes updating the game
      * manager, handling fade effects, cinematic sequences, level text display,
-     * player jumping, and checking for the end of the level.
+     * damage effects, player jumping, and collisions.
      */
     @Override
     public void update() {
@@ -150,9 +248,8 @@ public final class GameplayScreen extends AbstractScreen {
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, levelTextOpacity));
                 g2d.setColor(Color.WHITE);
                 g2d.setFont(new Font("Arial", Font.BOLD, 48));
-                String text = nextLevelName;
-                int textWidth = g2d.getFontMetrics().stringWidth(text);
-                g2d.drawString(text, (getWidth() - textWidth) / 2, getHeight() / 2);
+                int textWidth = g2d.getFontMetrics().stringWidth(nextLevelName);
+                g2d.drawString(nextLevelName, (getWidth() - textWidth) / 2, getHeight() / 2);
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
             }
         }
@@ -168,6 +265,13 @@ public final class GameplayScreen extends AbstractScreen {
      */
     private KeyAdapter createKeyListener() {
         return new KeyAdapter() {
+            /**
+             * Updates the movement of the player character ({@link Ali}) based
+             * on the current state of the pressed keys. It determines the
+             * velocity and animation of Ali based on the input and the current
+             * {@link LevelType}. Also handles initiating jumping in
+             * side-scrolling levels when the space key is pressed.
+             */
             private void updateAliMovement() {
                 if (cinematicWalk) {
                     return;
@@ -208,8 +312,9 @@ public final class GameplayScreen extends AbstractScreen {
                 ali.setVelocityY(velocityY);
                 ali.setAnimation(animationKey);
 
-                if (keyStates.getOrDefault(KeyEvent.VK_SPACE, false) && !ali.isJumping() && currentLevelType == LevelType.SIDE_SCROLLING) {
-                    ali.jump(12.0);
+                if (keyStates.getOrDefault(KeyEvent.VK_SPACE, false) && !ali.isJumping()
+                        && currentLevelType == LevelType.SIDE_SCROLLING) {
+                    ali.jump(JUMP_INITIAL_VELOCITY);
                 }
             }
 
@@ -227,13 +332,16 @@ public final class GameplayScreen extends AbstractScreen {
         };
     }
 
+    /**
+     * Handles visual effects when the player character takes damage, such as a
+     * brief flash, and applies the damage (e.g., reducing time).
+     */
     private void handleDamageEffects() {
         Ali ali = gameManager.getAli();
         if (flashTimer > 0) {
             flashTimer--;
         }
 
-        // Check for collisions with enemies
         gameManager.getEnemyManager().getEnemies().forEach(enemy -> {
             if (ali.getBounds().intersects(enemy.getBounds())) {
                 if (flashTimer == 0) {
@@ -259,14 +367,13 @@ public final class GameplayScreen extends AbstractScreen {
         }
 
         Ali ali = gameManager.getAli();
-        double speed = 2.0;
         ali.setAnimation("ali_walk_right");
 
         double aliWorldX = ali.getX() + gamePanel.getScrollOffset();
         int totalWorldWidth = gamePanel.getTileCount() * gamePanel.getTileWidth();
         double scrollOffset = gamePanel.getScrollOffset();
-        // If Ali reaches near the end of level, stop cinematic
-        if (aliWorldX >= totalWorldWidth - 50) {
+
+        if (aliWorldX >= totalWorldWidth - LEVEL_END_OFFSET) {
             ali.setVelocityX(0);
             cinematicWalk = false;
             startFadeOut();
@@ -275,14 +382,15 @@ public final class GameplayScreen extends AbstractScreen {
 
         if (ali.getX() >= gamePanel.getWidth() / 2) {
             if (scrollOffset < totalWorldWidth - gamePanel.getWidth()) {
-                // If we can still scroll background
-                gamePanel.setScrollOffset((int) (scrollOffset + speed));
-                ali.setVelocityX(0); // Stop Ali while background scrolls
+                gamePanel.setScrollOffset((int) (scrollOffset + CINEMATIC_WALK_SPEED));
+                ali.setVelocityX(0);
             } else {
-                // Can't scroll background anymore -> Move Ali normally
-                ali.setVelocityX(speed);
+                ali.setVelocityX(CINEMATIC_WALK_SPEED);
             }
+        } else {
+            ali.setVelocityX(CINEMATIC_WALK_SPEED);
         }
+        ali.setVelocityY(0);
     }
 
     /**
@@ -292,7 +400,7 @@ public final class GameplayScreen extends AbstractScreen {
      */
     private void handleFade() {
         if (fadingOut) {
-            fadeOpacity += fadeSpeed;
+            fadeOpacity += FADE_SPEED;
             if (fadeOpacity >= 1f) {
                 fadeOpacity = 1f;
                 completeLevelTransition();
@@ -328,30 +436,40 @@ public final class GameplayScreen extends AbstractScreen {
             return;
         }
 
-        removeAll(); // Remove all components
-        loadLevel(currentLevelIndex); // Load the next level (creates new GamePanel)
-        add(infoPanel, BorderLayout.NORTH); // Re-add the InfoPanel
+        removeAll();
+        loadLevel(currentLevelIndex);
+        add(infoPanel, BorderLayout.NORTH);
         revalidate();
         repaint();
     }
 
+    /**
+     * Handles the jumping motion of the player character. Updates the player's
+     * vertical position based on a sine wave to create a smooth jump arc.
+     * Resets the jumping state when the jump is complete.
+     */
     private void handleJump() {
         if (jumping) {
-            jumpProgress += 0.04; // slower, smoother curve
+            jumpProgress += JUMP_PROGRESS_INCREMENT;
 
             double jumpHeight = Math.sin(Math.PI * jumpProgress);
-            double scaledJump = 80 * jumpHeight; // max jump height
+            double scaledJump = MAX_JUMP_HEIGHT * jumpHeight;
 
             Ali ali = gameManager.getAli();
-            ali.setY(ali.getYOrigin() - scaledJump);
+            ali.setY((int) (ali.getYOrigin() - scaledJump));
 
-            if (jumpProgress >= 1.0) { // DONE jumping
+            if (jumpProgress >= 1.0) {
                 jumping = false;
-                ali.setY(ali.getYOrigin());
+                ali.setY((int) ali.getYOrigin());
             }
         }
     }
 
+    /**
+     * Checks for collisions between the player character and special objects
+     * within the current level, such as the teleport arrow or the enter
+     * classroom trigger, and initiates actions based on these collisions.
+     */
     private void handleCollisions() {
         Ali ali = gameManager.getAli();
         Rectangle aliBounds = ali.getBounds();
@@ -397,7 +515,7 @@ public final class GameplayScreen extends AbstractScreen {
 
         gamePanel = new GamePanel(
                 GameFrame.FRAME_WIDTH,
-                GameFrame.FRAME_HEIGHT - infoPanel.getHeight(),
+                GameFrame.FRAME_HEIGHT - INFO_PANEL_HEIGHT,
                 backgroundTiles
         );
         add(gamePanel, BorderLayout.CENTER);
@@ -419,45 +537,64 @@ public final class GameplayScreen extends AbstractScreen {
 
     /**
      * Applies level-specific settings, such as scaling and movement constraints
-     * for the player character ({@link Ali}) and enemies, based on the
-     * {@link LevelType} of the current level.
+     * for the player character ({@link Ali}) and enemies, and places special
+     * objects within the game world based on the current {@link LevelType}.
      */
     private void applyLevelSettings() {
         Ali ali = gameManager.getAli();
-        ali.resetPosition();
-
+        ali.resetPosition(0, gamePanel.getHeight() / 2.0);
         gamePanel.clearSpecialObjects();
 
         if (currentLevelType == LevelType.SIDE_SCROLLING) {
-            ali.setScale(4.0);
-            ali.setHorizontalOnly(true);
-            ali.setYOrigin(gamePanel.getHeight() - 150);
-            ali.setWorldPosition(0, ali.getYOrigin());
-
-            gameManager.getEnemyManager().getEnemies().forEach(enemy -> {
-                enemy.setScale(4.0);
-                enemy.setHorizontalOnly(true);
-                enemy.setYOrigin(gamePanel.getHeight() - 150);
-                enemy.setWorldPosition(enemy.getWorldX(), enemy.getYOrigin());
-            });
-
-            // Place EnterClassroom object
-            double endX = (gamePanel.getTileCount() * gamePanel.getTileWidth()) - 300;
-            gamePanel.setEnterClassroom(new EnterClassroom((int) endX, (int) ali.getYOrigin()));
-        } else { // TOP_DOWN
-            ali.setScale(1.0);
-            ali.setHorizontalOnly(false);
-            ali.setWorldPosition(0, gamePanel.getHeight() / 2.0);
-
-            gameManager.getEnemyManager().getEnemies().forEach(enemy -> {
-                enemy.setScale(1.0);
-                enemy.setHorizontalOnly(false);
-            });
-
-            // Place TeleportArrow object
-            double endX = (gamePanel.getTileCount() * gamePanel.getTileWidth()) - 150;
-            gamePanel.setTeleportArrow(new TeleportArrow((int) endX, (int) (gamePanel.getHeight() / 2.0 - 50)));
+            setupSideScrollingLevel(ali);
+        } else {
+            setupTopDownLevel(ali);
         }
     }
 
+    /**
+     * Sets up the game world for a side-scrolling level. This includes setting
+     * the player's scale and movement constraints, positioning the player at
+     * the start of the level, and placing the "enter classroom" object at the
+     * end.
+     *
+     * @param ali The player character ({@link Ali}).
+     */
+    private void setupSideScrollingLevel(Ali ali) {
+        ali.setScale(4.0);
+        ali.setHorizontalOnly(true);
+        ali.setYOrigin(gamePanel.getHeight() - SIDE_SCROLLING_GROUND_Y_OFFSET);
+        ali.setWorldPosition(0, ali.getYOrigin());
+
+        gameManager.getEnemyManager().getEnemies().forEach(enemy -> {
+            enemy.setScale(4.0);
+            enemy.setHorizontalOnly(true);
+            enemy.setYOrigin(gamePanel.getHeight() - SIDE_SCROLLING_GROUND_Y_OFFSET);
+            enemy.setWorldPosition(enemy.getWorldX(), enemy.getYOrigin());
+        });
+
+        double endX = (gamePanel.getTileCount() * gamePanel.getTileWidth()) - CLASSROOM_OFFSET_X;
+        gamePanel.setEnterClassroom(new EnterClassroom((int) endX, (int) ali.getYOrigin()));
+    }
+
+    /**
+     * Sets up the game world for a top-down level. This includes setting the
+     * player's scale and movement constraints, positioning the player at the
+     * start of the level, and placing the teleport arrow at the end.
+     *
+     * @param ali The player character ({@link Ali}).
+     */
+    private void setupTopDownLevel(Ali ali) {
+        ali.setScale(1.0);
+        ali.setHorizontalOnly(false);
+        ali.setWorldPosition(0, gamePanel.getHeight() / 2.0);
+
+        gameManager.getEnemyManager().getEnemies().forEach(enemy -> {
+            enemy.setScale(1.0);
+            enemy.setHorizontalOnly(false);
+        });
+
+        double endX = (gamePanel.getTileCount() * gamePanel.getTileWidth()) - TELEPORT_ARROW_OFFSET_X;
+        gamePanel.setTeleportArrow(new TeleportArrow((int) endX, (int) (gamePanel.getHeight() / 2.0 - 50)));
+    }
 }

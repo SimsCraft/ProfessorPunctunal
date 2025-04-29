@@ -66,6 +66,7 @@ public abstract class Entity implements Updateable, Renderable {
      * Private constructor used by the builder pattern to instantiate an Entity.
      *
      * @param builder The builder instance used to construct the entity.
+     * @throws IllegalArgumentException If the builder is null.
      */
     protected Entity(EntityBuilder<?> builder) throws IllegalArgumentException {
         if (builder == null) {
@@ -85,13 +86,22 @@ public abstract class Entity implements Updateable, Renderable {
         setHitboxFromCurrentSprite();
     }
 
+    /**
+     * Constructor for creating an entity at a specific (x, y) coordinate. This
+     * constructor does not require a builder and can be used for simple entity
+     * creation. Note that the panel association and animations might need to be
+     * configured separately.
+     *
+     * @param x The initial x-coordinate of the entity.
+     * @param y The initial y-coordinate of the entity.
+     */
     protected Entity(int x, int y) {
         this.panel = null; // No specific panel assigned (optional, fix if needed)
         this.position = new Point(x, y);
         this.animationKeys = new HashSet<>();
         this.hitbox = new Rectangle(x, y, 0, 0); // We'll assume empty hitbox unless set
     }
-    
+
     // ----- GETTERS -----
     /**
      * Returns the panel where the entity is rendered.
@@ -129,7 +139,6 @@ public abstract class Entity implements Updateable, Renderable {
         return position.y;
     }
 
-
     /**
      * Returns the set of keys this entity can use to query
      * {@link AnimationManager} for an {@link AnimationTemplate}.
@@ -143,7 +152,7 @@ public abstract class Entity implements Updateable, Renderable {
     /**
      * Returns the key associated with the current {@link AnimationInstance}.
      *
-     * @return
+     * @return The key of the current animation.
      */
     public String getCurrentAnimationKey() {
         return currentAnimationKey;
@@ -177,7 +186,7 @@ public abstract class Entity implements Updateable, Renderable {
      * @return The sprite width.
      */
     public int getSpriteWidth() {
-        BufferedImage currentSprite = currentAnimation.getCurrentFrameImage();
+        BufferedImage currentSprite = getCurrentAnimation() != null ? getCurrentAnimation().getCurrentFrameImage() : null;
         return currentSprite != null ? currentSprite.getWidth() : 0;
     }
 
@@ -187,7 +196,7 @@ public abstract class Entity implements Updateable, Renderable {
      * @return The sprite height.
      */
     public int getSpriteHeight() {
-        BufferedImage currentSprite = currentAnimation.getCurrentFrameImage();
+        BufferedImage currentSprite = getCurrentAnimation() != null ? getCurrentAnimation().getCurrentFrameImage() : null;
         return currentSprite != null ? currentSprite.getHeight() : 0;
     }
 
@@ -272,13 +281,14 @@ public abstract class Entity implements Updateable, Renderable {
      * set.
      *
      * @param key The key identifying the animation.
-     * @throws IllegalAccessException if the provided key (when not
+     * @throws IllegalArgumentException if the provided key (when not
      * {@code null}) is blank, is not within the entity's animation key set, or
      * does not map to a loaded template within {@link AnimationManager}.
      */
     public final void setAnimation(final String key) throws IllegalArgumentException {
         if (key == null) {
             currentAnimation = null;
+            currentAnimationKey = null;
             return;
         }
 
@@ -306,6 +316,7 @@ public abstract class Entity implements Updateable, Renderable {
             ));
         }
         this.currentAnimation = new AnimationInstance(template);
+        this.currentAnimationKey = key;
         currentAnimation.start();
     }
 
@@ -324,6 +335,8 @@ public abstract class Entity implements Updateable, Renderable {
 
     /**
      * Updates the hitbox dimensions based on the provided {@link Rectangle}.
+     *
+     * @param rectangle The new hitbox dimensions.
      */
     public final void setHitboxFromRectangle(final Rectangle rectangle) {
         hitbox = new Rectangle(rectangle);
@@ -355,9 +368,9 @@ public abstract class Entity implements Updateable, Renderable {
     }
 
     /**
-     * Checks if the entity collides with a given rectanglular space.
+     * Checks if the entity's hitbox intersects with a given rectangular space.
      *
-     * @param rectangle The {@link rectangle} to check for intersection.
+     * @param rectangle The {@link Rectangle} to check for intersection.
      * @return {@code true} if the entity collides with the rectangle,
      * {@code false} otherwise.
      */
@@ -366,7 +379,7 @@ public abstract class Entity implements Updateable, Renderable {
     }
 
     /**
-     * Checks if the entity collides with another entity.
+     * Checks if the entity's hitbox intersects with another entity's hitbox.
      *
      * @param entity The other entity to check for collision.
      * @return {@code true} if the two entities collide, {@code false}
@@ -402,11 +415,13 @@ public abstract class Entity implements Updateable, Renderable {
 
     /**
      * Returns the central coordinates of the entity's sprite.
+     *
+     * @return A {@link Point} representing the center of the sprite.
      */
     public Point getCentreCoordinates() {
         return new Point(
-                (position.x + getSpriteWidth()) / 2,
-                (position.y + getSpriteHeight()) / 2
+                position.x + getSpriteWidth() / 2,
+                position.y + getSpriteHeight() / 2
         );
     }
 
@@ -450,7 +465,8 @@ public abstract class Entity implements Updateable, Renderable {
     }
 
     /**
-     * Updates the entity's state.
+     * Updates the entity's state, primarily by updating its current animation
+     * frame and adjusting the hitbox to match the current sprite.
      */
     @Override
     public void update() {
@@ -461,13 +477,14 @@ public abstract class Entity implements Updateable, Renderable {
     }
 
     /**
-     * Renders the entity on the provided graphics context.
+     * Renders the entity on the provided graphics context. Draws the current
+     * sprite at the entity's position.
      *
      * @param g2d The graphics context to draw on.
      */
     @Override
     public void render(final Graphics2D g2d) {
-        BufferedImage currentSprite = currentAnimation.getCurrentFrameImage();
+        BufferedImage currentSprite = getCurrentSprite();
 
         if (currentSprite != null) {
             g2d.drawImage(currentSprite, position.x, position.y, getSpriteWidth(), getSpriteHeight(), null);
@@ -476,18 +493,25 @@ public abstract class Entity implements Updateable, Renderable {
 
     // ----- HELPER METHODS -----
     /**
-     * Ensures the entity remains within the visible screen boundaries.
+     * Ensures the entity's position remains within the visible screen
+     * boundaries. If the entity goes outside the bounds, its position is
+     * adjusted to the nearest valid position at the edge of the screen.
      */
     protected void correctPosition() {
-        // Trying to use Math.clamp gave out of bounds issues or something. This is simpler.
-        position.x = Math.max(0, Math.min(position.x, panel.getWidth() - getSpriteWidth()));
-        position.y = Math.max(0, Math.min(position.y, panel.getHeight() - getSpriteHeight()));
+        if (panel != null) {
+            position.x = Math.max(0, Math.min(position.x, panel.getWidth() - getSpriteWidth()));
+            position.y = Math.max(0, Math.min(position.y, panel.getHeight() - getSpriteHeight()));
+        }
     }
 
     // ----- BUILDER PATTERN -----
     /**
      * The EntityBuilder class provides a fluent API for constructing an Entity
-     * object.
+     * object. Subclasses of {@link Entity} should extend this builder to
+     * include their specific properties.
+     *
+     * @param <T> The specific type of the builder, allowing for method chaining
+     * in subclasses.
      */
     public static class EntityBuilder<T extends EntityBuilder<T>> {
 
@@ -501,6 +525,7 @@ public abstract class Entity implements Updateable, Renderable {
          * Creates a EntityBuilder for constructing an Entity.
          *
          * @param panel The {@link JPanel} where the entity will be rendered.
+         * @throws IllegalArgumentException If the panel is null.
          */
         public EntityBuilder(final JPanel panel) throws IllegalArgumentException {
             if (panel == null) {
@@ -510,19 +535,31 @@ public abstract class Entity implements Updateable, Renderable {
         }
 
         /**
-         * Sets the position of the entity.
+         * Sets the initial position of the entity.
          *
          * @param position The position to set.
          * @return The builder instance.
          */
         public T position(final Point position) {
-            this.position = position;
+            this.position = new Point(position);
             return self();
         }
 
         /**
-         * Sets the set of keys this entity can query {@link AnimationManager}
-         * with.
+         * Sets the initial position of the entity.
+         *
+         * @param x The initial x-coordinate.
+         * @param y The initial y-coordinate.
+         * @return The builder instance.
+         */
+        public T position(final int x, final int y) {
+            this.position = new Point(x, y);
+            return self();
+        }
+
+        /**
+         * Sets the set of keys this entity can use to query
+         * {@link AnimationManager}.
          *
          * @param animationKeys The set of animation keys.
          * @return The builder instance.
@@ -533,10 +570,10 @@ public abstract class Entity implements Updateable, Renderable {
         }
 
         /**
-         * Sets the animation for the entity. Must set a collection of available
-         * keys using animationKeys() first.
+         * Sets the key for the initial animation of the entity. This key must
+         * be present in the set provided by {@link #animationKeys(Set)}.
          *
-         * @param currentAnimationKey The key identifying the current animation.
+         * @param currentAnimationKey The key identifying the initial animation.
          * @return The builder instance.
          */
         public T currentAnimationKey(final String currentAnimationKey) {
@@ -545,22 +582,39 @@ public abstract class Entity implements Updateable, Renderable {
         }
 
         /**
-         * Sets the hitbox for the entity.
+         * Sets the initial hitbox for the entity.
          *
          * @param hitbox The hitbox to set.
          * @return The builder instance.
          */
         public T hitbox(final Rectangle hitbox) {
-            this.hitbox = hitbox;
+            this.hitbox = hitbox == null ? new Rectangle() : new Rectangle(hitbox);
             return self();
         }
 
-        // ----- HELPER METHODS -----
-        @SuppressWarnings("unchecked")
-        protected T self() {
-            // cast to the generic type, ensures correct builder is returned
-            return (T) this;
+        /**
+         * Sets the initial hitbox for the entity.
+         *
+         * @param x The x-coordinate of the hitbox.
+         * @param y The y-coordinate of the hitbox.
+         * @param width The width of the hitbox.
+         * @param height The height of the hitbox.
+         * @return The builder instance.
+         */
+        public T hitbox(final int x, final int y, final int width, final int height) {
+            this.hitbox = new Rectangle(x, y, width, height);
+            return self();
         }
 
+        /**
+         * Helper method to cast the builder to its specific type, enabling
+         * method chaining in subclasses.
+         *
+         * @return The builder instance cast to its specific type.
+         */
+        @SuppressWarnings("unchecked")
+        protected T self() {
+            return (T) this;
+        }
     }
 }

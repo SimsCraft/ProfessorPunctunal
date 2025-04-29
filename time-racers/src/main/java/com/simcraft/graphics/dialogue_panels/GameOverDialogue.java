@@ -16,6 +16,10 @@ import com.simcraft.graphics.UIConstants;
 import com.simcraft.managers.GameManager;
 import static com.simcraft.utility.ButtonUtil.createButtonWithText;
 
+/**
+ * A modal dialog displayed when the game ends, offering options to restart the
+ * game or quit the application.
+ */
 public class GameOverDialogue extends Dialog {
 
     private final JLabel gameOverLabel;
@@ -23,15 +27,18 @@ public class GameOverDialogue extends Dialog {
     private final JButton quitGameButton;
 
     /**
-     * Constructs a new GameOverDialogue.
+     * Constructs a new {@code GameOverDialogue}. This dialog is initially
+     * invisible and will block user input to other top-level windows until it
+     * is dismissed.
      *
      * @param gameFrame The parent {@link GameFrame} to which this dialog
-     * belongs.
+     * belongs. Used for setting the dialog's owner and its relative position on
+     * the screen.
      */
     public GameOverDialogue(GameFrame gameFrame) {
         super(gameFrame, "Game Over", Dialog.ModalityType.APPLICATION_MODAL);
 
-        setSize(400, 250); // Adjusted size
+        setSize(400, 250);
         setLocationRelativeTo(gameFrame);
         setResizable(false);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -40,14 +47,12 @@ public class GameOverDialogue extends Dialog {
         gameOverLabel.setFont(UIConstants.TITLE_FONT);
         gameOverLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Initialize buttons
         restartButton = createButtonWithText("RESTART", UIConstants.BUTTON_FONT, 200, 40, true, this::onRestart);
         restartButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         quitGameButton = createButtonWithText("QUIT GAME", UIConstants.BUTTON_FONT, 200, 40, true, this::onQuit);
         quitGameButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Add spacing and components
         add(Box.createVerticalStrut(20));
         add(gameOverLabel);
         add(Box.createVerticalStrut(20));
@@ -56,31 +61,34 @@ public class GameOverDialogue extends Dialog {
         add(quitGameButton);
         add(Box.createVerticalStrut(20));
 
-        // Close dialog on window closing
+        // Handle window closing event
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
-                dispose();
+                dispose(); // Close the dialog when the window's close button is pressed
             }
         });
     }
 
     /**
-     * Invoked when the "Restart" button is clicked. Restarts the game.
+     * Invoked when the "Restart" button is clicked. This method disposes of the
+     * game over dialog and triggers the game restart logic in the
+     * {@link GameManager}.
      *
-     * @param e The ActionEvent triggered by the button click.
+     * @param e The {@link ActionEvent} triggered by the button click.
      */
     private void onRestart(ActionEvent e) {
         System.out.println("Restart button clicked from Game Over.");
-        dispose(); // Close the game over dialog
-        GameManager.getInstance().restartGame(); // Call restart logic in GameManager
+        dispose();
+        GameManager.getInstance().restartGame();
     }
 
     /**
-     * Invoked when the "Quit" button is clicked. Closes the application.
+     * Invoked when the "Quit" button is clicked. This method terminates the
+     * entire application by calling {@code System.exit(0)}.
      *
-     * @param e The ActionEvent triggered by the button click.
+     * @param e The {@link ActionEvent} triggered by the button click.
      */
     private void onQuit(ActionEvent e) {
         System.exit(0);

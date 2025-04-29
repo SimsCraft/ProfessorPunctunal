@@ -9,6 +9,8 @@ import com.simcraft.interfaces.Updateable;
 import com.simcraft.managers.ImageManager;
 
 /**
+ * This class is currently unused.
+ * 
  * Represents a background image that scrolls seamlessly in a horizontal
  * direction. This effect is achieved by rendering two identical images,
  * positioned to create a continuous loop as they are translated horizontally.

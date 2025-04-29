@@ -4,19 +4,12 @@ This project includes assets created by various artists and developers. Below is
 
 ---
 
-## 📚 Tutorials & Learning Resources
-
-(List pending)
-
----
-
 ## 🎨 Art & Graphics  
 
 - [32 Free animated characters pack!](https://lexlom.itch.io/32-character-pack-pixel-art-4-direction-idle-walking) by [Lexlom](https://lexlom.itch.io/)
 
   - **License Notes:**
     - Public Domain
-
 
 ---
 
@@ -44,7 +37,12 @@ This project includes assets created by various artists and developers. Below is
 
 - [**"Online-Convert.com - Convert audio to WAV"**](https://audio.online-convert.com/convert-to-wav)
   
-  - (Used to convert audio files to a supported format.)
+  - Used to convert audio files to a supported format.
+
+- [**Google Gemini**](https://gemini.google.com/app/) and [**ChatGPT**](https://chatgpt.com/)
+
+  - Used to provide feedback and assist with debugging, as well as to writing *docstrings*.
+  - ***NEITHER TOOL WAS USED TO WRITE ORIGINAL CODE***
 
 ---
 
@@ -68,4 +66,4 @@ This project includes assets created by various artists and developers. Below is
 
 ---
 
-*Last Updated: [2025-04-27 23:23 UTC-04:00]*
+*Last Updated: [2025-04-28 23:56 UTC-04:00]*

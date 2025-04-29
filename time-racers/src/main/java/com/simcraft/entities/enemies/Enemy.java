@@ -16,7 +16,7 @@ import com.simcraft.entities.MobileEntity;
  * Represents an enemy in the game.
  * <p>
  * This class extends {@link MobileEntity} and includes functionality for
- * attacking the player/{@link Ali}.
+ * interacting with the player ({@link Ali}).
  */
 public abstract class Enemy extends MobileEntity {
 
@@ -43,42 +43,46 @@ public abstract class Enemy extends MobileEntity {
      */
     protected long lastUpdateTime;
     /**
-     * Internally used random numbe generator.
+     * Internally used random number generator.
      */
     protected Random random;
     /**
      * The cooldown duration before the enemy can move again after a previous
-     * movement opportunity.
+     * movement opportunity (in game ticks).
      */
     protected int moveDelay;
+    /**
+     * Flag indicating if the enemy has recently collided with another entity.
+     */
     protected boolean hasCollided;
     /**
-     * How many seconds to remove from the timer if Ali collides with this
-     * enemy.
+     * How many seconds to remove from the game timer if {@link Ali} collides
+     * with this enemy.
      */
     protected int timePenalty;
     /**
-     * Whether the enemy is currently idling (not moving).
+     * Whether the enemy is currently not performing any movement.
      */
     protected boolean isIdling;
     /**
-     * The percentage chance that the enemy starts idling if left uninterrupted.
-     * Should Ali enter within range, this should be ignored in favour of an attack.
+     * The percentage chance (0.0 to 1.0) that the enemy will start idling if
+     * left uninterrupted by the player.
      */
     protected double chanceToIdle;
     /**
-     * How many milliseconds the enemy should remain idle for if left uninterrupted.
-     * Should Ali enter within range, this should be ignored in favour of an attack. 
+     * How many milliseconds the enemy should remain idle for if the idling
+     * condition is met and the player is not within attack range.
      */
     protected long idleDuration;
     /**
-     * How close Ali must be to the enemy to trigger an attack.
+     * The distance (in pixels) within which the enemy will detect {@link Ali}
+     * and potentially initiate an attack.
      */
     protected int detectionRadius;
 
     // ----- CONSTRUCTORS -----
     /**
-     * Constructor used to create a Enemy instance.
+     * Constructor used to create an {@code Enemy} instance.
      *
      * @param builder The {@link EnemyBuilder} used to construct the enemy.
      */
@@ -87,35 +91,38 @@ public abstract class Enemy extends MobileEntity {
         this.sprite = getCurrentSprite();
         random = new Random();
         hasCollided = false;
+        this.timePenalty = builder.timePenalty;
+        this.isIdling = builder.isIdling;
     }
 
     // ---- GETTERS -----
     /**
-     * Returns the cooldown duration before the enemy can move again after a
-     * previous movement opportunity.
+     * Returns the cooldown duration (in game ticks) before the enemy can move
+     * again after a previous movement opportunity.
      *
-     * @return the movement delay.
+     * @return The movement delay.
      */
     public int getMoveDelay() {
         return moveDelay;
     }
 
+    /**
+     * Returns whether the enemy has recently collided with another entity.
+     *
+     * @return {@code true} if a collision occurred, {@code false} otherwise.
+     */
     public boolean hasCollided() {
         return hasCollided;
     }
 
     /**
-     * Returns whether the enemy is attacking/firing bullets.
+     * Returns whether the enemy is currently in an attacking state.
      *
      * @return {@code true} if attacking, {@code false} otherwise.
      */
     public boolean isAttacking() {
-        // TODO Write attack check logic
+        // TODO Write attack check logic based on the specific enemy type
         return false;
-        // if (bulletSpawner == null) {
-        //     return false;
-        // }
-        // return bulletSpawner.isSpawning();
     }
 
     /**
@@ -131,7 +138,7 @@ public abstract class Enemy extends MobileEntity {
     /**
      * Returns how many milliseconds of the attack cooldown have passed.
      *
-     * @return The elasped time.
+     * @return The elapsed cooldown time in milliseconds.
      */
     public long getElapsedAttackCooldownMs() {
         return elapsedAttackCooldownMs;
@@ -140,30 +147,35 @@ public abstract class Enemy extends MobileEntity {
     /**
      * Returns the last time the enemy was updated in milliseconds.
      *
-     * @return The last update time.
+     * @return The timestamp of the last update.
      */
     public long getLastUpdateTime() {
         return lastUpdateTime;
     }
 
     /**
-     * Returns how many seconds will be removed from the timer if Ali collides
-     * with this enemy.
+     * Returns how many seconds will be removed from the game timer if
+     * {@link Ali} collides with this enemy.
      *
-     * @return the time penalty.
+     * @return The time penalty in seconds.
      */
     public int getTimePenalty() {
         return timePenalty;
     }
 
+    /**
+     * Returns whether the enemy is currently not performing any movement.
+     *
+     * @return {@code true} if the enemy is idling, {@code false} otherwise.
+     */
     public boolean isIdling() {
         return isIdling;
     }
 
     // ---- SETTERS -----
     /**
-     * Sets the cooldown duration before the enemy can move again after a
-     * previous movement opportunity.
+     * Sets the cooldown duration (in game ticks) before the enemy can move
+     * again after a previous movement opportunity.
      *
      * @param moveDelay The movement delay.
      */
@@ -171,66 +183,66 @@ public abstract class Enemy extends MobileEntity {
         this.moveDelay = moveDelay;
     }
 
+    /**
+     * Sets whether the enemy has recently collided with another entity.
+     *
+     * @param hasCollided {@code true} if a collision occurred, {@code false}
+     * otherwise.
+     */
     public void setHasCollided(final boolean hasCollided) {
         this.hasCollided = hasCollided;
     }
 
     /**
-     * Sets whether the enemy is attacking.
+     * Sets whether the enemy is attacking. The specific implementation of
+     * attacking will depend on the enemy's behavior.
      *
      * @param isAttacking {@code true} if the enemy should start attacking,
      * {@code false} to stop.
+     * @throws IllegalArgumentException If the attack state is invalid for the
+     * enemy type.
      */
     public void setIsAttacking(final boolean isAttacking) throws IllegalArgumentException {
-        // TODO attack logic
+        // Implementation specific to the enemy type
     }
 
     /**
-     * Sets the entity's attack delay in milliseconds. Minimum value is 1 ms.
+     * Sets the entity's attack cooldown duration in milliseconds. The minimum
+     * value is 1 millisecond.
      *
-     * @param attackDelayMs The attack delay.
+     * @param attackCooldownMs The attack cooldown duration.
      */
-    public void setAttackCooldownMs(final long attackDelayMs) {
-        this.attackCooldownMs = Math.max(attackDelayMs, 1);
+    public void setAttackCooldownMs(final long attackCooldownMs) {
+        this.attackCooldownMs = Math.max(attackCooldownMs, 1);
     }
 
     /**
-     * Sets the coordinates on screen that the enemy should attack aim their
-     * attacks towards.
+     * Sets the coordinates on screen that the enemy should aim their attacks
+     * towards. The specific targeting logic depends on the enemy type.
      *
-     * @param target
+     * @param target The {@link Point} representing the target coordinates.
      */
     public void setTarget(final Point target) {
         if (target == null) {
             return;
         }
-        // TODO set target logic
-        // Point startCoords = getCentreCoordinates();
-        // Dimension bulletSpriteDimensions = bulletSpawner.getBulletSpriteDimensions();
-        // startCoords.x -= bulletSpriteDimensions.width / 2;
-        // startCoords.y -= bulletSpriteDimensions.height / 2;
-        // Bearing2D bearing = new Bearing2D(startCoords.x, startCoords.y, target.x, target.y);
-        // double radians = Math.toRadians(bearing.getDegrees());
-        // double currentBulletVelocityX = bulletSpawner.getBulletVelocityX();
-        // double currentBulletVelocityY = bulletSpawner.getBulletVelocityY();
-        // bulletSpawner.setBulletVelocityX(currentBulletVelocityX * Math.cos(radians));
-        // bulletSpawner.setBulletVelocityY(currentBulletVelocityY * Math.sin(radians));
+        // Targeting logic specific to the enemy type
     }
 
     /**
-     * Sets how many seconds will be removed from the timer if Ali collides with
-     * this enemy.
+     * Sets how many seconds will be removed from the game timer if {@link Ali}
+     * collides with this enemy.
      *
-     * @param timePenalty The time penalty.
+     * @param timePenalty The time penalty in seconds.
      */
     public void setTimePenalty(final int timePenalty) {
         this.timePenalty = timePenalty;
     }
 
     /**
-     * Sets whether the entity should currently idle (i.e., stop moving).
+     * Sets whether the entity should currently be idle (i.e., stop moving).
      *
-     * @param isIdling {@code true} is they should be idle, {@code false}
+     * @param isIdling {@code true} if they should be idle, {@code false}
      * otherwise.
      */
     public void setIsIdling(final boolean isIdling) {
@@ -239,17 +251,18 @@ public abstract class Enemy extends MobileEntity {
 
     // ----- BUSINESS LOGIC METHODS -----
     /**
-     * Checks whether the enemy can perform an attack.
+     * Checks whether the enemy is currently able to perform an attack. This
+     * typically involves checking if the enemy is not on attack cooldown and
+     * has attack time remaining in the current wave.
      *
-     * @return {@code true} if the enemy has a bullet spawner, is not on
-     * cooldown, and has remaining attack time in the current wave.
+     * @return {@code true} if the enemy can attack, {@code false} otherwise.
      */
     public boolean canAttack() {
         return !isOnAttackCooldown() && elapsedAttackTimeMs < attackTimerMs;
     }
 
     /**
-     * Checks if the attack cooldown is active.
+     * Checks if the attack cooldown period is currently active.
      *
      * @return {@code true} if the attack cooldown has not expired,
      * {@code false} otherwise.
@@ -259,49 +272,65 @@ public abstract class Enemy extends MobileEntity {
     }
 
     /**
-     * Performs an attack if the enemy is allowed to do so. Automatically stops
-     * attacking when the attack timer runs out.
+     * Initiates an attack if the enemy is allowed to do so. The specific attack
+     * behavior is implemented by the concrete enemy subclasses. This method
+     * also manages the attack timer and cooldown.
      */
     public void attack() {
         if (!canAttack()) {
             return;
         }
 
-        // bulletSpawner.start();  // Start firing bullets
         long attackStartTime = System.currentTimeMillis();
 
         while (System.currentTimeMillis() - attackStartTime < attackTimerMs) {
             updateAttackTimer();
+            // Perform attack action specific to the enemy type
         }
 
-        // bulletSpawner.stop();
         updateAttackCooldownTimer();
     }
 
     /**
-     * Reverses the enemy's movement direction.
+     * Reverses the enemy's current movement direction.
      */
     public void reverseMovementDirection() {
         setVelocityX(-getVelocityX());
         setVelocityY(-getVelocityY());
     }
 
+    /**
+     * Sets the enemy's world position directly.
+     *
+     * @param x The new x-coordinate in the game world.
+     * @param y The new y-coordinate in the game world.
+     */
     public void setWorldPosition(double x, double y) {
-        setX(x);
-        setY(y);
-    }
-    
-    public Rectangle getBounds() {
-        if (sprite == null) {
-            return new Rectangle((int) getX(), (int) getY(), 32, 32); // Default small size
-        }
-        return new Rectangle((int) getX(), (int) getY(),
-                (int) (sprite.getWidth() * getScale()),
-                (int) (sprite.getHeight() * getScale()));
+        setWorldX(x);
+        setWorldY(y);
     }
 
     /**
-     * Randomly sets the enemy's movement direction.
+     * Returns the bounding rectangle of the enemy for collision detection. The
+     * size of the rectangle is based on the current sprite and scale.
+     *
+     * @return A {@link Rectangle} representing the enemy's bounds.
+     */
+    public Rectangle getBounds() {
+        BufferedImage currentSprite = getCurrentSprite();
+        if (currentSprite == null) {
+            return new Rectangle((int) getX(), (int) getY(), 32, 32); // Default small size
+        }
+        return new Rectangle((int) getX(), (int) getY(),
+                (int) (currentSprite.getWidth() * getScale()),
+                (int) (currentSprite.getHeight() * getScale()));
+    }
+
+    /**
+     * Randomly sets the enemy's movement direction. Each component of the
+     * velocity (x and y) is set to -speed, 0, or +speed with equal probability,
+     * ensuring that the enemy will move in one of the eight cardinal or
+     * diagonal directions.
      */
     public void setRandomDirection() {
         int[] directions = {-1, 0, 1};
@@ -310,7 +339,7 @@ public abstract class Enemy extends MobileEntity {
         do {
             vx = directions[random.nextInt(3)];
             vy = directions[random.nextInt(3)];
-        } while (vx == 0 && vy == 0);
+        } while (vx == 0 && vy == 0); // Ensure the enemy is not stationary
 
         setVelocityX(vx * getSpeed());
         setVelocityY(vy * getSpeed());
@@ -333,13 +362,14 @@ public abstract class Enemy extends MobileEntity {
         }
         Enemy other = (Enemy) obj;
         return super.equals(other)
-                && Integer.compare(moveDelay, getMoveDelay()) == 0
-                && hasCollided == other.hasCollided()
+                && moveDelay == other.moveDelay
+                && hasCollided == other.hasCollided
                 && isAttacking() == other.isAttacking()
-                && Long.compare(attackCooldownMs, other.getAttackCooldownMs()) == 0
-                && Long.compare(elapsedAttackCooldownMs, other.getElapsedAttackCooldownMs()) == 0
-                && Long.compare(lastUpdateTime, other.getLastUpdateTime()) == 0
-                && Integer.compare(timePenalty, getTimePenalty()) == 0;
+                && attackCooldownMs == other.attackCooldownMs
+                && elapsedAttackCooldownMs == other.elapsedAttackCooldownMs
+                && lastUpdateTime == other.lastUpdateTime
+                && timePenalty == other.timePenalty
+                && isIdling == other.isIdling;
     }
 
     /**
@@ -357,20 +387,19 @@ public abstract class Enemy extends MobileEntity {
                 attackCooldownMs,
                 elapsedAttackCooldownMs,
                 lastUpdateTime,
-                timePenalty
+                timePenalty,
+                isIdling
         );
     }
 
     /**
-     * Updates the enntity's current position using their current movement speed
-     * values.
-     * <p>
-     * Extends {@link MobileEntity#move()} by ensuring the enemy still within
-     * screen boundaries.
+     * Updates the entity's current position based on its velocity. Also
+     * includes a chance for the enemy to randomly change direction and checks
+     * for screen boundaries, reversing the direction if necessary.
      */
     @Override
     public void move() {
-        if (moveDelay % 4 == 0) {
+        if (moveDelay % 4 == 0) { // Control movement speed
             super.move(); // Applies screen-coordinates adjusted movement
 
             // Chance to change direction randomly
@@ -388,31 +417,38 @@ public abstract class Enemy extends MobileEntity {
     }
 
     /**
-     * Updates the state of the entity, including movement and attack state.
+     * Updates the state of the enemy, including any specific behaviors like
+     * attacking or idling.
      */
     @Override
     public void update() {
         super.update();
-        // lastUpdateTime = System.currentTimeMillis();
-        // attack();
+        // lastUpdateTime = System.currentTimeMillis(); // Moved to specific update methods
+        // attack(); // Attack logic should be triggered based on game state, not just update
     }
 
     /**
-     * Ensures the entity remains within screen boundaries.
-     * <p>
-     * Extends {@link MobileEntity#correctPosition()} by adding vertical bounce
-     * behavior when the enemy reaches the screen's edges.
+     * Ensures the enemy remains within the bounds of its containing panel. If
+     * the enemy reaches a vertical boundary, its vertical velocity is reversed,
+     * creating a bouncing effect.
      */
     @Override
     protected void correctPosition() {
         super.correctPosition(); // Use inherited boundary correction
-        verticalScreenBounce(); // Add bouncing behavior
+        verticalScreenBounce(); // Add vertical bouncing behavior
     }
 
+    /**
+     * Renders the enemy at its current position, taking into account its scale.
+     *
+     * @param g2d The {@link Graphics2D} object used for rendering.
+     */
     @Override
     public void safeRender(Graphics2D g2d) {
         BufferedImage currentSprite = getCurrentSprite();
-        if (currentSprite == null) return;
+        if (currentSprite == null) {
+            return;
+        }
 
         int width = (int) (currentSprite.getWidth() * getScale());
         int height = (int) (currentSprite.getHeight() * getScale());
@@ -422,8 +458,8 @@ public abstract class Enemy extends MobileEntity {
 
     // ---- HELPER METHODS -----
     /**
-     * Reverses the enemy's horizontal velocity when hitting the left or right
-     * screen boundary, simulating a wall bounce.
+     * Reverses the enemy's vertical velocity if it reaches the top or bottom
+     * boundary of the screen, creating a bounce effect.
      */
     private void verticalScreenBounce() {
         int panelHeight = panel.getHeight();
@@ -431,17 +467,19 @@ public abstract class Enemy extends MobileEntity {
 
         if (position.y <= 0 || position.y >= panelHeight - spriteHeight) {
             velocityY = -velocityY; // Reverse direction
-            position.y = Math.max(Math.min(position.y, 0), panelHeight - spriteHeight); // Keep within bounds
+            position.y = Math.max(0, Math.min(position.y, panelHeight - spriteHeight)); // Keep within bounds
         }
     }
 
     /**
-     * Updates the attack cooldown timer. This tracks how much time has passed
-     * since the last attack.
+     * Updates the attack cooldown timer by calculating the elapsed time since
+     * the last update. If the cooldown period has passed, the elapsed cooldown
+     * time is reset.
      */
     private void updateAttackCooldownTimer() {
         long currentTime = System.currentTimeMillis();
-        elapsedAttackCooldownMs += currentTime - lastUpdateTime;
+        elapsedAttackCooldownMs += currentTime - (lastUpdateTime > 0 ? lastUpdateTime : currentTime);
+        lastUpdateTime = currentTime;
 
         // Reset if cooldown has passed
         if (elapsedAttackCooldownMs >= attackCooldownMs) {
@@ -450,33 +488,55 @@ public abstract class Enemy extends MobileEntity {
     }
 
     /**
-     * Updates the attack timer. This tracks how long the enemy has been
-     * continuously attacking.
+     * Updates the attack timer by calculating the elapsed time since the last
+     * update.
      */
     private void updateAttackTimer() {
         long currentTime = System.currentTimeMillis();
-        elapsedAttackTimeMs += currentTime - lastUpdateTime;
+        elapsedAttackTimeMs += currentTime - (lastUpdateTime > 0 ? lastUpdateTime : currentTime);
+        lastUpdateTime = currentTime;
     }
 
     // ----- STATIC BUILDER FOR ENEMY -----
+    /**
+     * A builder class for creating instances of {@link Enemy}. Subclasses of
+     * {@code Enemy} should extend this builder to add their specific
+     * properties.
+     *
+     * @param <T> The specific type of the builder, allowing for method chaining
+     * in subclasses.
+     */
     public static class EnemyBuilder<T extends MobileEntityBuilder<T>> extends MobileEntityBuilder<T> {
 
         // ----- INSTANCE VARIABLES -----
+        /**
+         * The time penalty to apply upon collision with this enemy. Defaults to
+         * 0.
+         */
         private int timePenalty = 0;
+        /**
+         * Whether the enemy should start in an idling state. Defaults to false.
+         */
         private boolean isIdling = false;
 
         // ----- CONSTRUCTOR -----
+        /**
+         * Constructs a new {@code EnemyBuilder} with the specified containing
+         * panel.
+         *
+         * @param panel The {@link JPanel} that will contain the enemy.
+         */
         public EnemyBuilder(JPanel panel) {
             super(panel);
         }
 
         // ----- SETTERS -----
         /**
-         * Sets how many seconds to remove from the timer if Ali collides with
-         * this enemy.
+         * Sets the time penalty (in seconds) to apply to the game timer if
+         * {@link Ali} collides with the enemy being built.
          *
-         * @param timePenalty the time penalty.
-         * @return the builder instance.
+         * @param timePenalty The time penalty.
+         * @return The builder instance.
          */
         public T timePenalty(final int timePenalty) {
             this.timePenalty = timePenalty;
@@ -484,11 +544,12 @@ public abstract class Enemy extends MobileEntity {
         }
 
         /**
-         * Sets whether the entity should currently idle (i.e., stop moving).
+         * Sets whether the enemy being built should start in an idling state
+         * (not moving).
          *
-         * @param isIdling {@code true} is they should be idle, {@code false}
-         * otherwise.
-         * @return the builder instance.
+         * @param isIdling {@code true} if the enemy should be idle initially,
+         * {@code false} otherwise.
+         * @return The builder instance.
          */
         public T setIsIdling(final boolean isIdling) {
             this.isIdling = isIdling;

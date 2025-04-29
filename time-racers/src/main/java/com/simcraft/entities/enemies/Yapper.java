@@ -6,11 +6,6 @@ import java.util.stream.Stream;
 
 import javax.swing.JPanel;
 
-// public class Yapper extends Enemy {
-//     public Yapper(JPanel panel, int xPos, int yPos, Image backgroundImage) {
-//         super(panel, xPos, yPos, 4, "Yapper/yap", backgroundImage); // Fast speed
-//     }
-// }
 /**
  * Represents a Yapper enemy in the game.
  * <p>
@@ -28,13 +23,13 @@ public class Yapper extends Enemy {
     public Yapper(YapperBuilder builder) {
         super(builder);
 
-        HashSet<String> studentAnimationKeys = Stream.of(
+        HashSet<String> yapperAnimationKeys = Stream.of(
                 "yapper_walk_down",
                 "yapper_walk_left",
                 "yapper_walk_right",
                 "yapper_walk_up"
         ).collect(Collectors.toCollection(HashSet::new));
-        setAnimationKeys(studentAnimationKeys);
+        setAnimationKeys(yapperAnimationKeys);
 
         // Temporary initial animation; will be updated dynamically during movement
         setAnimation("yapper_walk_down");
@@ -45,13 +40,8 @@ public class Yapper extends Enemy {
 
     // ----- OVERRIDDEN METHODS -----
     /**
-     * Replace with actual movement logic
-     *
-     * Extends {@link Enemy#move()} by applying a cosine function to oscillate
-     * the y-coordinate with a given amplitude.
-     * <p>
-     * The final y-coordinate is clamped to stay within the desired range of 1/5
-     * to 3/5 of the screen height.
+     * Extends {@link Enemy#move()} to update the yapper's animation based on
+     * their current movement direction.
      */
     @Override
     public void move() {
@@ -59,47 +49,49 @@ public class Yapper extends Enemy {
 
         double vx = getVelocityX();
         double vy = getVelocityY();
+        double threshold = 0.1; // Minimum velocity to trigger animation change
 
-        // Determine direction and set animation
-        if (Math.abs(vx) > Math.abs(vy)) {
-            if (vx > 0) {
-                setAnimation("yapper_walk_right");
-            } else if (vx < 0) {
-                setAnimation("yapper_walk_left");
-            }
-        } else {
-            if (vy > 0) {
-                setAnimation("yapper_walk_down");
-            } else if (vy < 0) {
-                setAnimation("yapper_walk_up");
+        if (Math.abs(vx) > threshold || Math.abs(vy) > threshold) {
+            if (Math.abs(vx) > Math.abs(vy)) {
+                if (vx > 0) {
+                    setAnimation("yapper_walk_right");
+                } else if (vx < 0) {
+                    setAnimation("yapper_walk_left");
+                }
+            } else {
+                if (vy > 0) {
+                    setAnimation("yapper_walk_down");
+                } else if (vy < 0) {
+                    setAnimation("yapper_walk_up");
+                }
             }
         }
-
-        // TODO Replace with actual movement logic
-        // // Get the normalized cosine value in the range [-1, 1]
-        // double normalizedCos = Math.cos(position.y);
-        // double amplitude = 50;
-        // // Oscillate within the range, using the amplitude to determine the oscillation
-        // double oscillatedY = amplitude * GameFrame.FRAME_HEIGHT * normalizedCos;
-        // // Clamp the result to stay within the limits [1/5 * GameFrame.FRAME_HEIGHT, 3/5 * GameFrame.FRAME_HEIGHT]
-        // position.y = (int) Math.max(
-        //         Math.min(
-        //                 oscillatedY + (1.0 / 5.0) * GameFrame.FRAME_HEIGHT,
-        //                 (1.0 / 5.0) * GameFrame.FRAME_HEIGHT
-        //         ),
-        //         (3.0 / 5.0) * GameFrame.FRAME_HEIGHT
-        // );
     }
 
-    // ----- STATIC BUILDER FOR ENEMY -----
+    // ----- STATIC BUILDER FOR YAPPER -----
+    /**
+     * A builder class for creating instances of {@link Yapper}. Extends
+     * {@link EnemyBuilder} to inherit common enemy properties.
+     */
     public static class YapperBuilder extends EnemyBuilder<YapperBuilder> {
 
         // ----- CONSTRUCTOR -----
+        /**
+         * Constructs a new {@code YapperBuilder} with the specified panel.
+         *
+         * @param panel The {@link JPanel} that will contain the Yapper.
+         */
         public YapperBuilder(JPanel panel) {
             super(panel);
         }
 
-        // ----- OVERRIDDEN METHODS -----
+        // ----- BUSINESS LOGIC METHODS -----
+        /**
+         * Builds and returns a new {@link Yapper} instance using the properties
+         * configured in this builder.
+         *
+         * @return A new {@link Yapper} instance.
+         */
         public Yapper build() {
             return new Yapper(this);
         }

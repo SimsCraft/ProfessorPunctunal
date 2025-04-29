@@ -4,8 +4,10 @@ C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Gam
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\interfaces\Updateable.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\screens\WelcomeScreen.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\entities\enemies\Lecturer.java
+C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\entities\EnterClassroom.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\animations\AnimationFrame.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\entities\enemies\Yapper.java
+C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\entities\TeleportArrow.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\screens\GameplayScreen.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\levels\LevelConfig.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\managers\GameManager.java
@@ -23,7 +25,6 @@ C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Gam
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\entities\Ali.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\managers\EnemyManager.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\animations\AnimationInstance.java
-C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\screens\subpanels\TimerPanel.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\entities\Entity.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\screens\subpanels\InfoPanel.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\states\GameState.java
@@ -31,7 +32,6 @@ C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Gam
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\effects\TimedVisualEffect.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\utility\ButtonUtil.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\entities\enemies\Enemy.java
-C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\animations\NPCAnimation.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\dialogue_panels\PauseMenuDialogue.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\effects\sprite_effects\HitFlashEffect.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\dialogue_panels\GameOverDialogue.java
@@ -43,5 +43,5 @@ C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Gam
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\managers\FontManager.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\interfaces\Renderable.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\levels\LevelType.java
-C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\graphics\animations\AliAnimation.java
 C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\entities\enemies\Student.java
+C:\Users\STMPW\Documents\Undergrad\Year 3 - 2024-2025\Semester 2\COMP 3609 - Game Programming\Project\ProfessorPunctunal\time-racers\src\main\java\com\simcraft\entities\FloatingText.java
