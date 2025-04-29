@@ -187,6 +187,15 @@ public class GameManager implements Updateable {
         }
     }
 
+    /**
+     * Sets the remaining seconds to the absolute value of the passed parameter.
+     *
+     * @param remainingSeconds
+     */
+    public void setRemainingSeconds(final int remainingSeconds) {
+        this.remainingSeconds = Math.abs(remainingSeconds);
+    }
+
     // ----- BUSINESS LOGIC METHODS -----
     /**
      * Initializes the GameManager for a new game. This method must be called

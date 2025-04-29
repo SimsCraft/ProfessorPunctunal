@@ -1,6 +1,7 @@
 package com.simcraft.levels;
 
 import java.awt.Color;
+import java.util.List;
 
 /**
  * Represents the configuration settings for a specific game level.
@@ -14,14 +15,17 @@ import java.awt.Color;
  * - Player settings
  * </p>
  */
+
+
 public class LevelConfig {
 
-    private final String backgroundImagePath;   // Path to the background image file
+    private final List<String> backgroundImagePaths;   // Path to the background image file
     private final String musicClipName;         // Name of the sound clip to play during this level
     private final int levelTimeLimitSeconds;    // Time (in seconds) allowed to complete this level
     private final int maxEnemies;               // Maximum number of enemies allowed on screen
     private final int playerSpeed;              // Speed of the player character in this level
     private final Color backgroundColor;        // Fallback background color (if image fails to load)
+    private final LevelType levelType;
 
     /**
      * Constructor to initialize all configuration properties for a level.
@@ -33,24 +37,27 @@ public class LevelConfig {
      * @param playerSpeed          Player movement speed during this level.
      * @param backgroundColor      Background color if image doesn't load.
      */
-    public LevelConfig(String backgroundImagePath,
+    public LevelConfig(List<String> backgroundImagePaths,
                        String musicClipName,
                        int levelTimeLimitSeconds,
                        int maxEnemies,
                        int playerSpeed,
-                       Color backgroundColor) {
-        this.backgroundImagePath = backgroundImagePath;
+                       Color backgroundColor,
+                       LevelType levelType) {
+        this.backgroundImagePaths = backgroundImagePaths;
         this.musicClipName = musicClipName;
         this.levelTimeLimitSeconds = levelTimeLimitSeconds;
         this.maxEnemies = maxEnemies;
         this.playerSpeed = playerSpeed;
         this.backgroundColor = backgroundColor;
+        this.levelType = levelType;
     }
 
     // ----- GETTERS -----
 
-    public String getBackgroundImagePath() {
-        return backgroundImagePath;
+
+    public List<String> getBackgroundImagePaths() {
+        return backgroundImagePaths;
     }
 
     public String getMusicClipName() {
@@ -71,5 +78,9 @@ public class LevelConfig {
 
     public Color getBackgroundColor() {
         return backgroundColor;
+    }
+
+    public LevelType getLevelType() {
+        return levelType;
     }
 }

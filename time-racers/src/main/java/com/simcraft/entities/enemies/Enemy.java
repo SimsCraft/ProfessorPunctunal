@@ -1,6 +1,8 @@
 package com.simcraft.entities.enemies;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.util.Objects;
 import java.util.Random;
 
@@ -389,6 +391,17 @@ public abstract class Enemy extends MobileEntity {
     protected void correctPosition() {
         super.correctPosition(); // Use inherited boundary correction
         verticalScreenBounce(); // Add bouncing behavior
+    }
+
+    @Override
+    public void safeRender(Graphics2D g2d) {
+        BufferedImage currentSprite = getCurrentSprite();
+        if (currentSprite == null) return;
+
+        int width = (int) (currentSprite.getWidth() * getScale());
+        int height = (int) (currentSprite.getHeight() * getScale());
+
+        g2d.drawImage(currentSprite, (int) getX(), (int) getY(), width, height, null);
     }
 
     // ---- HELPER METHODS -----
